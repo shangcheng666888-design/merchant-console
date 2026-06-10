@@ -376,7 +376,7 @@ const MerchantBackendLayoutInner: React.FC = () => {
                 className={`mc-bottom-nav-item${isActive ? ' mc-bottom-nav-item--active' : ''}`}
               >
                 <span className="mc-bottom-nav-icon-wrap">
-                  <MerchantNavIcon name={item.icon} className="mc-bottom-nav-icon" />
+                  <MerchantNavIcon name={item.icon} className="mc-bottom-nav-icon" active={isActive} />
                   {item.badge != null && item.badge > 0 && (
                     <span className="mc-bottom-nav-badge">
                       {item.badge > 99 ? '99+' : item.badge}
