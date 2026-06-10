@@ -46,6 +46,48 @@ function MetricTile({ value, label }: { value: React.ReactNode; label: string })
   )
 }
 
+function HeroIcon({ name }: { name: 'rating' | 'credit' | 'followers' | 'sales' | 'orders' | 'profit' }) {
+  const paths: Record<'rating' | 'credit' | 'followers' | 'sales' | 'orders' | 'profit', React.ReactNode> = {
+    rating: <path d="M12 3.2l2.2 4.5 4.9.7-3.5 3.4.8 4.9L12 14.8 7.6 16.7l.8-4.9-3.5-3.4 4.9-.7L12 3.2z" fill="currentColor" />,
+    credit: (
+      <>
+        <path d="M12 4.2 5.8 7.2v5.6c0 3.2 2.7 6.2 6.2 7.2 3.5-1 6.2-4 6.2-7.2V7.2L12 4.2z" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <path d="M9.2 12.2 11 14l3.8-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    ),
+    followers: (
+      <>
+        <circle cx="9" cy="9.5" r="2.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <circle cx="15.5" cy="10.2" r="1.8" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <path d="M5.8 17.2c.8-2.2 2.6-3.4 4.2-3.4s3.4 1.2 4.2 3.4M13.1 17.2c.5-1.5 1.6-2.4 2.9-2.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      </>
+    ),
+    sales: (
+      <>
+        <circle cx="12" cy="12" r="7.2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <path d="M12 8v4l2.8 1.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </>
+    ),
+    orders: (
+      <>
+        <path d="M8 5.2h8l1.4 2v10.4c0 .6-.5 1-1 1H7.6c-.5 0-1-.4-1-1V7.2L8 5.2z" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <path d="M9 5.2v2h6V5.2M9.2 12h5.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      </>
+    ),
+    profit: (
+      <>
+        <path d="M6 16.2V9.8l3-2.2 3 1.8 4-3.4v7.2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
+        <path d="M6 16.2h12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      </>
+    ),
+  }
+  return (
+    <svg className="merchant-dashboard-hero-metric-icon-svg" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      {paths[name]}
+    </svg>
+  )
+}
+
 const MerchantDashboard: React.FC = () => {
   const navigate = useNavigate()
   const { lang } = useLang()
@@ -263,11 +305,22 @@ const MerchantDashboard: React.FC = () => {
       <section className="merchant-dashboard-hero merchant-dashboard-hero--v2">
         <div className="merchant-dashboard-hero-bg" aria-hidden="true" />
         <div className="merchant-dashboard-hero-shine" aria-hidden="true" />
+        <div className="merchant-dashboard-hero-grid" aria-hidden="true" />
+        <div className="merchant-dashboard-hero-orb" aria-hidden="true" />
+        <span className="merchant-dashboard-hero-corner merchant-dashboard-hero-corner--tl" aria-hidden="true" />
+        <span className="merchant-dashboard-hero-corner merchant-dashboard-hero-corner--br" aria-hidden="true" />
+
         <div className="merchant-dashboard-hero-inner">
           <div className="merchant-dashboard-hero-head">
-            <span className="merchant-dashboard-hero-eyebrow">
-              {lang === 'zh' ? '数据仪表盘' : 'Dashboard'}
-            </span>
+            <div className="merchant-dashboard-hero-head-bar">
+              <span className="merchant-dashboard-hero-eyebrow">
+                {lang === 'zh' ? '数据仪表盘' : 'Dashboard'}
+              </span>
+              <span className="merchant-dashboard-hero-live">
+                <span className="merchant-dashboard-hero-live-dot" aria-hidden="true" />
+                {lang === 'zh' ? '实时同步' : 'Live sync'}
+              </span>
+            </div>
             <h2 className="merchant-dashboard-hero-title">
               {lang === 'zh' ? '今日店铺概况' : 'Today at a glance'}
             </h2>
@@ -276,49 +329,115 @@ const MerchantDashboard: React.FC = () => {
                 ? '实时掌握店铺经营健康度与今日表现'
                 : 'Real-time view of shop health and today\'s performance'}
             </p>
-          </div>
-
-          <div className="merchant-dashboard-hero-shop-row">
-            <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--rating">
-              <span className="merchant-dashboard-hero-shop-label">
-                {lang === 'zh' ? '好评率' : 'Rating'}
+            <div className="merchant-dashboard-hero-tags-row">
+              <span className="merchant-dashboard-hero-tag-pill">
+                {lang === 'zh' ? '健康指数' : 'Health index'}
+                <strong>{Math.round((goodRate + Math.min(creditScore, 100)) / 2)}</strong>
               </span>
-              <span className="merchant-dashboard-hero-shop-value">{goodRate.toFixed(1)}%</span>
-            </div>
-            <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
-            <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--credit">
-              <span className="merchant-dashboard-hero-shop-label">
-                {lang === 'zh' ? '信用分' : 'Credit'}
+              <span className="merchant-dashboard-hero-tag-pill merchant-dashboard-hero-tag-pill--muted">
+                {lang === 'zh' ? '7日趋势' : '7-day trend'}
+                <strong>{lang === 'zh' ? '稳定' : 'Stable'}</strong>
               </span>
-              <span className="merchant-dashboard-hero-shop-value">{creditScore}</span>
-            </div>
-            <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
-            <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--followers">
-              <span className="merchant-dashboard-hero-shop-label">
-                {lang === 'zh' ? '关注' : 'Followers'}
-              </span>
-              <span className="merchant-dashboard-hero-shop-value">{followers}</span>
             </div>
           </div>
 
-          <div className="merchant-dashboard-hero-today-row">
-            <div className="merchant-dashboard-hero-today-item merchant-dashboard-hero-today-item--sales">
-              <span className="merchant-dashboard-hero-today-label">
-                {lang === 'zh' ? '今日销售额' : "Today's sales"}
-              </span>
-              <span className="merchant-dashboard-hero-today-value">${todaySales.toFixed(2)}</span>
+          <div className="merchant-dashboard-hero-data">
+            <div className="merchant-dashboard-hero-block">
+              <div className="merchant-dashboard-hero-block-head">
+                <span className="merchant-dashboard-hero-block-title">
+                  {lang === 'zh' ? '店铺健康度' : 'Shop health'}
+                </span>
+                <span className="merchant-dashboard-hero-block-code">SHOP · METRICS</span>
+              </div>
+              <div className="merchant-dashboard-hero-shop-row">
+                <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--rating">
+                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--rating">
+                    <HeroIcon name="rating" />
+                  </span>
+                  <div className="merchant-dashboard-hero-shop-text">
+                    <span className="merchant-dashboard-hero-shop-label">
+                      {lang === 'zh' ? '好评率' : 'Rating'}
+                    </span>
+                    <span className="merchant-dashboard-hero-shop-value">{goodRate.toFixed(1)}%</span>
+                  </div>
+                  <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
+                    <span className="merchant-dashboard-hero-microbar-fill" style={{ width: `${goodRate}%` }} />
+                  </span>
+                </div>
+                <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
+                <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--credit">
+                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--credit">
+                    <HeroIcon name="credit" />
+                  </span>
+                  <div className="merchant-dashboard-hero-shop-text">
+                    <span className="merchant-dashboard-hero-shop-label">
+                      {lang === 'zh' ? '信用分' : 'Credit'}
+                    </span>
+                    <span className="merchant-dashboard-hero-shop-value">{creditScore}</span>
+                  </div>
+                  <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
+                    <span className="merchant-dashboard-hero-microbar-fill" style={{ width: `${Math.min(creditScore, 100)}%` }} />
+                  </span>
+                </div>
+                <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
+                <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--followers">
+                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--followers">
+                    <HeroIcon name="followers" />
+                  </span>
+                  <div className="merchant-dashboard-hero-shop-text">
+                    <span className="merchant-dashboard-hero-shop-label">
+                      {lang === 'zh' ? '关注' : 'Followers'}
+                    </span>
+                    <span className="merchant-dashboard-hero-shop-value">{followers}</span>
+                  </div>
+                  <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
+                    <span
+                      className="merchant-dashboard-hero-microbar-fill merchant-dashboard-hero-microbar-fill--violet"
+                      style={{ width: `${Math.min(100, followers * 5)}%` }}
+                    />
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="merchant-dashboard-hero-today-item">
-              <span className="merchant-dashboard-hero-today-label">
-                {lang === 'zh' ? '今日订单' : 'Orders'}
-              </span>
-              <span className="merchant-dashboard-hero-today-value">{todayOrders}</span>
-            </div>
-            <div className="merchant-dashboard-hero-today-item">
-              <span className="merchant-dashboard-hero-today-label">
-                {lang === 'zh' ? '预计利润' : 'Profit'}
-              </span>
-              <span className="merchant-dashboard-hero-today-value">${todayProfit.toFixed(2)}</span>
+
+            <div className="merchant-dashboard-hero-block">
+              <div className="merchant-dashboard-hero-block-head">
+                <span className="merchant-dashboard-hero-block-title">
+                  {lang === 'zh' ? '今日交易' : 'Today\'s trading'}
+                </span>
+                <span className="merchant-dashboard-hero-block-code merchant-dashboard-hero-block-code--gold">
+                  {lang === 'zh' ? '实时' : 'LIVE'} · {new Date().toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+              <div className="merchant-dashboard-hero-today-row">
+                <div className="merchant-dashboard-hero-today-item merchant-dashboard-hero-today-item--sales">
+                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--sales">
+                    <HeroIcon name="sales" />
+                  </span>
+                  <span className="merchant-dashboard-hero-today-label">
+                    {lang === 'zh' ? '今日销售额' : "Today's sales"}
+                  </span>
+                  <span className="merchant-dashboard-hero-today-value">${todaySales.toFixed(2)}</span>
+                </div>
+                <div className="merchant-dashboard-hero-today-item">
+                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--orders">
+                    <HeroIcon name="orders" />
+                  </span>
+                  <span className="merchant-dashboard-hero-today-label">
+                    {lang === 'zh' ? '今日订单' : 'Orders'}
+                  </span>
+                  <span className="merchant-dashboard-hero-today-value">{todayOrders}</span>
+                </div>
+                <div className="merchant-dashboard-hero-today-item">
+                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--profit">
+                    <HeroIcon name="profit" />
+                  </span>
+                  <span className="merchant-dashboard-hero-today-label">
+                    {lang === 'zh' ? '预计利润' : 'Profit'}
+                  </span>
+                  <span className="merchant-dashboard-hero-today-value">${todayProfit.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
