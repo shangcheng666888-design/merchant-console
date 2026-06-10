@@ -422,6 +422,13 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 
+.merchant-dashboard-hero.merchant-dashboard-hero--v2 {
+  display: block !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+}
+
 .merchant-dashboard-hero--v2 {
   background: transparent !important;
 }
@@ -1356,6 +1363,11 @@
   padding: 1.15rem 1.25rem 1.2rem !important;
   border-radius: 18px !important;
   margin-bottom: 1rem;
+  display: block !important;
+}
+
+.merchant-dashboard-hero--v2 .merchant-dashboard-hero-inner {
+  width: 100%;
 }
 
 .merchant-dashboard-hero-grid {
@@ -1693,74 +1705,124 @@
 
 @media (min-width: 769px) {
   .merchant-dashboard-hero--v2 {
-    padding: 1.3rem 1.55rem 1.35rem !important;
+    padding: 1.25rem 1.45rem 1.3rem !important;
   }
 
   .merchant-dashboard-hero-orb {
-    width: 280px;
-    height: 280px;
-    top: -35%;
-    right: 5%;
+    width: 240px;
+    height: 240px;
+    top: -40%;
+    right: 2%;
+    opacity: 0.85;
   }
 
   .merchant-dashboard-hero-inner {
     display: grid;
-    grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
-    column-gap: 1.75rem;
+    grid-template-columns: minmax(220px, 0.78fr) minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 1rem;
     row-gap: 0;
     align-items: stretch;
   }
 
   .merchant-dashboard-hero-head {
     grid-column: 1;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-right: 1.25rem;
+    padding-right: 1rem;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
   }
 
+  .merchant-dashboard-hero-head-bar {
+    flex-wrap: wrap;
+  }
+
+  .merchant-dashboard-hero-live {
+    margin-left: auto;
+  }
+
   .merchant-dashboard-hero-data {
-    grid-column: 2;
-    gap: 0.7rem;
-    justify-content: center;
+    grid-column: 2 / 4;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+    min-width: 0;
   }
 
-  .merchant-dashboard-hero--v2 .merchant-dashboard-hero-title {
-    font-size: 1.48rem;
+  .merchant-dashboard-hero-block {
+    display: flex;
+    flex-direction: column;
+    min-height: 148px;
+    height: 100%;
+    min-width: 0;
   }
 
-  .merchant-dashboard-hero--v2 .merchant-dashboard-hero-subtitle {
-    font-size: 0.84rem;
-  }
-
-  .merchant-dashboard-hero-shop-item {
-    padding: 0.25rem 0.5rem;
-  }
-
-  .merchant-dashboard-hero-shop-value {
-    font-size: 1rem;
-  }
-
-  .merchant-dashboard-hero-microbar {
-    max-width: 88px;
+  .merchant-dashboard-hero-shop-row {
+    flex: 1;
+    align-items: center;
   }
 
   .merchant-dashboard-hero-today-row {
-    grid-template-columns: 1.15fr 1fr 1fr;
-    gap: 0.6rem;
+    flex: 1;
+    align-items: stretch;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
   }
 
-  .merchant-dashboard-hero-today-item {
-    padding: 0.65rem 0.7rem;
+  .merchant-dashboard-hero--v2 .merchant-dashboard-hero-title {
+    font-size: 1.38rem;
   }
 
-  .merchant-dashboard-hero-today-value {
+  .merchant-dashboard-hero--v2 .merchant-dashboard-hero-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .merchant-dashboard-hero-shop-item {
+    padding: 0.35rem 0.45rem;
+  }
+
+  .merchant-dashboard-hero-shop-text {
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+
+  .merchant-dashboard-hero-shop-value {
     font-size: 1.05rem;
   }
 
+  .merchant-dashboard-hero-microbar {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .merchant-dashboard-hero-today-item {
+    justify-content: center;
+    padding: 0.7rem 0.75rem;
+  }
+
+  .merchant-dashboard-hero-today-value {
+    font-size: 1.08rem;
+  }
+
   .merchant-dashboard-hero-today-item--sales .merchant-dashboard-hero-today-value {
-    font-size: 1.22rem;
+    font-size: 1.26rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .merchant-dashboard-hero-inner {
+    grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 1.15rem;
+  }
+
+  .merchant-dashboard-hero-data {
+    gap: 1.15rem;
+  }
+
+  .merchant-dashboard-hero-block {
+    min-height: 156px;
   }
 }
 
