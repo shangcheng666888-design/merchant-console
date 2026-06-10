@@ -52,6 +52,7 @@ const MerchantDashboard: React.FC = () => {
   const [todayProfit, setTodayProfit] = useState(0)
   const [chartData, setChartData] = useState(EMPTY_CHART_DATA)
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
+  const [overviewTab, setOverviewTab] = useState<'shop' | 'traffic' | 'today'>('shop')
 
   useEffect(() => {
     const readAuth = (): { shopId: string } | null => {
@@ -277,36 +278,37 @@ const MerchantDashboard: React.FC = () => {
         </div>
       </section>
 
-      <section className="merchant-dashboard-stats">
-        <div className="merchant-dashboard-stat">
+      <section className="merchant-dashboard-stats merchant-dashboard-stats--v2">
+        <div className="merchant-dashboard-stat merchant-dashboard-stat--products">
+          <span className="merchant-dashboard-stat-icon" aria-hidden="true">📦</span>
           <span className="merchant-dashboard-stat-value">{productCount}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '商品总数' : 'Total products'}
           </span>
         </div>
-        <div className="merchant-dashboard-stat-divider" aria-hidden="true" />
-        <div className="merchant-dashboard-stat">
+        <div className="merchant-dashboard-stat merchant-dashboard-stat--sales">
+          <span className="merchant-dashboard-stat-icon" aria-hidden="true">💵</span>
           <span className="merchant-dashboard-stat-value">${totalSales.toFixed(2)}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '销售总额' : 'Total sales'}
           </span>
         </div>
-        <div className="merchant-dashboard-stat-divider" aria-hidden="true" />
-        <div className="merchant-dashboard-stat">
+        <div className="merchant-dashboard-stat merchant-dashboard-stat--orders">
+          <span className="merchant-dashboard-stat-icon" aria-hidden="true">🧾</span>
           <span className="merchant-dashboard-stat-value">{orderCount}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '总订单' : 'Total orders'}
           </span>
         </div>
-        <div className="merchant-dashboard-stat-divider" aria-hidden="true" />
-        <div className="merchant-dashboard-stat">
+        <div className="merchant-dashboard-stat merchant-dashboard-stat--profit">
+          <span className="merchant-dashboard-stat-icon" aria-hidden="true">📈</span>
           <span className="merchant-dashboard-stat-value">${totalProfit.toFixed(2)}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '总利润' : 'Total profit'}
           </span>
         </div>
-        <div className="merchant-dashboard-stat-divider" aria-hidden="true" />
-        <div className="merchant-dashboard-stat merchant-dashboard-stat--pending">
+        <div className="merchant-dashboard-stat merchant-dashboard-stat--pending merchant-dashboard-stat--highlight">
+          <span className="merchant-dashboard-stat-icon" aria-hidden="true">⏳</span>
           <span className="merchant-dashboard-stat-value">{pendingOrdersCount}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '待处理订单' : 'Pending orders'}
@@ -321,8 +323,8 @@ const MerchantDashboard: React.FC = () => {
             </button>
           )}
         </div>
-        <div className="merchant-dashboard-stat-divider" aria-hidden="true" />
-        <div className="merchant-dashboard-stat">
+        <div className="merchant-dashboard-stat merchant-dashboard-stat--unsettled">
+          <span className="merchant-dashboard-stat-icon" aria-hidden="true">🏦</span>
           <span className="merchant-dashboard-stat-value">${unsettledAmount.toFixed(2)}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '待结算金额' : 'Unsettled amount'}
@@ -330,7 +332,117 @@ const MerchantDashboard: React.FC = () => {
         </div>
       </section>
 
-      <section className="merchant-dashboard-overviews">
+      {pendingOrdersCount > 0 && (
+        <button
+          type="button"
+          className="merchant-dashboard-pending-bar"
+          onClick={() => navigate('/orders')}
+        >
+          <span className="merchant-dashboard-pending-bar-text">
+            {lang === 'zh'
+              ? `您有 ${pendingOrdersCount} 笔待处理订单`
+              : `${pendingOrdersCount} pending order(s) need attention`}
+          </span>
+          <span className="merchant-dashboard-pending-bar-action">
+            {lang === 'zh' ? '去处理 →' : 'View →'}
+          </span>
+        </button>
+      )}
+
+      <section className="merchant-dashboard-segments" aria-label={lang === 'zh' ? '数据概况' : 'Overview'}>
+        <div className="merchant-dashboard-segments-tabs" role="tablist">
+          {(
+            [
+              { id: 'shop' as const, zh: '店铺概况', en: 'Shop' },
+              { id: 'traffic' as const, zh: '流量概况', en: 'Traffic' },
+              { id: 'today' as const, zh: '今日概况', en: 'Today' },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={overviewTab === tab.id}
+              className={`merchant-dashboard-segments-tab${
+                overviewTab === tab.id ? ' merchant-dashboard-segments-tab--active' : ''
+              }`}
+              onClick={() => setOverviewTab(tab.id)}
+            >
+              {lang === 'zh' ? tab.zh : tab.en}
+            </button>
+          ))}
+        </div>
+        <div className="merchant-dashboard-segments-panel" role="tabpanel">
+          {overviewTab === 'shop' && (
+            <>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">{goodRate.toFixed(1)}%</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '好评率' : 'Good rating'}
+                </span>
+              </div>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">{creditScore}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '卖家信用分' : 'Credit score'}
+                </span>
+              </div>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">{followers}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '店铺关注' : 'Followers'}
+                </span>
+              </div>
+            </>
+          )}
+          {overviewTab === 'traffic' && (
+            <>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">{visitsToday}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '今日访客数' : "Today's visitors"}
+                </span>
+              </div>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">{visits7d}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '7日访客数' : '7-day visitors'}
+                </span>
+              </div>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">{visits30d}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '30日访客数' : '30-day visitors'}
+                </span>
+              </div>
+            </>
+          )}
+          {overviewTab === 'today' && (
+            <>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">{todayOrders}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '今日订单' : "Today's orders"}
+                </span>
+              </div>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">${todaySales.toFixed(2)}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '今日销售额' : "Today's sales"}
+                </span>
+              </div>
+              <div className="merchant-dashboard-segments-row">
+                <span className="merchant-dashboard-segments-value">${todayProfit.toFixed(2)}</span>
+                <span className="merchant-dashboard-segments-label">
+                  {lang === 'zh' ? '预计利润' : 'Expected profit'}
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+      <section className="merchant-dashboard-overviews merchant-dashboard-overviews--desktop">
         <div className="merchant-dashboard-overview-card">
           <h3 className="merchant-dashboard-overview-title">
             {lang === 'zh' ? '店铺概况' : 'Shop overview'}

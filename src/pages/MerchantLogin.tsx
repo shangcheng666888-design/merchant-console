@@ -32,6 +32,11 @@ const MerchantLogin: React.FC = () => {
   const t = lang === 'zh'
     ? {
         title: '登录到你的帐户',
+        brandTitle: '卖家中心',
+        brandSub: '随时随地管理店铺、订单与资金',
+        feature1: '实时订单与数据看板',
+        feature2: '一键充值提现与财务对账',
+        feature3: '移动端优先，外出也能经营',
         emailLabel: '邮箱',
         passwordLabel: '密码',
         emailPlaceholder: '请输入邮箱',
@@ -46,6 +51,11 @@ const MerchantLogin: React.FC = () => {
       }
     : {
         title: 'Log in to your account',
+        brandTitle: 'Seller Center',
+        brandSub: 'Manage your shop, orders and funds anywhere',
+        feature1: 'Live orders and dashboard',
+        feature2: 'Wallet recharge and withdrawals',
+        feature3: 'Mobile-first seller experience',
         emailLabel: 'Email',
         passwordLabel: 'Password',
         emailPlaceholder: 'Please enter email',
@@ -100,7 +110,12 @@ const MerchantLogin: React.FC = () => {
   }
 
   return (
-    <div className="merchant-login-page">
+    <div className="merchant-login-page merchant-login-page--v2">
+      <div className="merchant-login-v2-bg" aria-hidden="true">
+        <div className="merchant-login-v2-glow merchant-login-v2-glow--a" />
+        <div className="merchant-login-v2-glow merchant-login-v2-glow--b" />
+      </div>
+
       <div className="merchant-login-lang">
         <button
           type="button"
@@ -152,8 +167,22 @@ const MerchantLogin: React.FC = () => {
         )}
       </div>
 
-      <div className="merchant-login-card">
-        <h1 className="merchant-login-title">{t.title}</h1>
+      <div className="merchant-login-v2-shell">
+        <div className="merchant-login-v2-brand">
+          <div className="merchant-login-v2-logo" aria-hidden="true">
+            🏪
+          </div>
+          <h1 className="merchant-login-v2-brand-title">{t.brandTitle}</h1>
+          <p className="merchant-login-v2-brand-sub">{t.brandSub}</p>
+          <ul className="merchant-login-v2-features">
+            <li>{t.feature1}</li>
+            <li>{t.feature2}</li>
+            <li>{t.feature3}</li>
+          </ul>
+        </div>
+
+      <div className="merchant-login-card merchant-login-card--v2">
+        <h2 className="merchant-login-title">{t.title}</h2>
 
         <form className="merchant-login-form" onSubmit={handleSubmit}>
           <div className="merchant-login-field">
@@ -307,10 +336,11 @@ const MerchantLogin: React.FC = () => {
             </p>
           )}
 
-          <button type="submit" className="merchant-login-submit" disabled={submitting}>
+          <button type="submit" className="merchant-login-submit merchant-login-submit--v2" disabled={submitting}>
             {submitting ? (lang === 'zh' ? '登录中…' : 'Logging in…') : t.loginButton}
           </button>
         </form>
+      </div>
       </div>
 
       <button

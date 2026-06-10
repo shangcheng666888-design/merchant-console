@@ -188,6 +188,14 @@ const MerchantWallet: React.FC = () => {
 
   return (
     <div className="merchant-wallet-page">
+      <header className="merchant-wallet-header">
+        <h1 className="merchant-wallet-title">
+          {lang === 'zh' ? '我的钱包' : 'My wallet'}
+        </h1>
+        <p className="merchant-wallet-subtitle">
+          {lang === 'zh' ? '充值、提现与资金流水' : 'Recharge, withdraw and transaction history'}
+        </p>
+      </header>
       <section className="account-wallet">
         <div className="account-wallet-summary">
           <div className="account-wallet-balance-card">

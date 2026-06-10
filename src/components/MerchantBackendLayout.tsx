@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom'
 import MerchantBackendSidebar, { MERCHANT_NAV_ITEMS } from './MerchantBackendSidebar'
+import MerchantMobileSummary from './MerchantMobileSummary'
+import MerchantQuickMenu from './MerchantQuickMenu'
+import { MerchantNavIcon } from './MerchantNavIcon'
 import { openCrispChat } from '../utils/crispChat'
 import { MerchantShopProvider, useMerchantShop } from '../context/MerchantShopContext'
 import { useLang } from '../context/LangContext'
+import { useMerchantDashboardBrief } from '../hooks/useMerchantDashboardBrief'
 import dianpu1 from '../assets/dianpu1.png'
 import dianpu2 from '../assets/dianpu2.png'
 import dianpu3 from '../assets/dianpu3.png'
@@ -38,6 +42,8 @@ const MerchantBackendLayoutInner: React.FC = () => {
   const [authOk, setAuthOk] = useState<boolean | null>(null)
   const [mobileShopInfoOpen, setMobileShopInfoOpen] = useState(false)
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
+  const [quickMenuOpen, setQuickMenuOpen] = useState(false)
+  const { pendingOrders } = useMerchantDashboardBrief(authOk === true)
 
   useEffect(() => {
     try {
@@ -55,30 +61,22 @@ const MerchantBackendLayoutInner: React.FC = () => {
 
   if (authOk !== true) {
     return (
-      <div
-        className="merchant-backend"
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          display: 'flex',
-          minHeight: '100vh',
-        }}
-      >
-        加载中…
+      <div className="merchant-backend mc-app-loading">
+        <div className="mc-app-loading-inner">
+          <span className="mc-app-loading-spinner" aria-hidden="true" />
+          <span className="mc-app-loading-text">加载中…</span>
+        </div>
       </div>
     )
   }
 
   const mobileNavItems = [
-    '/dashboard',
-    '/warehouse',
-    '/orders',
-    '/plan',
-    '/wallet',
-    '/settings',
+    { path: '/dashboard' as const, labelZh: '首页', labelEn: 'Home', icon: 'home' as const },
+    { path: '/orders' as const, labelZh: '订单', labelEn: 'Orders', icon: 'orders' as const, badge: pendingOrders },
+    { path: null, labelZh: '快捷', labelEn: 'More', icon: 'plus' as const, quick: true },
+    { path: '/warehouse' as const, labelZh: '仓库', labelEn: 'Stock', icon: 'warehouse' as const },
+    { path: '/settings' as const, labelZh: '我的', labelEn: 'Me', icon: 'settings' as const },
   ]
-    .map((path) => MERCHANT_NAV_ITEMS.find((item) => item.path === path))
-    .filter((item): item is (typeof MERCHANT_NAV_ITEMS)[number] => !!item)
 
   const handleLogout = () => {
     try {
@@ -207,6 +205,8 @@ const MerchantBackendLayoutInner: React.FC = () => {
             </button>
           </div>
         </header>
+
+        <MerchantMobileSummary />
 
         <div className="merchant-backend-content">
           <Outlet />
@@ -339,37 +339,58 @@ const MerchantBackendLayoutInner: React.FC = () => {
             </div>
           </div>
         )}
-        <nav className="merchant-backend-bottom-nav">
+        <nav className="merchant-backend-bottom-nav mc-bottom-nav">
           {mobileNavItems.map((item) => {
-            const isActive = item.path === '/wallet'
-              ? location.pathname === '/wallet' ||
-                location.pathname.startsWith('/wallet/')
-              : location.pathname === item.path
+            if (item.quick) {
+              return (
+                <button
+                  key="quick"
+                  type="button"
+                  className="mc-bottom-nav-item mc-bottom-nav-item--fab"
+                  aria-label={lang === 'zh' ? '快捷菜单' : 'Quick menu'}
+                  onClick={() => setQuickMenuOpen(true)}
+                >
+                  <span className="mc-bottom-nav-icon-wrap mc-bottom-nav-icon-wrap--fab">
+                    <MerchantNavIcon name="plus" className="mc-bottom-nav-icon" />
+                  </span>
+                  <span className="mc-bottom-nav-label">
+                    {lang === 'zh' ? item.labelZh : item.labelEn}
+                  </span>
+                </button>
+              )
+            }
+            const isActive =
+              item.path === '/orders'
+                ? location.pathname === '/orders'
+                : item.path === '/settings'
+                  ? location.pathname === '/settings' ||
+                    location.pathname.startsWith('/finance') ||
+                    location.pathname.startsWith('/plan') ||
+                    location.pathname.startsWith('/wallet')
+                  : location.pathname === item.path ||
+                    (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'))
             return (
               <Link
                 key={item.path}
-                to={item.path}
-                className={`merchant-backend-bottom-item${
-                  isActive ? ' merchant-backend-bottom-item--active' : ''
-                }`}
+                to={item.path!}
+                className={`mc-bottom-nav-item${isActive ? ' mc-bottom-nav-item--active' : ''}`}
               >
-                <span className="merchant-backend-bottom-icon-wrap">
-                  {item.icon && (
-                    <img
-                      src={item.icon}
-                      alt=""
-                      className="merchant-backend-bottom-icon"
-                      aria-hidden
-                    />
+                <span className="mc-bottom-nav-icon-wrap">
+                  <MerchantNavIcon name={item.icon} className="mc-bottom-nav-icon" />
+                  {item.badge != null && item.badge > 0 && (
+                    <span className="mc-bottom-nav-badge">
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
                   )}
                 </span>
-                <span className="merchant-backend-bottom-label">
+                <span className="mc-bottom-nav-label">
                   {lang === 'zh' ? item.labelZh : item.labelEn}
                 </span>
               </Link>
             )
           })}
         </nav>
+        <MerchantQuickMenu open={quickMenuOpen} onClose={() => setQuickMenuOpen(false)} />
       </div>
     </div>
   )
