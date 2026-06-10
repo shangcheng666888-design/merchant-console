@@ -458,9 +458,57 @@
 .merchant-dashboard-stat--unsettled::before { background: #64748b; }
 
 .merchant-dashboard-stat-icon {
-  font-size: 1.1rem;
-  line-height: 1;
-  margin-bottom: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 0.65rem;
+  border-radius: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.merchant-dashboard-stat-icon-svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.merchant-dashboard-stat-icon--products {
+  background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%);
+  color: #2563eb;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
+}
+
+.merchant-dashboard-stat-icon--sales {
+  background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #059669;
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.18);
+}
+
+.merchant-dashboard-stat-icon--orders {
+  background: linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%);
+  color: #7c3aed;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.18);
+}
+
+.merchant-dashboard-stat-icon--profit {
+  background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%);
+  color: #d97706;
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.18);
+}
+
+.merchant-dashboard-stat-icon--pending {
+  background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%);
+  color: #dc2626;
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.16);
+}
+
+.merchant-dashboard-stat-icon--unsettled {
+  background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #475569;
+  box-shadow: 0 8px 20px rgba(71, 85, 105, 0.12);
 }
 
 .merchant-dashboard-stat--highlight {

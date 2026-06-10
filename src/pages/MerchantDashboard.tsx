@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
+import MerchantDashboardStatIcon from '../components/MerchantDashboardStatIcon'
 
 const EMPTY_CHART_DATA = [
   { name: 'Mon', 评分: 0, 访客: 0, 订单: 0 },
@@ -280,35 +281,35 @@ const MerchantDashboard: React.FC = () => {
 
       <section className="merchant-dashboard-stats merchant-dashboard-stats--v2">
         <div className="merchant-dashboard-stat merchant-dashboard-stat--products">
-          <span className="merchant-dashboard-stat-icon" aria-hidden="true">📦</span>
+          <MerchantDashboardStatIcon variant="products" />
           <span className="merchant-dashboard-stat-value">{productCount}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '商品总数' : 'Total products'}
           </span>
         </div>
         <div className="merchant-dashboard-stat merchant-dashboard-stat--sales">
-          <span className="merchant-dashboard-stat-icon" aria-hidden="true">💵</span>
+          <MerchantDashboardStatIcon variant="sales" />
           <span className="merchant-dashboard-stat-value">${totalSales.toFixed(2)}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '销售总额' : 'Total sales'}
           </span>
         </div>
         <div className="merchant-dashboard-stat merchant-dashboard-stat--orders">
-          <span className="merchant-dashboard-stat-icon" aria-hidden="true">🧾</span>
+          <MerchantDashboardStatIcon variant="orders" />
           <span className="merchant-dashboard-stat-value">{orderCount}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '总订单' : 'Total orders'}
           </span>
         </div>
         <div className="merchant-dashboard-stat merchant-dashboard-stat--profit">
-          <span className="merchant-dashboard-stat-icon" aria-hidden="true">📈</span>
+          <MerchantDashboardStatIcon variant="profit" />
           <span className="merchant-dashboard-stat-value">${totalProfit.toFixed(2)}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '总利润' : 'Total profit'}
           </span>
         </div>
         <div className="merchant-dashboard-stat merchant-dashboard-stat--pending merchant-dashboard-stat--highlight">
-          <span className="merchant-dashboard-stat-icon" aria-hidden="true">⏳</span>
+          <MerchantDashboardStatIcon variant="pending" />
           <span className="merchant-dashboard-stat-value">{pendingOrdersCount}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '待处理订单' : 'Pending orders'}
@@ -324,7 +325,7 @@ const MerchantDashboard: React.FC = () => {
           )}
         </div>
         <div className="merchant-dashboard-stat merchant-dashboard-stat--unsettled">
-          <span className="merchant-dashboard-stat-icon" aria-hidden="true">🏦</span>
+          <MerchantDashboardStatIcon variant="unsettled" />
           <span className="merchant-dashboard-stat-value">${unsettledAmount.toFixed(2)}</span>
           <span className="merchant-dashboard-stat-label">
             {lang === 'zh' ? '待结算金额' : 'Unsettled amount'}
