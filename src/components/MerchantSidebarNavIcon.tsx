@@ -108,19 +108,28 @@ function buildIcons(uid: string): Record<MerchantSidebarIconName, React.ReactNod
     ),
     plan: (
       <>
-        <rect x="4.5" y="16.4" width="15" height="1.6" rx="0.8" fill={face} opacity="0.35" />
-        <rect x="5.8" y="13.2" width="2.8" height="3.2" rx="1" fill={face} opacity="0.55" />
-        <rect x="10.6" y="10.4" width="2.8" height="6" rx="1" fill={face} opacity="0.75" />
-        <rect x="15.4" y="7.2" width="2.8" height="9.2" rx="1" fill={face} />
+        <circle cx="12" cy="12.2" r="8.4" fill={soft} />
+        <rect x="4.8" y="15.2" width="3.6" height="2.6" rx="0.75" fill={face} opacity="0.52" />
+        <rect x="9.2" y="12.4" width="3.6" height="5.4" rx="0.75" fill={face} opacity="0.72" />
+        <rect x="13.6" y="9.2" width="3.6" height="8.6" rx="0.75" fill={face} />
         <path
-          d="M6.9 14.8l3.4-2.8 3.1 2.2 4.8-5.6"
+          d="M6.4 15.2l3.4-2.4 3.2 2 3.6-4.6"
           stroke={accent}
-          strokeWidth={1.85}
+          strokeWidth="1.75"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
         />
-        <circle cx="18.3" cy="8.6" r="1.35" fill={accent} />
+        <circle cx="16.8" cy="9.8" r="1.2" fill={accent} />
+        <path d="M16.8 5.6v4.4" stroke={face} strokeWidth="1.35" strokeLinecap="round" />
+        <path
+          d="M16.8 6.1h2.5l-.85 1.15.85 1.15h-2.5z"
+          fill={face}
+          stroke={face}
+          strokeWidth="0.85"
+          strokeLinejoin="round"
+        />
+        <path d="M4.8 17.8h14.4" stroke={face} strokeWidth="1.1" strokeLinecap="round" opacity="0.28" />
       </>
     ),
     finance: (
