@@ -261,7 +261,8 @@ const MerchantDashboard: React.FC = () => {
   return (
     <div className="merchant-dashboard merchant-dashboard--v2">
       <section className="merchant-dashboard-hero merchant-dashboard-hero--v2">
-        <div className="merchant-dashboard-hero-glow" aria-hidden="true" />
+        <div className="merchant-dashboard-hero-bg" aria-hidden="true" />
+        <div className="merchant-dashboard-hero-shine" aria-hidden="true" />
         <div className="merchant-dashboard-hero-inner">
           <div className="merchant-dashboard-hero-main">
             <span className="merchant-dashboard-hero-eyebrow">
@@ -275,37 +276,57 @@ const MerchantDashboard: React.FC = () => {
                 ? '实时掌握店铺经营健康度与今日表现'
                 : 'Real-time view of shop health and today\'s performance'}
             </p>
-            <div className="merchant-dashboard-hero-tags">
-              <span className="merchant-dashboard-hero-tag">
-                {lang === 'zh' ? '好评率' : 'Good rating'} · {goodRate.toFixed(1)}%
+            <div className="merchant-dashboard-hero-chips">
+              <span className="merchant-dashboard-hero-chip merchant-dashboard-hero-chip--rating">
+                <span className="merchant-dashboard-hero-chip-dot" aria-hidden="true" />
+                <span className="merchant-dashboard-hero-chip-label">
+                  {lang === 'zh' ? '好评率' : 'Rating'}
+                </span>
+                <span className="merchant-dashboard-hero-chip-value">{goodRate.toFixed(1)}%</span>
               </span>
-              <span className="merchant-dashboard-hero-tag">
-                {lang === 'zh' ? '信用分' : 'Credit'} · {creditScore}
+              <span className="merchant-dashboard-hero-chip merchant-dashboard-hero-chip--credit">
+                <span className="merchant-dashboard-hero-chip-dot" aria-hidden="true" />
+                <span className="merchant-dashboard-hero-chip-label">
+                  {lang === 'zh' ? '信用分' : 'Credit'}
+                </span>
+                <span className="merchant-dashboard-hero-chip-value">{creditScore}</span>
               </span>
-              <span className="merchant-dashboard-hero-tag">
-                {lang === 'zh' ? '关注' : 'Followers'} · {followers}
+              <span className="merchant-dashboard-hero-chip merchant-dashboard-hero-chip--followers">
+                <span className="merchant-dashboard-hero-chip-dot" aria-hidden="true" />
+                <span className="merchant-dashboard-hero-chip-label">
+                  {lang === 'zh' ? '关注' : 'Followers'}
+                </span>
+                <span className="merchant-dashboard-hero-chip-value">{followers}</span>
               </span>
             </div>
           </div>
-          <div className="merchant-dashboard-hero-side">
-            <div className="merchant-dashboard-hero-highlight">
-              <span className="merchant-dashboard-hero-highlight-label">
+          <div className="merchant-dashboard-hero-panel">
+            <div className="merchant-dashboard-hero-panel-label">
+              {lang === 'zh' ? '今日实时' : 'Live today'}
+            </div>
+            <div className="merchant-dashboard-hero-panel-primary">
+              <span className="merchant-dashboard-hero-panel-primary-label">
                 {lang === 'zh' ? '今日销售额' : "Today's sales"}
               </span>
-              <span className="merchant-dashboard-hero-highlight-value">${todaySales.toFixed(2)}</span>
+              <span className="merchant-dashboard-hero-panel-primary-value">
+                ${todaySales.toFixed(2)}
+              </span>
             </div>
-            <div className="merchant-dashboard-hero-mini-grid">
-              <div className="merchant-dashboard-hero-mini">
-                <span className="merchant-dashboard-hero-mini-label">
+            <div className="merchant-dashboard-hero-panel-stats">
+              <div className="merchant-dashboard-hero-panel-stat">
+                <span className="merchant-dashboard-hero-panel-stat-label">
                   {lang === 'zh' ? '今日订单' : 'Orders'}
                 </span>
-                <span className="merchant-dashboard-hero-mini-value">{todayOrders}</span>
+                <span className="merchant-dashboard-hero-panel-stat-value">{todayOrders}</span>
               </div>
-              <div className="merchant-dashboard-hero-mini">
-                <span className="merchant-dashboard-hero-mini-label">
+              <div className="merchant-dashboard-hero-panel-divider" aria-hidden="true" />
+              <div className="merchant-dashboard-hero-panel-stat">
+                <span className="merchant-dashboard-hero-panel-stat-label">
                   {lang === 'zh' ? '预计利润' : 'Profit'}
                 </span>
-                <span className="merchant-dashboard-hero-mini-value">${todayProfit.toFixed(2)}</span>
+                <span className="merchant-dashboard-hero-panel-stat-value">
+                  ${todayProfit.toFixed(2)}
+                </span>
               </div>
             </div>
           </div>

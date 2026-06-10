@@ -416,53 +416,135 @@
 
 /* ========== Dashboard ========== */
 .merchant-dashboard-hero {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 20px 50px rgba(26, 31, 54, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.merchant-dashboard-hero--v2 {
+  background: transparent !important;
+}
+
+.merchant-dashboard-hero-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background:
-    radial-gradient(circle at 0% 0%, rgba(91, 108, 255, 0.22) 0%, transparent 52%),
-    radial-gradient(circle at 100% 100%, rgba(196, 160, 82, 0.12) 0%, transparent 48%),
-    var(--mc-gradient-hero) !important;
-  box-shadow: var(--mc-shadow-lg) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+    radial-gradient(ellipse 85% 120% at 0% 0%, rgba(107, 125, 255, 0.55) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 90% at 100% 100%, rgba(196, 160, 82, 0.22) 0%, transparent 52%),
+    radial-gradient(ellipse 50% 60% at 78% 12%, rgba(139, 124, 246, 0.28) 0%, transparent 50%),
+    linear-gradient(135deg, #12162b 0%, #1e2444 38%, #2a3260 68%, #1a1f36 100%);
 }
 
-.merchant-dashboard-hero-tag {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(199, 207, 249, 0.28);
-  color: #e8ecff;
-}
-
-.merchant-dashboard-hero-pill {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(199, 207, 249, 0.25);
-}
-
-.merchant-dashboard-hero-pill-value {
-  color: #f5e6b8;
+.merchant-dashboard-hero-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.09) 0%, transparent 38%),
+    linear-gradient(15deg, transparent 62%, rgba(255, 255, 255, 0.04) 100%);
 }
 
 .merchant-dashboard-stats--v2 {
-  gap: 0.9rem;
+  gap: 0.85rem;
 }
 
 .merchant-dashboard-stats--v2 .merchant-dashboard-stat {
-  border-color: var(--mc-border);
-  background: var(--mc-surface);
-  box-shadow: var(--mc-shadow);
+  border: 1px solid transparent;
+  box-shadow:
+    0 10px 28px rgba(26, 31, 54, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .merchant-dashboard-stats--v2 .merchant-dashboard-stat::before {
-  width: 3px;
-  border-radius: 0 3px 3px 0;
+  display: none;
 }
 
-.merchant-dashboard-stat--products::before { background: #5b6cff; }
-.merchant-dashboard-stat--sales::before { background: #4f9cf9; }
-.merchant-dashboard-stat--orders::before { background: #8b7cf6; }
-.merchant-dashboard-stat--profit::before { background: #c4a052; }
-.merchant-dashboard-stat--pending::before { background: #e85d75; }
-.merchant-dashboard-stat--unsettled::before { background: #8b93ad; }
+.merchant-dashboard-stats--v2 .merchant-dashboard-stat::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 55%;
+  height: 65%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.merchant-dashboard-stat--products {
+  background: linear-gradient(148deg, #ffffff 0%, #f6f7ff 45%, #eceeff 100%) !important;
+  border-color: #d8dcff !important;
+}
+.merchant-dashboard-stat--products::after {
+  background: radial-gradient(circle, rgba(91, 108, 255, 0.18) 0%, transparent 68%);
+}
+.merchant-dashboard-stat--products .merchant-dashboard-stat-value {
+  color: #434dbd;
+}
+
+.merchant-dashboard-stat--sales {
+  background: linear-gradient(148deg, #ffffff 0%, #f3f9ff 45%, #e5f2ff 100%) !important;
+  border-color: #cce5ff !important;
+}
+.merchant-dashboard-stat--sales::after {
+  background: radial-gradient(circle, rgba(79, 156, 249, 0.2) 0%, transparent 68%);
+}
+.merchant-dashboard-stat--sales .merchant-dashboard-stat-value {
+  color: #1d6fd4;
+}
+
+.merchant-dashboard-stat--orders {
+  background: linear-gradient(148deg, #ffffff 0%, #f8f5ff 45%, #eee8ff 100%) !important;
+  border-color: #ddd0ff !important;
+}
+.merchant-dashboard-stat--orders::after {
+  background: radial-gradient(circle, rgba(139, 124, 246, 0.2) 0%, transparent 68%);
+}
+.merchant-dashboard-stat--orders .merchant-dashboard-stat-value {
+  color: #6d4ed9;
+}
+
+.merchant-dashboard-stat--profit {
+  background: linear-gradient(148deg, #ffffff 0%, #fbf8f1 45%, #f5ecd8 100%) !important;
+  border-color: #e8d9b0 !important;
+}
+.merchant-dashboard-stat--profit::after {
+  background: radial-gradient(circle, rgba(196, 160, 82, 0.22) 0%, transparent 68%);
+}
+.merchant-dashboard-stat--profit .merchant-dashboard-stat-value {
+  color: #9a7728;
+}
+
+.merchant-dashboard-stat--pending {
+  background: linear-gradient(148deg, #ffffff 0%, #fff6f8 45%, #ffe8ee 100%) !important;
+  border-color: #f5c4d0 !important;
+}
+.merchant-dashboard-stat--pending::after {
+  background: radial-gradient(circle, rgba(232, 93, 117, 0.18) 0%, transparent 68%);
+}
+.merchant-dashboard-stat--pending .merchant-dashboard-stat-value {
+  color: #d9445e;
+}
+
+.merchant-dashboard-stat--unsettled {
+  background: linear-gradient(148deg, #ffffff 0%, #f7f8fb 45%, #eceff5 100%) !important;
+  border-color: #d5dae6 !important;
+}
+.merchant-dashboard-stat--unsettled::after {
+  background: radial-gradient(circle, rgba(107, 114, 137, 0.16) 0%, transparent 68%);
+}
+.merchant-dashboard-stat--unsettled .merchant-dashboard-stat-value {
+  color: #556078;
+}
+
+.merchant-dashboard-stat--highlight {
+  background: linear-gradient(148deg, #ffffff 0%, #fff8fa 45%, #ffeef2 100%) !important;
+}
 
 .merchant-dashboard-stat-value {
-  color: var(--mc-ink);
   letter-spacing: -0.02em;
 }
 
@@ -1271,110 +1353,192 @@
 .merchant-dashboard-hero--v2 {
   position: relative;
   overflow: hidden;
-  padding: 1.35rem 1.4rem !important;
-  border-radius: var(--mc-radius) !important;
-}
-
-.merchant-dashboard-hero-glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 8% 20%, rgba(139, 155, 255, 0.28) 0%, transparent 42%),
-    radial-gradient(circle at 92% 80%, rgba(196, 160, 82, 0.14) 0%, transparent 40%);
+  padding: 1.5rem 1.55rem !important;
+  border-radius: 20px !important;
+  margin-bottom: 1.15rem;
 }
 
 .merchant-dashboard-hero-inner {
   position: relative;
   z-index: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
   align-items: stretch;
-  justify-content: space-between;
-  gap: 1.25rem;
+  gap: 1.5rem;
+}
+
+.merchant-dashboard-hero-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 
 .merchant-dashboard-hero-eyebrow {
-  display: inline-block;
-  margin-bottom: 0.35rem;
-  padding: 0.18rem 0.55rem;
+  display: inline-flex;
+  align-self: flex-start;
+  margin-bottom: 0.5rem;
+  padding: 0.22rem 0.65rem;
   border-radius: 999px;
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #c7d0ff;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(199, 207, 249, 0.22);
+  color: #dde3ff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
 }
 
 .merchant-dashboard-hero--v2 .merchant-dashboard-hero-title {
-  font-size: 1.35rem;
+  margin: 0 0 0.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  color: #ffffff;
 }
 
 .merchant-dashboard-hero--v2 .merchant-dashboard-hero-subtitle {
-  max-width: 28rem;
-  line-height: 1.5;
-  color: #b8c0dc;
+  margin: 0;
+  max-width: 26rem;
+  line-height: 1.55;
+  font-size: 0.86rem;
+  color: rgba(216, 222, 255, 0.82);
 }
 
-.merchant-dashboard-hero-side {
+.merchant-dashboard-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.merchant-dashboard-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.72rem 0.42rem 0.55rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.merchant-dashboard-hero-chip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.merchant-dashboard-hero-chip--rating .merchant-dashboard-hero-chip-dot {
+  background: #6ee7b7;
+  box-shadow: 0 0 8px rgba(110, 231, 183, 0.6);
+}
+
+.merchant-dashboard-hero-chip--credit .merchant-dashboard-hero-chip-dot {
+  background: #93c5fd;
+  box-shadow: 0 0 8px rgba(147, 197, 253, 0.55);
+}
+
+.merchant-dashboard-hero-chip--followers .merchant-dashboard-hero-chip-dot {
+  background: #c4b5fd;
+  box-shadow: 0 0 8px rgba(196, 181, 253, 0.55);
+}
+
+.merchant-dashboard-hero-chip-label {
+  font-size: 0.72rem;
+  color: rgba(216, 222, 255, 0.75);
+}
+
+.merchant-dashboard-hero-chip-value {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: #ffffff;
+}
+
+.merchant-dashboard-hero-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  min-width: 200px;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.1rem 1.15rem;
+  border-radius: 16px;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 12px 32px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(16px);
 }
 
-.merchant-dashboard-hero-highlight {
-  padding: 0.85rem 1rem;
-  border-radius: 14px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.06) 100%);
-  border: 1px solid rgba(199, 207, 249, 0.28);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+.merchant-dashboard-hero-panel-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(216, 222, 255, 0.65);
 }
 
-.merchant-dashboard-hero-highlight-label {
+.merchant-dashboard-hero-panel-primary {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.merchant-dashboard-hero-panel-primary-label {
   display: block;
-  font-size: 0.72rem;
-  color: #b8c0dc;
+  font-size: 0.78rem;
+  color: rgba(216, 222, 255, 0.78);
+  margin-bottom: 0.25rem;
+}
+
+.merchant-dashboard-hero-panel-primary-value {
+  display: block;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff7e0 0%, #f5d78e 45%, #e8c066 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.merchant-dashboard-hero-panel-stats {
+  display: flex;
+  align-items: stretch;
+  gap: 0.85rem;
+}
+
+.merchant-dashboard-hero-panel-stat {
+  flex: 1;
+  min-width: 0;
+}
+
+.merchant-dashboard-hero-panel-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  flex-shrink: 0;
+}
+
+.merchant-dashboard-hero-panel-stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(216, 222, 255, 0.68);
   margin-bottom: 0.2rem;
 }
 
-.merchant-dashboard-hero-highlight-value {
+.merchant-dashboard-hero-panel-stat-value {
   display: block;
-  font-size: 1.65rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #f5e6b8;
-}
-
-.merchant-dashboard-hero-mini-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-}
-
-.merchant-dashboard-hero-mini {
-  padding: 0.55rem 0.65rem;
-  border-radius: 11px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.merchant-dashboard-hero-mini-label {
-  display: block;
-  font-size: 0.68rem;
-  color: #9aa3c7;
-}
-
-.merchant-dashboard-hero-mini-value {
-  display: block;
-  margin-top: 0.15rem;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 650;
-  color: #f3f5ff;
+  color: #ffffff;
+  letter-spacing: -0.02em;
 }
 
 /* Pending alert */
@@ -1404,13 +1568,20 @@
 
 /* Stat cards v2 */
 .merchant-dashboard-stats--v2 .merchant-dashboard-stat {
-  border: 1px solid var(--mc-border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .merchant-dashboard-stats--v2 .merchant-dashboard-stat-value {
-  font-size: 1.45rem;
+  font-size: 1.42rem;
   font-weight: 700;
   line-height: 1.15;
+}
+
+.merchant-dashboard-stats--v2 .merchant-dashboard-stat-label {
+  font-size: 0.78rem;
+  margin-top: 0.15rem;
 }
 
 .merchant-dashboard-stat--pending .merchant-dashboard-stat-btn {
@@ -1649,21 +1820,34 @@
 
 @media (max-width: 768px) {
   .merchant-dashboard-hero-inner {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .merchant-dashboard-hero-side {
-    width: 100%;
-    min-width: 0;
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
   }
 
   .merchant-dashboard-hero--v2 {
-    padding: 1.1rem 1rem !important;
+    padding: 1.2rem 1.1rem !important;
+    border-radius: 18px !important;
   }
 
   .merchant-dashboard-hero--v2 .merchant-dashboard-hero-title {
-    font-size: 1.2rem;
+    font-size: 1.28rem;
+  }
+
+  .merchant-dashboard-hero-panel {
+    padding: 1rem;
+  }
+
+  .merchant-dashboard-hero-panel-primary-value {
+    font-size: 1.65rem;
+  }
+
+  .merchant-dashboard-hero-chips {
+    gap: 0.4rem;
+  }
+
+  .merchant-dashboard-hero-chip {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: calc(50% - 0.25rem);
   }
 
   .merchant-dashboard-metric-grid {
