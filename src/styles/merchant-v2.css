@@ -1349,196 +1349,158 @@
   color: var(--mc-ink-muted);
 }
 
-/* Hero v2 */
+/* Hero v2 — compact single-card layout */
 .merchant-dashboard-hero--v2 {
   position: relative;
   overflow: hidden;
-  padding: 1.5rem 1.55rem !important;
-  border-radius: 20px !important;
-  margin-bottom: 1.15rem;
+  padding: 1.15rem 1.25rem 1.2rem !important;
+  border-radius: 18px !important;
+  margin-bottom: 1rem;
 }
 
 .merchant-dashboard-hero-inner {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
-  align-items: stretch;
-  gap: 1.5rem;
-}
-
-.merchant-dashboard-hero-main {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 0.85rem;
+}
+
+.merchant-dashboard-hero-head {
   min-width: 0;
 }
 
 .merchant-dashboard-hero-eyebrow {
   display: inline-flex;
   align-self: flex-start;
-  margin-bottom: 0.5rem;
-  padding: 0.22rem 0.65rem;
+  margin-bottom: 0.4rem;
+  padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #dde3ff;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .merchant-dashboard-hero--v2 .merchant-dashboard-hero-title {
-  margin: 0 0 0.4rem;
-  font-size: 1.5rem;
+  margin: 0 0 0.3rem;
+  font-size: 1.28rem;
   font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.15;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
   color: #ffffff;
 }
 
 .merchant-dashboard-hero--v2 .merchant-dashboard-hero-subtitle {
   margin: 0;
-  max-width: 26rem;
-  line-height: 1.55;
-  font-size: 0.86rem;
-  color: rgba(216, 222, 255, 0.82);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(216, 222, 255, 0.78);
 }
 
-.merchant-dashboard-hero-chips {
+/* Shop health — always one row */
+.merchant-dashboard-hero-shop-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.1rem;
-}
-
-.merchant-dashboard-hero-chip {
-  display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.42rem 0.72rem 0.42rem 0.55rem;
+  flex-wrap: nowrap;
+  gap: 0;
+  padding: 0.65rem 0.85rem;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
 }
 
-.merchant-dashboard-hero-chip-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.merchant-dashboard-hero-chip--rating .merchant-dashboard-hero-chip-dot {
-  background: #6ee7b7;
-  box-shadow: 0 0 8px rgba(110, 231, 183, 0.6);
-}
-
-.merchant-dashboard-hero-chip--credit .merchant-dashboard-hero-chip-dot {
-  background: #93c5fd;
-  box-shadow: 0 0 8px rgba(147, 197, 253, 0.55);
-}
-
-.merchant-dashboard-hero-chip--followers .merchant-dashboard-hero-chip-dot {
-  background: #c4b5fd;
-  box-shadow: 0 0 8px rgba(196, 181, 253, 0.55);
-}
-
-.merchant-dashboard-hero-chip-label {
-  font-size: 0.72rem;
-  color: rgba(216, 222, 255, 0.75);
-}
-
-.merchant-dashboard-hero-chip-value {
-  font-size: 0.82rem;
-  font-weight: 650;
-  color: #ffffff;
-}
-
-.merchant-dashboard-hero-panel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 1.1rem 1.15rem;
-  border-radius: 16px;
-  background: linear-gradient(
-    155deg,
-    rgba(255, 255, 255, 0.16) 0%,
-    rgba(255, 255, 255, 0.06) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 12px 32px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(16px);
-}
-
-.merchant-dashboard-hero-panel-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(216, 222, 255, 0.65);
-}
-
-.merchant-dashboard-hero-panel-primary {
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.merchant-dashboard-hero-panel-primary-label {
-  display: block;
-  font-size: 0.78rem;
-  color: rgba(216, 222, 255, 0.78);
-  margin-bottom: 0.25rem;
-}
-
-.merchant-dashboard-hero-panel-primary-value {
-  display: block;
-  font-size: 1.85rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  background: linear-gradient(135deg, #fff7e0 0%, #f5d78e 45%, #e8c066 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.merchant-dashboard-hero-panel-stats {
-  display: flex;
-  align-items: stretch;
-  gap: 0.85rem;
-}
-
-.merchant-dashboard-hero-panel-stat {
+.merchant-dashboard-hero-shop-item {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
 }
 
-.merchant-dashboard-hero-panel-divider {
-  width: 1px;
-  background: rgba(255, 255, 255, 0.14);
-  flex-shrink: 0;
+.merchant-dashboard-hero-shop-label {
+  font-size: 0.75rem;
+  color: rgba(216, 222, 255, 0.72);
 }
 
-.merchant-dashboard-hero-panel-stat-label {
-  display: block;
-  font-size: 0.7rem;
-  color: rgba(216, 222, 255, 0.68);
-  margin-bottom: 0.2rem;
-}
-
-.merchant-dashboard-hero-panel-stat-value {
-  display: block;
-  font-size: 1.05rem;
+.merchant-dashboard-hero-shop-value {
+  font-size: 0.92rem;
   font-weight: 650;
   color: #ffffff;
   letter-spacing: -0.02em;
+}
+
+.merchant-dashboard-hero-shop-item--rating .merchant-dashboard-hero-shop-value {
+  color: #a7f3d0;
+}
+
+.merchant-dashboard-hero-shop-item--credit .merchant-dashboard-hero-shop-value {
+  color: #bfdbfe;
+}
+
+.merchant-dashboard-hero-shop-item--followers .merchant-dashboard-hero-shop-value {
+  color: #ddd6fe;
+}
+
+.merchant-dashboard-hero-shop-divider {
+  width: 1px;
+  height: 1.1rem;
+  background: rgba(255, 255, 255, 0.16);
+  flex-shrink: 0;
+}
+
+/* Today metrics — compact 3-column strip */
+.merchant-dashboard-hero-today-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.merchant-dashboard-hero-today-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 0;
+}
+
+.merchant-dashboard-hero-today-item--sales {
+  background: linear-gradient(145deg, rgba(245, 230, 184, 0.16) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border-color: rgba(245, 214, 140, 0.28);
+}
+
+.merchant-dashboard-hero-today-label {
+  font-size: 0.68rem;
+  color: rgba(216, 222, 255, 0.68);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.merchant-dashboard-hero-today-value {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.merchant-dashboard-hero-today-item--sales .merchant-dashboard-hero-today-value {
+  font-size: 1.05rem;
+  background: linear-gradient(135deg, #fff7e0 0%, #f0d080 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Pending alert */
@@ -1819,35 +1781,48 @@
 }
 
 @media (max-width: 768px) {
-  .merchant-dashboard-hero-inner {
-    grid-template-columns: 1fr;
-    gap: 1.15rem;
-  }
-
   .merchant-dashboard-hero--v2 {
-    padding: 1.2rem 1.1rem !important;
-    border-radius: 18px !important;
+    padding: 1rem 0.95rem 1.05rem !important;
   }
 
   .merchant-dashboard-hero--v2 .merchant-dashboard-hero-title {
-    font-size: 1.28rem;
+    font-size: 1.15rem;
   }
 
-  .merchant-dashboard-hero-panel {
-    padding: 1rem;
+  .merchant-dashboard-hero--v2 .merchant-dashboard-hero-subtitle {
+    font-size: 0.76rem;
   }
 
-  .merchant-dashboard-hero-panel-primary-value {
-    font-size: 1.65rem;
+  .merchant-dashboard-hero-inner {
+    gap: 0.7rem;
   }
 
-  .merchant-dashboard-hero-chips {
-    gap: 0.4rem;
+  .merchant-dashboard-hero-shop-row {
+    padding: 0.55rem 0.5rem;
   }
 
-  .merchant-dashboard-hero-chip {
-    flex: 1 1 calc(50% - 0.25rem);
-    min-width: calc(50% - 0.25rem);
+  .merchant-dashboard-hero-shop-label {
+    font-size: 0.7rem;
+  }
+
+  .merchant-dashboard-hero-shop-value {
+    font-size: 0.85rem;
+  }
+
+  .merchant-dashboard-hero-today-row {
+    gap: 0.45rem;
+  }
+
+  .merchant-dashboard-hero-today-item {
+    padding: 0.5rem 0.45rem;
+  }
+
+  .merchant-dashboard-hero-today-value {
+    font-size: 0.88rem;
+  }
+
+  .merchant-dashboard-hero-today-item--sales .merchant-dashboard-hero-today-value {
+    font-size: 0.95rem;
   }
 
   .merchant-dashboard-metric-grid {
