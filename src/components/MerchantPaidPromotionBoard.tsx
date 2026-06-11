@@ -6,6 +6,7 @@ import paidTiktok from '../assets/paid-tiktok.png'
 import paidMeta from '../assets/paid-meta.png'
 import paidGoogle from '../assets/paid-google.png'
 import liulianggaikuang from '../assets/liulianggaikuang.png'
+import paidPromoLite from '../assets/paid-promo-lite.png'
 import MiniSparkline from './MiniSparkline'
 import MerchantPaidPromoSelect from './MerchantPaidPromoSelect'
 
@@ -471,8 +472,8 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广历史' : 'Paid promotion history'}>
         <header className="merchant-dashboard-section-head">
           <div className="merchant-paid-promo-board-head">
-            <span className="merchant-paid-promo-board-icon" aria-hidden="true">
-              <img src={liulianggaikuang} alt="" className="merchant-paid-promo-board-icon-img" />
+            <span className="merchant-paid-promo-board-icon merchant-paid-promo-board-icon--lite" aria-hidden="true">
+              <img src={paidPromoLite} alt="" className="merchant-paid-promo-board-icon-img" />
             </span>
             <div>
               <h3 className="merchant-dashboard-section-title">
