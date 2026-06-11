@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../api/client'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { useToast } from './ToastProvider'
@@ -9,6 +9,10 @@ import liulianggaikuang from '../assets/liulianggaikuang.png'
 import paidPromoLite from '../assets/paid-promo-lite.png'
 import MiniSparkline from './MiniSparkline'
 import MerchantPaidPromoSelect from './MerchantPaidPromoSelect'
+import MerchantPaidPromoAudiencePicker, {
+  parseAudienceValues,
+  serializeAudienceValues,
+} from './MerchantPaidPromoAudiencePicker'
 
 type PaidChannel = 'tiktok' | 'meta' | 'google' | 'other'
 type TargetType = 'shop' | 'product'
@@ -174,6 +178,13 @@ function labelForOption(options: OptionItem[], value: string | null, lang: 'zh' 
   return lang === 'zh' ? item.labelZh : item.labelEn
 }
 
+function labelsForAudiences(options: OptionItem[], value: string | null, lang: 'zh' | 'en') {
+  const parts = parseAudienceValues(value)
+  if (parts.length === 0) return '—'
+  const separator = lang === 'zh' ? '、' : ', '
+  return parts.map((part) => labelForOption(options, part, lang)).join(separator)
+}
+
 interface MerchantPaidPromotionBoardProps {
   lang: 'zh' | 'en'
 }
@@ -199,9 +210,22 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const [targetType, setTargetType] = useState<TargetType>('product')
   const [selectedListingId, setSelectedListingId] = useState('')
   const [targetRegion, setTargetRegion] = useState('')
-  const [targetAudience, setTargetAudience] = useState('')
+  const [targetAudiences, setTargetAudiences] = useState<string[]>([])
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
+  const formDirtyRef = useRef(false)
+  const lastPromotionIdRef = useRef<number | null>(null)
+
+  const hydrateFormFromPromotion = useCallback((promo: PromotionInfo) => {
+    setTargetType(promo.targetType ?? 'product')
+    setSelectedListingId(promo.targetListingId ?? '')
+    setTargetRegion(promo.targetRegion ?? '')
+    setTargetAudiences(parseAudienceValues(promo.targetAudience))
+  }, [])
+
+  const markFormDirty = useCallback(() => {
+    formDirtyRef.current = true
+  }, [])
 
   const fetchBoard = useCallback(async () => {
     const auth = readAuth()
@@ -237,14 +261,20 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       setMetrics(res.metrics)
       setRegions(Array.isArray(res.regions) && res.regions.length > 0 ? res.regions : DEFAULT_REGIONS)
       setAudiences(Array.isArray(res.audiences) && res.audiences.length > 0 ? res.audiences : DEFAULT_AUDIENCES)
-      if (res.promotion.targetType) setTargetType(res.promotion.targetType)
-      if (res.promotion.targetListingId) setSelectedListingId(res.promotion.targetListingId)
-      if (res.promotion.targetRegion) setTargetRegion(res.promotion.targetRegion)
-      if (res.promotion.targetAudience) setTargetAudience(res.promotion.targetAudience)
+
+      const promo = res.promotion
+      const promotionChanged = lastPromotionIdRef.current !== promo.id
+      if (promotionChanged) {
+        lastPromotionIdRef.current = promo.id
+        formDirtyRef.current = false
+        hydrateFormFromPromotion(promo)
+      } else if (!formDirtyRef.current || !isPromotionSetupEditable(promo)) {
+        hydrateFormFromPromotion(promo)
+      }
     } catch {
       setPromotion(null)
     }
-  }, [])
+  }, [hydrateFormFromPromotion])
 
   const fetchHistory = useCallback(async () => {
     const auth = readAuth()
@@ -312,6 +342,11 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       showToast(lang === 'zh' ? '请选择推广地区' : 'Select a target region', 'error')
       return
     }
+    if (targetAudiences.length === 0) {
+      showToast(lang === 'zh' ? '请选择受众群体' : 'Select a target audience', 'error')
+      return
+    }
+    const targetAudience = serializeAudienceValues(targetAudiences)
     if (!targetAudience) {
       showToast(lang === 'zh' ? '请选择受众群体' : 'Select a target audience', 'error')
       return
@@ -328,9 +363,13 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
         targetListingId: targetType === 'product' ? selectedListingId : undefined,
         targetRegion,
         targetAudience,
+        targetAudiences,
       })
       setPromotion(res.promotion)
       setTargetSelected(Boolean(res.targetSelected))
+      formDirtyRef.current = false
+      lastPromotionIdRef.current = res.promotion.id
+      hydrateFormFromPromotion(res.promotion)
       showToast(lang === 'zh' ? '推广方案已提交，等待管理员开启' : 'Promotion submitted — awaiting admin launch')
     } catch (e) {
       showToast(e instanceof Error ? e.message : lang === 'zh' ? '提交失败' : 'Submit failed', 'error')
@@ -355,7 +394,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   }, [products, selectedListingId])
 
   const targetReady = targetType === 'shop' || Boolean(selectedListingId)
-  const audienceReady = Boolean(targetRegion && targetAudience)
+  const audienceReady = Boolean(targetRegion && targetAudiences.length > 0)
 
   const activePromotion = isActiveMerchantPromotion(promotion) ? promotion : null
   const channelInfo = activePromotion ? CHANNEL_META[activePromotion.channel] : null
@@ -524,7 +563,12 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             <button
               type="button"
               className={`merchant-paid-promo-target-tab${targetType === 'shop' ? ' merchant-paid-promo-target-tab--active' : ''}`}
-              onClick={() => !formLocked && setTargetType('shop')}
+              onClick={() => {
+                if (!formLocked) {
+                  markFormDirty()
+                  setTargetType('shop')
+                }
+              }}
               disabled={formLocked}
             >
               {lang === 'zh' ? '推广整店' : 'Promote shop'}
@@ -532,7 +576,12 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             <button
               type="button"
               className={`merchant-paid-promo-target-tab${targetType === 'product' ? ' merchant-paid-promo-target-tab--active' : ''}`}
-              onClick={() => !formLocked && setTargetType('product')}
+              onClick={() => {
+                if (!formLocked) {
+                  markFormDirty()
+                  setTargetType('product')
+                }
+              }}
               disabled={formLocked}
             >
               {lang === 'zh' ? '推广单品' : 'Promote product'}
@@ -554,7 +603,12 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                       key={id}
                       type="button"
                       className={`merchant-paid-promo-product-item${selected ? ' merchant-paid-promo-product-item--selected' : ''}`}
-                      onClick={() => !formLocked && setSelectedListingId(id)}
+                      onClick={() => {
+                        if (!formLocked) {
+                          markFormDirty()
+                          setSelectedListingId(id)
+                        }
+                      }}
                       disabled={formLocked}
                     >
                       {product.image ? (
@@ -602,7 +656,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             </div>
           )}
 
-          <div className="merchant-paid-promo-select-row">
+          <div className="merchant-paid-promo-select-row merchant-paid-promo-select-row--region">
             <MerchantPaidPromoSelect
               label={lang === 'zh' ? '推广地区' : 'Target region'}
               placeholder={lang === 'zh' ? '请选择地区' : 'Select region'}
@@ -612,27 +666,38 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                 value: item.value,
                 label: lang === 'zh' ? item.labelZh : item.labelEn,
               }))}
-              onChange={setTargetRegion}
-            />
-            <MerchantPaidPromoSelect
-              label={lang === 'zh' ? '受众群体' : 'Audience'}
-              placeholder={lang === 'zh' ? '请选择受众' : 'Select audience'}
-              value={targetAudience}
-              disabled={formLocked}
-              options={audienceOptions.map((item) => ({
-                value: item.value,
-                label: lang === 'zh' ? item.labelZh : item.labelEn,
-              }))}
-              onChange={setTargetAudience}
+              onChange={(value) => {
+                markFormDirty()
+                setTargetRegion(value)
+              }}
             />
           </div>
+
+          <MerchantPaidPromoAudiencePicker
+            label={lang === 'zh' ? '受众群体' : 'Audience'}
+            hint={
+              lang === 'zh'
+                ? '可多选；选择「全部受众」时无需再选其他群体'
+                : 'Multi-select supported. Choosing “All audiences” clears other selections.'
+            }
+            value={targetAudiences}
+            disabled={formLocked}
+            options={audienceOptions.map((item) => ({
+              value: item.value,
+              label: lang === 'zh' ? item.labelZh : item.labelEn,
+            }))}
+            onChange={(values) => {
+              markFormDirty()
+              setTargetAudiences(values)
+            }}
+          />
 
           {!formLocked ? (
             <button
               type="button"
               className="merchant-paid-promo-save-btn"
               onClick={saveTarget}
-              disabled={saving || (targetType === 'product' && !selectedListingId) || !targetRegion || !targetAudience}
+              disabled={saving || (targetType === 'product' && !selectedListingId) || !targetRegion || targetAudiences.length === 0}
             >
               {saving ? (lang === 'zh' ? '提交中…' : 'Submitting…') : lang === 'zh' ? '确认推广' : 'Confirm promotion'}
             </button>
@@ -654,7 +719,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
               </span>
               <span>
                 {lang === 'zh' ? '受众：' : 'Audience: '}
-                {labelForOption(audienceOptions, promotion.targetAudience, lang)}
+                {labelsForAudiences(audienceOptions, promotion.targetAudience, lang)}
               </span>
             </div>
           ) : null}
@@ -788,7 +853,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                   <strong>{lang === 'zh' ? '地区与受众' : 'Region & audience'}</strong>
                   <p>
                     {audienceReady
-                      ? `${labelForOption(regionOptions, targetRegion, lang)} · ${labelForOption(audienceOptions, targetAudience, lang)}`
+                      ? `${labelForOption(regionOptions, targetRegion, lang)} · ${labelsForAudiences(audienceOptions, serializeAudienceValues(targetAudiences), lang)}`
                       : lang === 'zh'
                         ? '选择投放地区与目标人群'
                         : 'Choose region and audience segment'}
