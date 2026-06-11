@@ -449,6 +449,7 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
+  overflow: hidden;
   background:
     linear-gradient(165deg, rgba(255, 255, 255, 0.09) 0%, transparent 38%),
     linear-gradient(15deg, transparent 62%, rgba(255, 255, 255, 0.04) 100%);
@@ -905,6 +906,118 @@
 
 @keyframes mc-spin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes mc-dash-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mc-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-12px, 10px) scale(1.06); }
+}
+
+@keyframes mc-grid-drift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 24px 24px, 24px 24px; }
+}
+
+@keyframes mc-shine-sweep {
+  0%, 100% { transform: translateX(-120%) skewX(-12deg); opacity: 0; }
+  45% { opacity: 1; }
+  55% { opacity: 1; }
+  100% { transform: translateX(220%) skewX(-12deg); opacity: 0; }
+}
+
+@keyframes mc-bar-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(var(--mc-bar-scale, 1)); }
+}
+
+@keyframes mc-spark-draw {
+  from { stroke-dashoffset: 100; opacity: 0.35; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes mc-spark-area-in {
+  from { opacity: 0; transform: scaleY(0.2); transform-origin: bottom; }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes mc-spark-dot-pop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes mc-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mc-metric-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mc-glow-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+
+@keyframes mc-dot-breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 12px currentColor; }
+  50% { transform: scale(1.15); box-shadow: 0 0 18px currentColor; }
+}
+
+@keyframes mc-stat-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mc-insight-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes mc-delta-pop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes mc-chart-shell-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mc-hero-block-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Restored structural rules */
@@ -1635,9 +1748,12 @@
 
 .merchant-dashboard-hero-microbar-fill {
   display: block;
+  width: 100%;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #6ee7b7 0%, #34d399 100%);
+  transform-origin: left center;
+  transform: scaleX(var(--mc-bar-scale, 1));
 }
 
 .merchant-dashboard-hero-microbar-fill--violet {
@@ -2213,8 +2329,11 @@
 
 .merchant-overview-progress-fill {
   display: block;
+  width: 100%;
   height: 100%;
   border-radius: inherit;
+  transform-origin: left center;
+  transform: scaleX(var(--mc-bar-scale, 1));
 }
 
 .merchant-overview-progress-fill--emerald {
@@ -2335,9 +2454,12 @@
 
 .merchant-overview-microbar-fill {
   display: block;
+  width: 100%;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #a5b4fc 0%, #5b6cff 100%);
+  transform-origin: left center;
+  transform: scaleX(var(--mc-bar-scale, 1));
 }
 
 .merchant-overview-metric--emerald .merchant-overview-microbar-fill {
@@ -2480,6 +2602,152 @@
 .merchant-dashboard-chart-skeleton {
   background: var(--mc-bg-subtle) !important;
   border-radius: 12px !important;
+}
+
+/* Dashboard motion system */
+@media (prefers-reduced-motion: no-preference) {
+  .merchant-dashboard--v2.merchant-dashboard--mounted > section,
+  .merchant-dashboard--v2.merchant-dashboard--mounted > button.merchant-dashboard-pending-bar {
+    animation: mc-dash-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .merchant-dashboard--mounted > section:nth-of-type(1) { animation-delay: 0.04s; }
+  .merchant-dashboard--mounted > button.merchant-dashboard-pending-bar { animation-delay: 0.1s; }
+  .merchant-dashboard--mounted > section:nth-of-type(2) { animation-delay: 0.12s; }
+  .merchant-dashboard--mounted > section:nth-of-type(3) { animation-delay: 0.2s; }
+  .merchant-dashboard--mounted > section:nth-of-type(4) { animation-delay: 0.28s; }
+  .merchant-dashboard--mounted > section:nth-of-type(5) { animation-delay: 0.36s; }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-grid {
+    animation: mc-grid-drift 24s linear infinite;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-orb {
+    animation: mc-orb-float 9s ease-in-out infinite alternate;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.09) 48%, transparent 100%);
+    animation: mc-shine-sweep 7s ease-in-out infinite;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-corner {
+    animation: mc-dot-breathe 3.5s ease-in-out infinite;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-block {
+    animation: mc-hero-block-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-block:first-of-type {
+    animation-delay: 0.18s;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-block:last-of-type {
+    animation-delay: 0.28s;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-microbar-fill,
+  .merchant-overview-microbar-fill,
+  .merchant-overview-progress-fill {
+    transform: scaleX(0);
+    animation: mc-bar-fill 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-shop-item:nth-child(1) .merchant-dashboard-hero-microbar-fill {
+    animation-delay: 0.35s;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-shop-item:nth-child(3) .merchant-dashboard-hero-microbar-fill {
+    animation-delay: 0.45s;
+  }
+
+  .merchant-dashboard-hero--animated .merchant-dashboard-hero-shop-item:nth-child(5) .merchant-dashboard-hero-microbar-fill {
+    animation-delay: 0.55s;
+  }
+
+  .merchant-dashboard-stats--animated .merchant-dashboard-stat {
+    animation: mc-stat-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--mc-stagger, 0s);
+  }
+
+  .merchant-dashboard-stats--animated .merchant-dashboard-stat:hover {
+    transform: translateY(-3px);
+  }
+
+  .merchant-dashboard-stats--animated .merchant-dashboard-stat:hover .merchant-dashboard-stat-icon {
+    transform: scale(1.06) translateY(-1px);
+  }
+
+  .merchant-dashboard-overview-grid--animated .merchant-dashboard-overview-card {
+    animation: mc-card-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--mc-stagger, 0s);
+  }
+
+  .merchant-dashboard-overview-card-glow {
+    animation: mc-glow-breathe 5s ease-in-out infinite;
+  }
+
+  .merchant-dashboard-overview-dot {
+    animation: mc-dot-breathe 2.8s ease-in-out infinite;
+  }
+
+  .merchant-overview-metric {
+    animation: mc-metric-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--mc-metric-delay, 0s);
+  }
+
+  .merchant-overview-sparkline-line {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: mc-spark-draw 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--mc-spark-delay, 0.2s);
+  }
+
+  .merchant-overview-sparkline-area {
+    animation: mc-spark-area-in 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--mc-spark-delay, 0.2s) + 0.15s);
+  }
+
+  .merchant-overview-sparkline-dot {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mc-spark-dot-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--mc-spark-delay, 0.2s) + 1s);
+  }
+
+  .merchant-overview-delta {
+    animation: mc-delta-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: 0.35s;
+  }
+
+  .merchant-overview-insight {
+    animation: mc-insight-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: 0.45s;
+  }
+
+  .merchant-dashboard-charts-shell--animated {
+    animation: mc-chart-shell-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: 0.15s;
+  }
+
+  .merchant-dashboard-chart-card--active {
+    animation: mc-fade-in 0.45s ease;
+  }
+}
+
+.merchant-dashboard-stat {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.merchant-dashboard-stat-icon {
+  transition: transform 0.22s ease;
 }
 
 /* FAB buttons */

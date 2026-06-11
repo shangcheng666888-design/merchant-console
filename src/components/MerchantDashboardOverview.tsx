@@ -1,4 +1,5 @@
 import React from 'react'
+import AnimatedMetric, { type AnimatedMetricFormat } from './AnimatedMetric'
 
 export interface OverviewDashboardData {
   lang: 'zh' | 'en'
@@ -25,7 +26,10 @@ type MetricTone = 'indigo' | 'blue' | 'gold' | 'emerald' | 'violet'
 
 interface OverviewMetric {
   icon: React.ReactNode
-  value: React.ReactNode
+  value?: React.ReactNode
+  numericValue?: number
+  valueFormat?: AnimatedMetricFormat
+  decimals?: number
   label: string
   delta?: number | null
   deltaLabel?: string
@@ -37,7 +41,9 @@ interface OverviewCardConfig {
   variant: OverviewVariant
   title: string
   code: string
-  primaryValue: React.ReactNode
+  primaryNumeric: number
+  primaryFormat?: AnimatedMetricFormat
+  primaryDecimals?: number
   primaryLabel: string
   primaryDelta?: number | null
   primaryDeltaLabel?: string
@@ -140,7 +146,8 @@ function buildOverviewCards(data: OverviewDashboardData): Record<OverviewVariant
       variant: 'shop',
       title: lang === 'zh' ? '店铺概况' : 'Shop overview',
       code: `SHOP · ${getLevelLabel(shopLevel, lang).toUpperCase()}`,
-      primaryValue: healthScore,
+      primaryNumeric: healthScore,
+      primaryFormat: 'number',
       primaryLabel: lang === 'zh' ? '健康综合分' : 'Health score',
       primaryDelta: null,
       sparkData: orderSeries,
@@ -153,21 +160,25 @@ function buildOverviewCards(data: OverviewDashboardData): Record<OverviewVariant
       metrics: [
         {
           icon: <OverviewIcon name="rating" />,
-          value: `${goodRate.toFixed(1)}%`,
+          numericValue: goodRate,
+          valueFormat: 'percent',
+          decimals: 1,
           label: lang === 'zh' ? '好评率' : 'Good rating',
           barPercent: goodRate,
           tone: 'emerald',
         },
         {
           icon: <OverviewIcon name="credit" />,
-          value: creditScore,
+          numericValue: creditScore,
+          valueFormat: 'number',
           label: lang === 'zh' ? '信用分' : 'Credit',
           barPercent: Math.min(creditScore, 100),
           tone: 'blue',
         },
         {
           icon: <OverviewIcon name="visitors" />,
-          value: followers.toLocaleString(),
+          numericValue: followers,
+          valueFormat: 'compact',
           label: lang === 'zh' ? '店铺关注' : 'Followers',
           barPercent: Math.min(100, followers * 2),
           tone: 'violet',
@@ -179,7 +190,8 @@ function buildOverviewCards(data: OverviewDashboardData): Record<OverviewVariant
       variant: 'traffic',
       title: lang === 'zh' ? '流量概况' : 'Traffic overview',
       code: 'TRAFFIC · 7D',
-      primaryValue: visits30d.toLocaleString(),
+      primaryNumeric: visits30d,
+      primaryFormat: 'compact',
       primaryLabel: lang === 'zh' ? '30日访客' : '30-day visitors',
       primaryDelta: visitDelta,
       primaryDeltaLabel: lang === 'zh' ? '较昨日' : 'vs yesterday',
@@ -188,19 +200,23 @@ function buildOverviewCards(data: OverviewDashboardData): Record<OverviewVariant
       metrics: [
         {
           icon: <OverviewIcon name="visitors" />,
-          value: visitsToday,
+          numericValue: visitsToday,
+          valueFormat: 'number',
           label: lang === 'zh' ? '今日访客' : "Today's visitors",
           tone: 'blue',
         },
         {
           icon: <OverviewIcon name="trend" />,
-          value: visits7d,
+          numericValue: visits7d,
+          valueFormat: 'number',
           label: lang === 'zh' ? '7日访客' : '7-day visitors',
           tone: 'indigo',
         },
         {
           icon: <OverviewIcon name="conversion" />,
-          value: `${conversionRate.toFixed(2)}%`,
+          numericValue: conversionRate,
+          valueFormat: 'percent',
+          decimals: 2,
           label: lang === 'zh' ? '转化率' : 'Conversion',
           barPercent: Math.min(100, conversionRate * 20),
           tone: 'violet',
@@ -212,7 +228,8 @@ function buildOverviewCards(data: OverviewDashboardData): Record<OverviewVariant
       variant: 'today',
       title: lang === 'zh' ? '今日概况' : "Today's overview",
       code: 'TODAY · LIVE',
-      primaryValue: `$${todaySales.toFixed(2)}`,
+      primaryNumeric: todaySales,
+      primaryFormat: 'currency',
       primaryLabel: lang === 'zh' ? '今日销售额' : "Today's sales",
       primaryDelta: pctDelta(todaySales, yesterdaySales),
       primaryDeltaLabel: lang === 'zh' ? '较昨日' : 'vs yesterday',
@@ -221,7 +238,8 @@ function buildOverviewCards(data: OverviewDashboardData): Record<OverviewVariant
       metrics: [
         {
           icon: <OverviewIcon name="orders" />,
-          value: todayOrders,
+          numericValue: todayOrders,
+          valueFormat: 'number',
           label: lang === 'zh' ? '今日订单' : "Today's orders",
           delta: pctDelta(todayOrders, yesterdayOrders),
           deltaLabel: lang === 'zh' ? '较昨日' : 'vs yesterday',
@@ -229,13 +247,16 @@ function buildOverviewCards(data: OverviewDashboardData): Record<OverviewVariant
         },
         {
           icon: <OverviewIcon name="profit" />,
-          value: `$${todayProfit.toFixed(2)}`,
+          numericValue: todayProfit,
+          valueFormat: 'currency',
           label: lang === 'zh' ? '预计利润' : 'Expected profit',
           tone: 'gold',
         },
         {
           icon: <OverviewIcon name="aov" />,
-          value: `${profitMargin.toFixed(1)}%`,
+          numericValue: profitMargin,
+          valueFormat: 'percent',
+          decimals: 1,
           label: lang === 'zh' ? '利润率' : 'Profit margin',
           barPercent: Math.min(100, profitMargin * 2),
           tone: 'violet',
@@ -305,7 +326,7 @@ function OverviewIcon({
   )
 }
 
-function MiniSparkline({ data, color }: { data: number[]; color: string }) {
+function MiniSparkline({ data, color, delay = 0 }: { data: number[]; color: string; delay?: number }) {
   if (!data.length) return null
 
   const width = 108
@@ -313,6 +334,7 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
   const max = Math.max(...data, 1)
   const min = Math.min(...data, 0)
   const range = max - min || 1
+  const gradId = `spark-${color.replace('#', '')}`
 
   const points = data.map((value, index) => {
     const x = data.length === 1 ? width / 2 : (index / (data.length - 1)) * width
@@ -325,16 +347,31 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
   const last = points[points.length - 1]
 
   return (
-    <svg className="merchant-overview-sparkline" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
+    <svg
+      className="merchant-overview-sparkline"
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      style={{ '--mc-spark-delay': `${delay}s` } as React.CSSProperties}
+    >
       <defs>
-        <linearGradient id={`spark-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.32" />
           <stop offset="100%" stopColor={color} stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      <polygon points={area} fill={`url(#spark-${color.replace('#', '')})`} />
-      <polyline points={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      {last ? <circle cx={last.x} cy={last.y} r="2.8" fill={color} /> : null}
+      <polygon className="merchant-overview-sparkline-area" points={area} fill={`url(#${gradId})`} />
+      <polyline
+        className="merchant-overview-sparkline-line"
+        points={line}
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        pathLength={100}
+      />
+      {last ? <circle className="merchant-overview-sparkline-dot" cx={last.x} cy={last.y} r="2.8" fill={color} /> : null}
     </svg>
   )
 }
@@ -360,23 +397,46 @@ function DeltaBadge({
   )
 }
 
-function OverviewMetricCell({ metric }: { metric: OverviewMetric }) {
+function MetricValue({ metric }: { metric: OverviewMetric }) {
+  if (typeof metric.numericValue === 'number') {
+    return (
+      <AnimatedMetric
+        className="merchant-overview-metric-value"
+        value={metric.numericValue}
+        format={metric.valueFormat ?? 'number'}
+        decimals={metric.decimals}
+      />
+    )
+  }
+  return <span className="merchant-overview-metric-value">{metric.value}</span>
+}
+
+function OverviewMetricCell({ metric, index = 0 }: { metric: OverviewMetric; index?: number }) {
   const tone = metric.tone ?? 'indigo'
+  const barScale = typeof metric.barPercent === 'number'
+    ? Math.min(1, Math.max(0, metric.barPercent / 100))
+    : null
 
   return (
-    <div className={`merchant-overview-metric merchant-overview-metric--${tone}`}>
+    <div
+      className={`merchant-overview-metric merchant-overview-metric--${tone}`}
+      style={{ '--mc-metric-delay': `${0.12 + index * 0.08}s` } as React.CSSProperties}
+    >
       <span className="merchant-overview-metric-icon" aria-hidden="true">
         {metric.icon}
       </span>
       <div className="merchant-overview-metric-body">
-        <span className="merchant-overview-metric-value">{metric.value}</span>
+        <MetricValue metric={metric} />
         <span className="merchant-overview-metric-label">{metric.label}</span>
         {metric.delta !== undefined ? (
           <DeltaBadge value={metric.delta} label={metric.deltaLabel ?? ''} />
         ) : null}
-        {typeof metric.barPercent === 'number' ? (
+        {barScale !== null ? (
           <span className="merchant-overview-microbar" aria-hidden="true">
-            <span className="merchant-overview-microbar-fill" style={{ width: `${Math.min(100, Math.max(0, metric.barPercent))}%` }} />
+            <span
+              className="merchant-overview-microbar-fill"
+              style={{ '--mc-bar-scale': String(barScale) } as React.CSSProperties}
+            />
           </span>
         ) : null}
       </div>
@@ -384,12 +444,39 @@ function OverviewMetricCell({ metric }: { metric: OverviewMetric }) {
   )
 }
 
-export function OverviewCard({ config, compact = false }: { config: OverviewCardConfig; compact?: boolean }) {
-  const { variant, title, code, primaryValue, primaryLabel, primaryDelta, primaryDeltaLabel, sparkData, sparkColor, metrics, insight, progress } =
-    config
+export function OverviewCard({
+  config,
+  compact = false,
+  index = 0,
+}: {
+  config: OverviewCardConfig
+  compact?: boolean
+  index?: number
+}) {
+  const {
+    variant,
+    title,
+    code,
+    primaryNumeric,
+    primaryFormat = 'number',
+    primaryDecimals,
+    primaryLabel,
+    primaryDelta,
+    primaryDeltaLabel,
+    sparkData,
+    sparkColor,
+    metrics,
+    insight,
+    progress,
+  } = config
+
+  const progressScale = progress ? Math.min(1, Math.max(0, progress.percent / 100)) : null
 
   return (
-    <article className={`merchant-dashboard-overview-card merchant-dashboard-overview-card--${variant}${compact ? ' merchant-dashboard-overview-card--compact' : ''}`}>
+    <article
+      className={`merchant-dashboard-overview-card merchant-dashboard-overview-card--${variant}${compact ? ' merchant-dashboard-overview-card--compact' : ''}`}
+      style={{ '--mc-stagger': `${0.08 + index * 0.12}s` } as React.CSSProperties}
+    >
       <div className="merchant-dashboard-overview-card-bg" aria-hidden="true" />
       <div className="merchant-dashboard-overview-card-glow" aria-hidden="true" />
 
@@ -401,12 +488,17 @@ export function OverviewCard({ config, compact = false }: { config: OverviewCard
             <span className="merchant-dashboard-overview-code">{code}</span>
           </div>
         </div>
-        <MiniSparkline data={sparkData} color={sparkColor} />
+        <MiniSparkline data={sparkData} color={sparkColor} delay={0.15 + index * 0.1} />
       </header>
 
       <div className="merchant-overview-primary">
         <div className="merchant-overview-primary-main">
-          <span className="merchant-overview-primary-value">{primaryValue}</span>
+          <AnimatedMetric
+            className="merchant-overview-primary-value"
+            value={primaryNumeric}
+            format={primaryFormat}
+            decimals={primaryDecimals}
+          />
           <span className="merchant-overview-primary-label">{primaryLabel}</span>
           {primaryDelta !== undefined ? (
             <DeltaBadge value={primaryDelta} label={primaryDeltaLabel ?? ''} />
@@ -421,7 +513,7 @@ export function OverviewCard({ config, compact = false }: { config: OverviewCard
             <span className="merchant-overview-progress-track" aria-hidden="true">
               <span
                 className={`merchant-overview-progress-fill merchant-overview-progress-fill--${progress.tone}`}
-                style={{ width: `${Math.min(100, Math.max(0, progress.percent))}%` }}
+                style={{ '--mc-bar-scale': String(progressScale) } as React.CSSProperties}
               />
             </span>
           </div>
@@ -429,8 +521,8 @@ export function OverviewCard({ config, compact = false }: { config: OverviewCard
       </div>
 
       <div className="merchant-overview-metrics">
-        {metrics.map((metric) => (
-          <OverviewMetricCell key={metric.label} metric={metric} />
+        {metrics.map((metric, metricIndex) => (
+          <OverviewMetricCell key={metric.label} metric={metric} index={metricIndex} />
         ))}
       </div>
 
@@ -471,10 +563,10 @@ export const MerchantDashboardOverview: React.FC<MerchantDashboardOverviewProps>
   }
 
   return (
-    <div className="merchant-dashboard-overview-grid">
-      <OverviewCard config={cards.shop} />
-      <OverviewCard config={cards.traffic} />
-      <OverviewCard config={cards.today} />
+    <div className="merchant-dashboard-overview-grid merchant-dashboard-overview-grid--animated">
+      <OverviewCard config={cards.shop} index={0} />
+      <OverviewCard config={cards.traffic} index={1} />
+      <OverviewCard config={cards.today} index={2} />
     </div>
   )
 }

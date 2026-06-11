@@ -92,7 +92,7 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
 
   if (!Recharts) {
     return (
-      <div className="merchant-dashboard-charts-shell">
+      <div className="merchant-dashboard-charts-shell merchant-dashboard-charts-shell--animated">
         <div className="merchant-dashboard-chart-switch">
           <span className="merchant-dashboard-chart-tab merchant-dashboard-chart-tab--active">
             {lang === 'zh' ? '店铺评分' : 'Shop score'}
@@ -113,7 +113,7 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
   const { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts
 
   return (
-    <div className="merchant-dashboard-charts-shell">
+    <div className="merchant-dashboard-charts-shell merchant-dashboard-charts-shell--animated">
       <div className="merchant-dashboard-chart-switch">
         {tabs.map((tab) => (
           <button
@@ -179,6 +179,9 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
                     stroke={card.theme.stroke}
                     fill={`url(#${card.theme.gradId})`}
                     strokeWidth={2.5}
+                    isAnimationActive
+                    animationDuration={1400}
+                    animationEasing="ease-out"
                     dot={{ r: 3, fill: card.theme.stroke, strokeWidth: 0 }}
                     activeDot={{ r: 5, fill: card.theme.stroke, stroke: '#fff', strokeWidth: 2 }}
                   />

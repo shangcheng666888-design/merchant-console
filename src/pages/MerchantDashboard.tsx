@@ -6,6 +6,7 @@ import { useMerchantShop } from '../context/MerchantShopContext'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
 import MerchantDashboardStatIcon from '../components/MerchantDashboardStatIcon'
 import { MerchantDashboardOverview, type OverviewVariant } from '../components/MerchantDashboardOverview'
+import AnimatedMetric from '../components/AnimatedMetric'
 import { openCrispChat } from '../utils/crispChat'
 
 const EMPTY_CHART_DATA = [
@@ -108,6 +109,14 @@ const MerchantDashboard: React.FC = () => {
   const [chartData, setChartData] = useState(EMPTY_CHART_DATA)
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
   const [overviewTab, setOverviewTab] = useState<OverviewVariant>('shop')
+  const [dashboardMounted, setDashboardMounted] = useState(false)
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setDashboardMounted(true))
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  const healthIndex = Math.round((goodRate + Math.min(creditScore, 100)) / 2)
 
   useEffect(() => {
     const readAuth = (): { shopId: string } | null => {
@@ -343,8 +352,8 @@ const MerchantDashboard: React.FC = () => {
   }
 
   return (
-    <div className="merchant-dashboard merchant-dashboard--v2">
-      <section className="merchant-dashboard-hero merchant-dashboard-hero--v2">
+    <div className={`merchant-dashboard merchant-dashboard--v2${dashboardMounted ? ' merchant-dashboard--mounted' : ''}`}>
+      <section className="merchant-dashboard-hero merchant-dashboard-hero--v2 merchant-dashboard-hero--animated">
         <div className="merchant-dashboard-hero-bg" aria-hidden="true" />
         <div className="merchant-dashboard-hero-shine" aria-hidden="true" />
         <div className="merchant-dashboard-hero-grid" aria-hidden="true" />
@@ -374,7 +383,9 @@ const MerchantDashboard: React.FC = () => {
             <div className="merchant-dashboard-hero-tags-row">
               <span className="merchant-dashboard-hero-tag-pill">
                 {lang === 'zh' ? '健康指数' : 'Health index'}
-                <strong>{Math.round((goodRate + Math.min(creditScore, 100)) / 2)}</strong>
+                <strong>
+                  <AnimatedMetric value={healthIndex} format="number" duration={900} />
+                </strong>
               </span>
               <span className="merchant-dashboard-hero-tag-pill merchant-dashboard-hero-tag-pill--muted">
                 {lang === 'zh' ? '7日趋势' : '7-day trend'}
@@ -400,10 +411,15 @@ const MerchantDashboard: React.FC = () => {
                     <span className="merchant-dashboard-hero-shop-label">
                       {lang === 'zh' ? '好评率' : 'Rating'}
                     </span>
-                    <span className="merchant-dashboard-hero-shop-value">{goodRate.toFixed(1)}%</span>
+                    <span className="merchant-dashboard-hero-shop-value">
+                      <AnimatedMetric value={goodRate} format="percent" decimals={1} />
+                    </span>
                   </div>
                   <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
-                    <span className="merchant-dashboard-hero-microbar-fill" style={{ width: `${goodRate}%` }} />
+                    <span
+                      className="merchant-dashboard-hero-microbar-fill"
+                      style={{ '--mc-bar-scale': String(Math.min(1, goodRate / 100)) } as React.CSSProperties}
+                    />
                   </span>
                 </div>
                 <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
@@ -415,10 +431,15 @@ const MerchantDashboard: React.FC = () => {
                     <span className="merchant-dashboard-hero-shop-label">
                       {lang === 'zh' ? '信用分' : 'Credit'}
                     </span>
-                    <span className="merchant-dashboard-hero-shop-value">{creditScore}</span>
+                    <span className="merchant-dashboard-hero-shop-value">
+                      <AnimatedMetric value={creditScore} format="number" />
+                    </span>
                   </div>
                   <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
-                    <span className="merchant-dashboard-hero-microbar-fill" style={{ width: `${Math.min(creditScore, 100)}%` }} />
+                    <span
+                      className="merchant-dashboard-hero-microbar-fill"
+                      style={{ '--mc-bar-scale': String(Math.min(1, creditScore / 100)) } as React.CSSProperties}
+                    />
                   </span>
                 </div>
                 <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
@@ -430,12 +451,14 @@ const MerchantDashboard: React.FC = () => {
                     <span className="merchant-dashboard-hero-shop-label">
                       {lang === 'zh' ? '关注' : 'Followers'}
                     </span>
-                    <span className="merchant-dashboard-hero-shop-value">{followers}</span>
+                    <span className="merchant-dashboard-hero-shop-value">
+                      <AnimatedMetric value={followers} format="compact" />
+                    </span>
                   </div>
                   <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
                     <span
                       className="merchant-dashboard-hero-microbar-fill merchant-dashboard-hero-microbar-fill--violet"
-                      style={{ width: `${Math.min(100, followers * 5)}%` }}
+                      style={{ '--mc-bar-scale': String(Math.min(1, (followers * 5) / 100)) } as React.CSSProperties}
                     />
                   </span>
                 </div>
@@ -459,7 +482,9 @@ const MerchantDashboard: React.FC = () => {
                   <span className="merchant-dashboard-hero-today-label">
                     {lang === 'zh' ? '今日销售额' : "Today's sales"}
                   </span>
-                  <span className="merchant-dashboard-hero-today-value">${todaySales.toFixed(2)}</span>
+                  <span className="merchant-dashboard-hero-today-value">
+                    <AnimatedMetric value={todaySales} format="currency" />
+                  </span>
                 </div>
                 <div className="merchant-dashboard-hero-today-item">
                   <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--orders">
@@ -468,7 +493,9 @@ const MerchantDashboard: React.FC = () => {
                   <span className="merchant-dashboard-hero-today-label">
                     {lang === 'zh' ? '今日订单' : 'Orders'}
                   </span>
-                  <span className="merchant-dashboard-hero-today-value">{todayOrders}</span>
+                  <span className="merchant-dashboard-hero-today-value">
+                    <AnimatedMetric value={todayOrders} format="number" />
+                  </span>
                 </div>
                 <div className="merchant-dashboard-hero-today-item">
                   <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--profit">
@@ -477,7 +504,9 @@ const MerchantDashboard: React.FC = () => {
                   <span className="merchant-dashboard-hero-today-label">
                     {lang === 'zh' ? '预计利润' : 'Profit'}
                   </span>
-                  <span className="merchant-dashboard-hero-today-value">${todayProfit.toFixed(2)}</span>
+                  <span className="merchant-dashboard-hero-today-value">
+                    <AnimatedMetric value={todayProfit} format="currency" />
+                  </span>
                 </div>
               </div>
             </div>
@@ -512,38 +541,51 @@ const MerchantDashboard: React.FC = () => {
             {lang === 'zh' ? '累计经营数据一览' : 'Cumulative business overview'}
           </p>
         </header>
-        <div className="merchant-dashboard-stats merchant-dashboard-stats--v2">
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--products">
+        <div className="merchant-dashboard-stats merchant-dashboard-stats--v2 merchant-dashboard-stats--animated">
+          <div className="merchant-dashboard-stat merchant-dashboard-stat--products" style={{ '--mc-stagger': '0.05s' } as React.CSSProperties}>
             <MerchantDashboardStatIcon variant="products" />
-            <span className="merchant-dashboard-stat-value">{productCount}</span>
+            <span className="merchant-dashboard-stat-value">
+              <AnimatedMetric value={productCount} format="number" />
+            </span>
             <span className="merchant-dashboard-stat-label">
               {lang === 'zh' ? '商品总数' : 'Total products'}
             </span>
           </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--sales">
+          <div className="merchant-dashboard-stat merchant-dashboard-stat--sales" style={{ '--mc-stagger': '0.1s' } as React.CSSProperties}>
             <MerchantDashboardStatIcon variant="sales" />
-            <span className="merchant-dashboard-stat-value">${totalSales.toFixed(2)}</span>
+            <span className="merchant-dashboard-stat-value">
+              <AnimatedMetric value={totalSales} format="currency" />
+            </span>
             <span className="merchant-dashboard-stat-label">
               {lang === 'zh' ? '销售总额' : 'Total sales'}
             </span>
           </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--orders">
+          <div className="merchant-dashboard-stat merchant-dashboard-stat--orders" style={{ '--mc-stagger': '0.15s' } as React.CSSProperties}>
             <MerchantDashboardStatIcon variant="orders" />
-            <span className="merchant-dashboard-stat-value">{orderCount}</span>
+            <span className="merchant-dashboard-stat-value">
+              <AnimatedMetric value={orderCount} format="number" />
+            </span>
             <span className="merchant-dashboard-stat-label">
               {lang === 'zh' ? '总订单' : 'Total orders'}
             </span>
           </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--profit">
+          <div className="merchant-dashboard-stat merchant-dashboard-stat--profit" style={{ '--mc-stagger': '0.2s' } as React.CSSProperties}>
             <MerchantDashboardStatIcon variant="profit" />
-            <span className="merchant-dashboard-stat-value">${totalProfit.toFixed(2)}</span>
+            <span className="merchant-dashboard-stat-value">
+              <AnimatedMetric value={totalProfit} format="currency" />
+            </span>
             <span className="merchant-dashboard-stat-label">
               {lang === 'zh' ? '总利润' : 'Total profit'}
             </span>
           </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--pending merchant-dashboard-stat--highlight">
+          <div
+            className="merchant-dashboard-stat merchant-dashboard-stat--pending merchant-dashboard-stat--highlight"
+            style={{ '--mc-stagger': '0.25s' } as React.CSSProperties}
+          >
             <MerchantDashboardStatIcon variant="pending" />
-            <span className="merchant-dashboard-stat-value">{pendingOrdersCount}</span>
+            <span className="merchant-dashboard-stat-value">
+              <AnimatedMetric value={pendingOrdersCount} format="number" />
+            </span>
             <span className="merchant-dashboard-stat-label">
               {lang === 'zh' ? '待处理订单' : 'Pending orders'}
             </span>
@@ -557,9 +599,11 @@ const MerchantDashboard: React.FC = () => {
               </button>
             )}
           </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--unsettled">
+          <div className="merchant-dashboard-stat merchant-dashboard-stat--unsettled" style={{ '--mc-stagger': '0.3s' } as React.CSSProperties}>
             <MerchantDashboardStatIcon variant="unsettled" />
-            <span className="merchant-dashboard-stat-value">${unsettledAmount.toFixed(2)}</span>
+            <span className="merchant-dashboard-stat-value">
+              <AnimatedMetric value={unsettledAmount} format="currency" />
+            </span>
             <span className="merchant-dashboard-stat-label">
               {lang === 'zh' ? '待结算金额' : 'Unsettled amount'}
             </span>
