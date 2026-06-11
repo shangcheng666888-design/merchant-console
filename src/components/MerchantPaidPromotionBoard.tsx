@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
+import { useMerchantShop } from '../context/MerchantShopContext'
 import { useToast } from './ToastProvider'
 import paidTiktok from '../assets/paid-tiktok.png'
 import paidMeta from '../assets/paid-meta.png'
 import paidGoogle from '../assets/paid-google.png'
 import liulianggaikuang from '../assets/liulianggaikuang.png'
 import MiniSparkline from './MiniSparkline'
+import MerchantPaidPromoSelect from './MerchantPaidPromoSelect'
 
 type PaidChannel = 'tiktok' | 'meta' | 'google' | 'other'
 type TargetType = 'shop' | 'product'
@@ -120,6 +122,7 @@ interface MerchantPaidPromotionBoardProps {
 
 const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({ lang }) => {
   const { showToast } = useToast()
+  const { shop } = useMerchantShop()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [promotion, setPromotion] = useState<PromotionInfo | null>(null)
@@ -268,6 +271,14 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
 
   const budgetProgressPct = Math.round((metrics?.budgetProgress ?? 0) * 100)
 
+  const selectedProduct = useMemo(() => {
+    if (!selectedListingId) return null
+    return products.find((item) => String(item.listingId) === selectedListingId) ?? null
+  }, [products, selectedListingId])
+
+  const targetReady = targetType === 'shop' || Boolean(selectedListingId)
+  const audienceReady = Boolean(targetRegion && targetAudience)
+
   if (loading) return null
   if (!promotion) return null
 
@@ -275,8 +286,15 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
     <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广看板' : 'Paid promotion board'}>
       <header className="merchant-dashboard-section-head">
         <div className="merchant-paid-promo-board-head">
-          <span className="merchant-paid-promo-board-icon" aria-hidden="true">
-            {channelInfo?.icon ? <img src={channelInfo.icon} alt="" /> : <img src={liulianggaikuang} alt="" />}
+          <span
+            className={`merchant-paid-promo-board-icon${channelInfo?.icon ? ' merchant-paid-promo-board-icon--channel' : ''}`}
+            aria-hidden="true"
+          >
+            {channelInfo?.icon ? (
+              <img src={channelInfo.icon} alt="" className="merchant-paid-promo-board-icon-img" />
+            ) : (
+              <img src={liulianggaikuang} alt="" className="merchant-paid-promo-board-icon-img" />
+            )}
           </span>
           <div>
             <h3 className="merchant-dashboard-section-title">
@@ -351,42 +369,54 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                 onClick={() => !formLocked && setTargetType('shop')}
                 disabled={formLocked}
               >
-                <span className="merchant-paid-promo-shop-item-icon" aria-hidden="true">
-                  🏪
-                </span>
-                <span className="merchant-paid-promo-shop-item-title">
-                  {lang === 'zh' ? '推广整店' : 'Promote whole shop'}
-                </span>
-                <span className="merchant-paid-promo-shop-item-desc">
-                  {lang === 'zh' ? '将店铺首页作为付费推广落地页' : 'Use your shop homepage as the landing page'}
+                <div className="merchant-paid-promo-shop-item-main">
+                  {shop?.logo ? (
+                    <img src={shop.logo} alt="" className="merchant-paid-promo-shop-avatar" />
+                  ) : (
+                    <span className="merchant-paid-promo-shop-avatar merchant-paid-promo-shop-avatar--fallback">
+                      {shop?.name?.slice(0, 1) || (lang === 'zh' ? '店' : 'S')}
+                    </span>
+                  )}
+                  <div className="merchant-paid-promo-shop-item-copy">
+                    <span className="merchant-paid-promo-shop-item-title">{shop?.name || (lang === 'zh' ? '我的店铺' : 'My shop')}</span>
+                    <span className="merchant-paid-promo-shop-item-id">
+                      ID · {shop?.id || promotion.shopId}
+                    </span>
+                    <span className="merchant-paid-promo-shop-item-desc">
+                      {lang === 'zh' ? '将店铺首页作为付费推广落地页' : 'Use your shop homepage as the landing page'}
+                    </span>
+                  </div>
+                </div>
+                <span className="merchant-paid-promo-shop-item-badge">
+                  {lang === 'zh' ? '整店推广' : 'Whole shop'}
                 </span>
               </button>
             </div>
           )}
 
           <div className="merchant-paid-promo-select-row">
-            <label className="merchant-paid-promo-select-field">
-              <span>{lang === 'zh' ? '推广地区' : 'Target region'}</span>
-              <select value={targetRegion} onChange={(e) => setTargetRegion(e.target.value)} disabled={formLocked}>
-                <option value="">{lang === 'zh' ? '请选择地区' : 'Select region'}</option>
-                {regionOptions.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {lang === 'zh' ? item.labelZh : item.labelEn}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="merchant-paid-promo-select-field">
-              <span>{lang === 'zh' ? '受众群体' : 'Audience'}</span>
-              <select value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} disabled={formLocked}>
-                <option value="">{lang === 'zh' ? '请选择受众' : 'Select audience'}</option>
-                {audienceOptions.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {lang === 'zh' ? item.labelZh : item.labelEn}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <MerchantPaidPromoSelect
+              label={lang === 'zh' ? '推广地区' : 'Target region'}
+              placeholder={lang === 'zh' ? '请选择地区' : 'Select region'}
+              value={targetRegion}
+              disabled={formLocked}
+              options={regionOptions.map((item) => ({
+                value: item.value,
+                label: lang === 'zh' ? item.labelZh : item.labelEn,
+              }))}
+              onChange={setTargetRegion}
+            />
+            <MerchantPaidPromoSelect
+              label={lang === 'zh' ? '受众群体' : 'Audience'}
+              placeholder={lang === 'zh' ? '请选择受众' : 'Select audience'}
+              value={targetAudience}
+              disabled={formLocked}
+              options={audienceOptions.map((item) => ({
+                value: item.value,
+                label: lang === 'zh' ? item.labelZh : item.labelEn,
+              }))}
+              onChange={setTargetAudience}
+            />
           </div>
 
           {!formLocked ? (
@@ -493,19 +523,158 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             </div>
           </div>
         ) : isPromotionSetupEditable(promotion) ? (
-          <div className="merchant-paid-promo-waiting-card">
-            <p>
-              {lang === 'zh'
-                ? '请选择推广目标、地区与受众，确认后提交给管理员开启投放。'
-                : 'Choose target, region and audience, then submit for admin launch.'}
-            </p>
+          <div className="merchant-paid-promo-preview-card">
+            <div className="merchant-paid-promo-preview-head">
+              <div className="merchant-paid-promo-preview-channel">
+                <span className="merchant-paid-promo-preview-channel-icon" aria-hidden="true">
+                  {channelInfo?.icon ? <img src={channelInfo.icon} alt="" /> : <img src={liulianggaikuang} alt="" />}
+                </span>
+                <div>
+                  <p className="merchant-paid-promo-preview-kicker">
+                    {lang === 'zh' ? '投放预览' : 'Campaign preview'}
+                  </p>
+                  <h4 className="merchant-paid-promo-preview-title">
+                    {channelInfo?.[lang === 'zh' ? 'zh' : 'en'] ?? promotion.channel}
+                    {lang === 'zh' ? ' 付费推广' : ' paid ads'}
+                  </h4>
+                </div>
+              </div>
+              <span className="merchant-paid-promo-preview-status">
+                {lang === 'zh' ? '待配置' : 'Draft'}
+              </span>
+            </div>
+
+            <ol className="merchant-paid-promo-preview-steps">
+              <li className={`merchant-paid-promo-preview-step${targetReady ? ' merchant-paid-promo-preview-step--done' : ' merchant-paid-promo-preview-step--active'}`}>
+                <span className="merchant-paid-promo-preview-step-index">1</span>
+                <div>
+                  <strong>{lang === 'zh' ? '推广目标' : 'Promotion target'}</strong>
+                  <p
+                    className="merchant-paid-promo-preview-step-value"
+                    title={
+                      targetType === 'product' && selectedProduct
+                        ? selectedProduct.title
+                        : undefined
+                    }
+                  >
+                    {targetType === 'shop'
+                      ? lang === 'zh'
+                        ? `整店 · ${shop?.name || promotion.shopId}`
+                        : `Shop · ${shop?.name || promotion.shopId}`
+                      : selectedProduct
+                        ? selectedProduct.title
+                        : lang === 'zh'
+                          ? '请从左侧选择要推广的商品'
+                          : 'Select a product on the left'}
+                  </p>
+                </div>
+              </li>
+              <li className={`merchant-paid-promo-preview-step${audienceReady ? ' merchant-paid-promo-preview-step--done' : targetReady ? ' merchant-paid-promo-preview-step--active' : ''}`}>
+                <span className="merchant-paid-promo-preview-step-index">2</span>
+                <div>
+                  <strong>{lang === 'zh' ? '地区与受众' : 'Region & audience'}</strong>
+                  <p>
+                    {audienceReady
+                      ? `${labelForOption(regionOptions, targetRegion, lang)} · ${labelForOption(audienceOptions, targetAudience, lang)}`
+                      : lang === 'zh'
+                        ? '选择投放地区与目标人群'
+                        : 'Choose region and audience segment'}
+                  </p>
+                </div>
+              </li>
+              <li className={`merchant-paid-promo-preview-step${targetReady && audienceReady ? ' merchant-paid-promo-preview-step--active' : ''}`}>
+                <span className="merchant-paid-promo-preview-step-index">3</span>
+                <div>
+                  <strong>{lang === 'zh' ? '提交开启' : 'Submit for launch'}</strong>
+                  <p>
+                    {lang === 'zh'
+                      ? '确认后由管理员配置预算并开启智能投放'
+                      : 'Admin configures budget and launches smart delivery'}
+                  </p>
+                </div>
+              </li>
+            </ol>
+
+            <div className="merchant-paid-promo-preview-target">
+              {targetType === 'shop' ? (
+                <>
+                  {shop?.logo ? (
+                    <img src={shop.logo} alt="" className="merchant-paid-promo-preview-target-img merchant-paid-promo-preview-target-img--round" />
+                  ) : (
+                    <span className="merchant-paid-promo-preview-target-img merchant-paid-promo-preview-target-img--round merchant-paid-promo-preview-target-img--fallback">
+                      {shop?.name?.slice(0, 1) || (lang === 'zh' ? '店' : 'S')}
+                    </span>
+                  )}
+                  <div>
+                    <span className="merchant-paid-promo-preview-target-label">{lang === 'zh' ? '落地页' : 'Landing'}</span>
+                    <strong>{shop?.name || (lang === 'zh' ? '店铺首页' : 'Shop homepage')}</strong>
+                    <span className="merchant-paid-promo-preview-target-sub">ID · {shop?.id || promotion.shopId}</span>
+                  </div>
+                </>
+              ) : selectedProduct ? (
+                <>
+                  {selectedProduct.image ? (
+                    <img src={selectedProduct.image} alt="" className="merchant-paid-promo-preview-target-img" />
+                  ) : (
+                    <span className="merchant-paid-promo-preview-target-img merchant-paid-promo-preview-target-img--fallback">SKU</span>
+                  )}
+                  <div>
+                    <span className="merchant-paid-promo-preview-target-label">{lang === 'zh' ? '主推商品' : 'Featured SKU'}</span>
+                    <strong className="merchant-paid-promo-preview-target-name" title={selectedProduct.title}>
+                      {selectedProduct.title}
+                    </strong>
+                    <span className="merchant-paid-promo-preview-target-sub">${selectedProduct.price.toFixed(2)}</span>
+                  </div>
+                </>
+              ) : (
+                <div className="merchant-paid-promo-preview-target-empty">
+                  <span>{lang === 'zh' ? '选择商品后将在此预览推广落地页' : 'Product preview appears after selection'}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="merchant-paid-promo-preview-metrics">
+              <div className="merchant-paid-promo-preview-metric merchant-paid-promo-preview-metric--ghost">
+                <span>—</span>
+                <small>{lang === 'zh' ? '曝光' : 'Impressions'}</small>
+              </div>
+              <div className="merchant-paid-promo-preview-metric merchant-paid-promo-preview-metric--ghost">
+                <span>—</span>
+                <small>{lang === 'zh' ? '点击' : 'Clicks'}</small>
+              </div>
+              <div className="merchant-paid-promo-preview-metric merchant-paid-promo-preview-metric--ghost">
+                <span>—</span>
+                <small>{lang === 'zh' ? '进店' : 'Visits'}</small>
+              </div>
+            </div>
           </div>
         ) : promotion.status === 'awaiting_launch' ? (
-          <div className="merchant-paid-promo-waiting-card">
-            <p>
+          <div className="merchant-paid-promo-preview-card merchant-paid-promo-preview-card--waiting">
+            <div className="merchant-paid-promo-preview-head">
+              <div className="merchant-paid-promo-preview-channel">
+                <span className="merchant-paid-promo-preview-channel-icon" aria-hidden="true">
+                  {channelInfo?.icon ? <img src={channelInfo.icon} alt="" /> : <img src={liulianggaikuang} alt="" />}
+                </span>
+                <div>
+                  <p className="merchant-paid-promo-preview-kicker">{lang === 'zh' ? '方案已提交' : 'Submitted'}</p>
+                  <h4 className="merchant-paid-promo-preview-title">
+                    {lang === 'zh' ? '等待管理员开启' : 'Awaiting admin launch'}
+                  </h4>
+                </div>
+              </div>
+              <span className="merchant-paid-promo-preview-status merchant-paid-promo-preview-status--waiting">
+                {lang === 'zh' ? '审核中' : 'In review'}
+              </span>
+            </div>
+            <ul className="merchant-paid-promo-preview-checklist">
+              <li>{lang === 'zh' ? '推广目标已确认' : 'Target confirmed'}</li>
+              <li>{lang === 'zh' ? '地区与受众已锁定' : 'Region and audience locked'}</li>
+              <li>{lang === 'zh' ? '管理员配置投放参数中' : 'Admin configuring campaign settings'}</li>
+            </ul>
+            <p className="merchant-paid-promo-preview-footnote">
               {lang === 'zh'
-                ? '管理员正在配置投放时长、曝光量、点击率与预算，开启后将按设定智能消耗并展示数据。'
-                : 'Admin is configuring duration, impressions, CTR and budget. Data will release smartly after launch.'}
+                ? '开启后将展示曝光、点击、进店、成交等实时数据。'
+                : 'Live impressions, clicks, visits and orders will appear after launch.'}
             </p>
           </div>
         ) : null}

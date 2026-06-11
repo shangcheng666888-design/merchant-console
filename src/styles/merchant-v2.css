@@ -6743,18 +6743,29 @@
 }
 
 .merchant-paid-promo-board-icon {
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(26, 31, 54, 0.1);
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(165deg, #ffffff 0%, #f3f5ff 100%);
+  border: 1px solid #e8ecff;
+  box-shadow: 0 4px 14px rgba(26, 31, 54, 0.08);
 }
 
-.merchant-paid-promo-board-icon img {
+.merchant-paid-promo-board-icon--channel {
+  border-radius: 50%;
+  padding: 7px;
+  background: #ffffff;
+}
+
+.merchant-paid-promo-board-icon-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  display: block;
 }
 
 .merchant-paid-promo-board-body {
@@ -6765,7 +6776,8 @@
 
 .merchant-paid-promo-target-card,
 .merchant-paid-promo-metrics-card,
-.merchant-paid-promo-waiting-card {
+.merchant-paid-promo-waiting-card,
+.merchant-paid-promo-preview-card {
   border-radius: 14px;
   border: 1px solid #eef1f8;
   background: #ffffff;
@@ -6806,7 +6818,7 @@
 .merchant-paid-promo-target-tab:disabled,
 .merchant-paid-promo-product-item:disabled,
 .merchant-paid-promo-shop-item:disabled,
-.merchant-paid-promo-select-field select:disabled {
+.merchant-paid-promo-select--disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -6817,13 +6829,14 @@
 
 .merchant-paid-promo-shop-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   width: 100%;
   padding: 0.85rem 0.95rem;
   border: 1px solid #e8ecff;
-  border-radius: 12px;
-  background: #fbfcff;
+  border-radius: 14px;
+  background: linear-gradient(165deg, #ffffff 0%, #f8f9ff 100%);
   text-align: left;
   cursor: pointer;
 }
@@ -6833,21 +6846,69 @@
   box-shadow: 0 0 0 3px rgba(91, 108, 255, 0.12);
 }
 
-.merchant-paid-promo-shop-item-icon {
-  font-size: 1.35rem;
-  line-height: 1;
+.merchant-paid-promo-shop-item-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.merchant-paid-promo-shop-avatar {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  object-fit: cover;
+  background: #eef2ff;
+  border: 1px solid #e8ecff;
+}
+
+.merchant-paid-promo-shop-avatar--fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+.merchant-paid-promo-shop-item-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  min-width: 0;
 }
 
 .merchant-paid-promo-shop-item-title {
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: var(--mc-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.merchant-paid-promo-shop-item-id {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6366f1;
+  font-variant-numeric: tabular-nums;
 }
 
 .merchant-paid-promo-shop-item-desc {
   font-size: 0.72rem;
   line-height: 1.4;
   color: #64748b;
+}
+
+.merchant-paid-promo-shop-item-badge {
+  flex-shrink: 0;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 0.68rem;
+  font-weight: 700;
 }
 
 .merchant-paid-promo-product-grid {
@@ -6911,23 +6972,118 @@
   margin-bottom: 0.75rem;
 }
 
-.merchant-paid-promo-select-field {
+.merchant-paid-promo-select {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.merchant-paid-promo-select-label {
   font-size: 0.78rem;
   font-weight: 600;
   color: #64748b;
 }
 
-.merchant-paid-promo-select-field select {
-  height: 40px;
+.merchant-paid-promo-select-trigger {
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.7rem 0 0.8rem;
   border: 1px solid #e3e7f3;
-  border-radius: 10px;
-  padding: 0 0.65rem;
-  background: #ffffff;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
   color: var(--mc-ink);
   font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.merchant-paid-promo-select-trigger:hover:not(:disabled) {
+  border-color: #c7d2fe;
+}
+
+.merchant-paid-promo-select--open .merchant-paid-promo-select-trigger {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(91, 108, 255, 0.12);
+}
+
+.merchant-paid-promo-select-trigger--placeholder .merchant-paid-promo-select-value {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.merchant-paid-promo-select-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.merchant-paid-promo-select-chevron {
+  flex-shrink: 0;
+  color: #94a3b8;
+  display: inline-flex;
+  transition: transform 0.16s ease, color 0.16s ease;
+}
+
+.merchant-paid-promo-select--open .merchant-paid-promo-select-chevron {
+  transform: rotate(180deg);
+  color: #6366f1;
+}
+
+.merchant-paid-promo-select-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  border: 1px solid #e8ecff;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 14px 32px rgba(26, 31, 54, 0.12);
+  max-height: 220px;
+  overflow: auto;
+}
+
+.merchant-paid-promo-select-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--mc-ink);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.merchant-paid-promo-select-option:hover {
+  background: #f5f7ff;
+}
+
+.merchant-paid-promo-select-option--active {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 650;
+}
+
+.merchant-paid-promo-select-option-check {
+  display: inline-flex;
+  color: #4f46e5;
 }
 
 .merchant-paid-promo-status-banner {
@@ -6991,12 +7147,286 @@
 }
 
 .merchant-paid-promo-shop-hint,
-.merchant-paid-promo-empty,
-.merchant-paid-promo-waiting-card p {
+.merchant-paid-promo-empty {
   margin: 0 0 0.75rem;
   font-size: 0.8rem;
   line-height: 1.55;
   color: var(--mc-ink-muted);
+}
+
+.merchant-paid-promo-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-height: 100%;
+  background: linear-gradient(165deg, #ffffff 0%, #f7f8ff 100%);
+}
+
+.merchant-paid-promo-preview-card--waiting {
+  background: linear-gradient(165deg, #ffffff 0%, #f0f7ff 100%);
+}
+
+.merchant-paid-promo-preview-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.merchant-paid-promo-preview-channel {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.merchant-paid-promo-preview-channel-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  padding: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #e8ecff;
+  box-shadow: 0 4px 12px rgba(26, 31, 54, 0.08);
+}
+
+.merchant-paid-promo-preview-channel-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.merchant-paid-promo-preview-kicker {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #818cf8;
+}
+
+.merchant-paid-promo-preview-title {
+  margin: 0.12rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 750;
+  color: var(--mc-ink);
+}
+
+.merchant-paid-promo-preview-status {
+  flex-shrink: 0;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.merchant-paid-promo-preview-status--waiting {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.merchant-paid-promo-preview-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.merchant-paid-promo-preview-step {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #eef1f8;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.merchant-paid-promo-preview-step--active {
+  border-color: #c7d2fe;
+  background: #f8f9ff;
+}
+
+.merchant-paid-promo-preview-step--done {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.merchant-paid-promo-preview-step-index {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.merchant-paid-promo-preview-step--done .merchant-paid-promo-preview-step-index {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.merchant-paid-promo-preview-step > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.merchant-paid-promo-preview-step strong {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--mc-ink);
+}
+
+.merchant-paid-promo-preview-step p,
+.merchant-paid-promo-preview-step-value {
+  margin: 0.18rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.merchant-paid-promo-preview-step-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-paid-promo-preview-target {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem;
+  border-radius: 14px;
+  border: 1px dashed #d7def8;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.merchant-paid-promo-preview-target-img {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #eef2ff;
+  border: 1px solid #e8ecff;
+}
+
+.merchant-paid-promo-preview-target-img--round {
+  border-radius: 50%;
+}
+
+.merchant-paid-promo-preview-target-img--fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+.merchant-paid-promo-preview-target-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #818cf8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.merchant-paid-promo-preview-target > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.merchant-paid-promo-preview-target strong,
+.merchant-paid-promo-preview-target-name {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.84rem;
+  color: var(--mc-ink);
+  line-height: 1.35;
+}
+
+.merchant-paid-promo-preview-target-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-paid-promo-preview-target-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.merchant-paid-promo-preview-target-empty {
+  width: 100%;
+  padding: 0.35rem 0;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.merchant-paid-promo-preview-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.merchant-paid-promo-preview-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: 12px;
+  border: 1px solid #eef1f8;
+  background: #ffffff;
+}
+
+.merchant-paid-promo-preview-metric span {
+  font-size: 0.95rem;
+  font-weight: 750;
+  color: #cbd5e1;
+}
+
+.merchant-paid-promo-preview-metric small {
+  font-size: 0.66rem;
+  color: #94a3b8;
+}
+
+.merchant-paid-promo-preview-metric--ghost {
+  background: linear-gradient(180deg, #fbfcff 0%, #f5f7ff 100%);
+}
+
+.merchant-paid-promo-preview-footnote {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.merchant-paid-promo-preview-checklist {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #475569;
 }
 
 .merchant-paid-promo-save-btn {
@@ -7093,5 +7523,18 @@
 
   .merchant-paid-promo-select-row {
     grid-template-columns: 1fr;
+  }
+
+  .merchant-paid-promo-preview-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .merchant-paid-promo-shop-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .merchant-paid-promo-shop-item-badge {
+    align-self: flex-start;
   }
 }
