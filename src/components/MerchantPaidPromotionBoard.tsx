@@ -33,7 +33,21 @@ interface PromotionInfo {
   merchantConfirmedAt: string | null
   campaignStartAt: string | null
   campaignEndAt: string | null
+  campaignDurationValue?: number | null
+  campaignDurationUnit?: 'minute' | 'hour' | 'day' | null
   budgetTotal: number | null
+  presetImpressions?: number | null
+  presetClicks?: number | null
+  presetVisits?: number | null
+}
+
+interface HistoryItem {
+  promotion: PromotionInfo
+  metrics: {
+    totals: MetricTotals
+    presets?: MetricTotals
+    isCompleted?: boolean
+  }
 }
 
 interface MetricPoint {
@@ -95,6 +109,11 @@ function isPromotionSetupEditable(promotion: PromotionInfo | null): boolean {
   return false
 }
 
+function isActiveMerchantPromotion(promotion: PromotionInfo | null): boolean {
+  if (!promotion) return false
+  return !['completed', 'ended', 'paused'].includes(promotion.status)
+}
+
 function readAuth(): { userId: string; shopId: string } | null {
   try {
     const raw = window.localStorage.getItem('authUser')
@@ -107,6 +126,24 @@ function readAuth(): { userId: string; shopId: string } | null {
   } catch {
     return null
   }
+}
+
+function formatDurationLabel(
+  value: number | null | undefined,
+  unit: PromotionInfo['campaignDurationUnit'],
+  lang: 'zh' | 'en',
+) {
+  if (!value) return '—'
+  if (unit === 'minute') return lang === 'zh' ? `${value} 分钟` : `${value} min`
+  if (unit === 'hour') return lang === 'zh' ? `${value} 小时` : `${value} hr`
+  return lang === 'zh' ? `${value} 天` : `${value} days`
+}
+
+function formatHistoryStatus(status: PromoStatus, lang: 'zh' | 'en') {
+  if (status === 'completed') return lang === 'zh' ? '已结算' : 'Completed'
+  if (status === 'ended') return lang === 'zh' ? '已结束' : 'Ended'
+  if (status === 'paused') return lang === 'zh' ? '已暂停' : 'Paused'
+  return status
 }
 
 function labelForOption(options: OptionItem[], value: string | null, lang: 'zh' | 'en') {
@@ -142,16 +179,12 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const [selectedListingId, setSelectedListingId] = useState('')
   const [targetRegion, setTargetRegion] = useState('')
   const [targetAudience, setTargetAudience] = useState('')
-
-  const channelInfo = promotion ? CHANNEL_META[promotion.channel] : null
-  const formLocked = !isPromotionSetupEditable(promotion)
-  const regionOptions = regions.length > 0 ? regions : DEFAULT_REGIONS
-  const audienceOptions = audiences.length > 0 ? audiences : DEFAULT_AUDIENCES
+  const [history, setHistory] = useState<HistoryItem[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
 
   const fetchBoard = useCallback(async () => {
     const auth = readAuth()
     if (!auth) {
-      setLoading(false)
       return
     }
     try {
@@ -172,7 +205,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       }>(
         `/api/shops/${encodeURIComponent(auth.shopId)}/paid-promotion?userId=${encodeURIComponent(auth.userId)}`,
       )
-      if (!res.active || !res.promotion) {
+      if (!res.active || !res.promotion || !isActiveMerchantPromotion(res.promotion)) {
         setPromotion(null)
         setMetrics(null)
         setTargetSelected(false)
@@ -189,8 +222,22 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       if (res.promotion.targetAudience) setTargetAudience(res.promotion.targetAudience)
     } catch {
       setPromotion(null)
+    }
+  }, [])
+
+  const fetchHistory = useCallback(async () => {
+    const auth = readAuth()
+    if (!auth) return
+    setHistoryLoading(true)
+    try {
+      const res = await api.get<{ list: HistoryItem[] }>(
+        `/api/shops/${encodeURIComponent(auth.shopId)}/paid-promotion/history?userId=${encodeURIComponent(auth.userId)}`,
+      )
+      setHistory(Array.isArray(res.list) ? res.list : [])
+    } catch {
+      setHistory([])
     } finally {
-      setLoading(false)
+      setHistoryLoading(false)
     }
   }, [])
 
@@ -208,8 +255,13 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   }, [])
 
   useEffect(() => {
-    fetchBoard()
-    fetchProducts()
+    let cancelled = false
+    const load = async () => {
+      setLoading(true)
+      await Promise.all([fetchBoard(), fetchHistory(), fetchProducts()])
+      if (!cancelled) setLoading(false)
+    }
+    void load()
     void api
       .get<{ regions?: OptionItem[]; audiences?: OptionItem[] }>('/api/paid-promotion/options')
       .then((res) => {
@@ -219,9 +271,14 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       .catch(() => {
         /* use built-in defaults */
       })
-    const timer = window.setInterval(fetchBoard, 8000)
-    return () => window.clearInterval(timer)
-  }, [fetchBoard, fetchProducts])
+    const timer = window.setInterval(() => {
+      void Promise.all([fetchBoard(), fetchHistory()])
+    }, 8000)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [fetchBoard, fetchHistory, fetchProducts])
 
   const saveTarget = async () => {
     const auth = readAuth()
@@ -279,8 +336,128 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const targetReady = targetType === 'shop' || Boolean(selectedListingId)
   const audienceReady = Boolean(targetRegion && targetAudience)
 
+  const activePromotion = isActiveMerchantPromotion(promotion) ? promotion : null
+  const channelInfo = activePromotion ? CHANNEL_META[activePromotion.channel] : null
+  const formLocked = !isPromotionSetupEditable(activePromotion)
+  const regionOptions = regions.length > 0 ? regions : DEFAULT_REGIONS
+  const audienceOptions = audiences.length > 0 ? audiences : DEFAULT_AUDIENCES
+
   if (loading) return null
-  if (!promotion) return null
+  if (!activePromotion && history.length === 0 && !historyLoading) return null
+
+  const historySection = (
+    <div className="merchant-paid-promo-history">
+      <div className="merchant-paid-promo-history-head">
+        <h4 className="merchant-paid-promo-card-title">
+          {lang === 'zh' ? '历史投放记录' : 'Campaign history'}
+        </h4>
+        <span className="merchant-paid-promo-history-sub">
+          {lang === 'zh' ? '查看已结束推广的完整数据' : 'Review completed campaign performance'}
+        </span>
+      </div>
+      {historyLoading && history.length === 0 ? (
+        <p className="merchant-paid-promo-empty">{lang === 'zh' ? '加载中…' : 'Loading…'}</p>
+      ) : history.length === 0 ? (
+        <p className="merchant-paid-promo-empty">
+          {lang === 'zh' ? '暂无历史投放记录' : 'No campaign history yet'}
+        </p>
+      ) : (
+        <div className="merchant-paid-promo-history-list">
+          {history.map((item) => {
+            const promo = item.promotion
+            const totals = item.metrics?.totals
+            const channel = CHANNEL_META[promo.channel]
+            const clickRateHistory =
+              totals && totals.impressions > 0
+                ? Math.round((totals.clicks / totals.impressions) * 1000) / 10
+                : 0
+            return (
+              <article key={promo.id} className="merchant-paid-promo-history-card">
+                <header className="merchant-paid-promo-history-card-head">
+                  <div>
+                    <strong>{channel?.[lang === 'zh' ? 'zh' : 'en'] ?? promo.channel}</strong>
+                    <span>
+                      {promo.campaignStartAt
+                        ? new Date(promo.campaignStartAt).toLocaleDateString()
+                        : '—'}
+                      {' — '}
+                      {promo.campaignEndAt
+                        ? new Date(promo.campaignEndAt).toLocaleDateString()
+                        : '—'}
+                    </span>
+                  </div>
+                  <span className="merchant-paid-promo-history-status">
+                    {formatHistoryStatus(promo.status, lang)}
+                  </span>
+                </header>
+                <div className="merchant-paid-promo-history-meta">
+                  <span>
+                    {lang === 'zh' ? '时长' : 'Duration'}:{' '}
+                    {formatDurationLabel(promo.campaignDurationValue, promo.campaignDurationUnit, lang)}
+                  </span>
+                  <span>
+                    {lang === 'zh' ? '预算' : 'Budget'}: ${(promo.budgetTotal ?? totals?.spend ?? 0).toFixed(2)}
+                  </span>
+                  <span>
+                    {promo.targetType === 'product'
+                      ? promo.targetProductTitle ?? (lang === 'zh' ? '单品' : 'Product')
+                      : lang === 'zh'
+                        ? '整店'
+                        : 'Shop'}
+                  </span>
+                </div>
+                <div className="merchant-paid-promo-history-metrics">
+                  <div>
+                    <strong>{(totals?.impressions ?? 0).toLocaleString()}</strong>
+                    <small>{lang === 'zh' ? '曝光' : 'Impressions'}</small>
+                  </div>
+                  <div>
+                    <strong>{(totals?.clicks ?? 0).toLocaleString()}</strong>
+                    <small>{lang === 'zh' ? '点击' : 'Clicks'}</small>
+                  </div>
+                  <div>
+                    <strong>{(totals?.visits ?? 0).toLocaleString()}</strong>
+                    <small>{lang === 'zh' ? '进店' : 'Visits'}</small>
+                  </div>
+                  <div>
+                    <strong>{clickRateHistory}%</strong>
+                    <small>{lang === 'zh' ? '点击率' : 'CTR'}</small>
+                  </div>
+                  <div>
+                    <strong>${(totals?.spend ?? 0).toFixed(2)}</strong>
+                    <small>{lang === 'zh' ? '消耗' : 'Spend'}</small>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+
+  if (!activePromotion) {
+    return (
+      <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广历史' : 'Paid promotion history'}>
+        <header className="merchant-dashboard-section-head">
+          <div className="merchant-paid-promo-board-head">
+            <span className="merchant-paid-promo-board-icon" aria-hidden="true">
+              <img src={liulianggaikuang} alt="" className="merchant-paid-promo-board-icon-img" />
+            </span>
+            <div>
+              <h3 className="merchant-dashboard-section-title">
+                {lang === 'zh' ? '付费推广' : 'Paid promotion'}
+              </h3>
+              <p className="merchant-dashboard-section-desc">
+                {lang === 'zh' ? '当前无进行中的推广，可查看历史投放数据。' : 'No active campaign. Review past performance below.'}
+              </p>
+            </div>
+          </div>
+        </header>
+        {historySection}
+      </section>
+    )
+  }
 
   return (
     <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广看板' : 'Paid promotion board'}>
@@ -521,6 +698,11 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
               </div>
               <MiniSparkline data={visitSeries.length > 0 ? visitSeries : [0, 0, 0, 0, 0, 0, 0]} color="#5b6cff" />
             </div>
+            <p className="merchant-paid-promo-sync-hint">
+              {lang === 'zh'
+                ? '投放进店会按时间段实时计入店铺访客量，仪表盘访客趋势将同步增长。'
+                : 'Promoted store visits are added to shop visitor totals over time and reflected on your dashboard.'}
+            </p>
           </div>
         ) : isPromotionSetupEditable(promotion) ? (
           <div className="merchant-paid-promo-preview-card">
@@ -679,6 +861,8 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
           </div>
         ) : null}
       </div>
+
+      {historySection}
     </section>
   )
 }

@@ -32,6 +32,9 @@ interface DashboardData {
   goodRate: number
   followers: number
   visitsTotal: number
+  visitsToday?: number
+  visits7d?: number
+  visits30d?: number
   todayOrders: number
   todaySales: number
   todayProfit: number
@@ -42,6 +45,10 @@ interface DashboardData {
     sales?: number[]
   }
   followerTrend?: {
+    labels: string[]
+    daily: number[]
+  }
+  visitTrend?: {
     labels: string[]
     daily: number[]
   }
@@ -66,6 +73,9 @@ const MerchantDashboard: React.FC = () => {
   const [creditScore, setCreditScore] = useState(0)
   const [followers, setFollowers] = useState(0)
   const [visitsTotal, setVisitsTotal] = useState(0)
+  const [visitsToday, setVisitsToday] = useState(0)
+  const [visits7d, setVisits7d] = useState(0)
+  const [visits30d, setVisits30d] = useState(0)
   const [todayOrders, setTodayOrders] = useState(0)
   const [todaySales, setTodaySales] = useState(0)
   const [todayProfit, setTodayProfit] = useState(0)
@@ -119,6 +129,9 @@ const MerchantDashboard: React.FC = () => {
           goodRate?: number
           followers?: number
           visitsTotal?: number
+          visitsToday?: number
+          visits7d?: number
+          visits30d?: number
           todayOrders?: number
           todaySales?: number
           todayProfit?: number
@@ -138,6 +151,9 @@ const MerchantDashboard: React.FC = () => {
         setGoodRate(Number(cached.goodRate ?? 0))
         setFollowers(Number(cached.followers ?? 0))
         setVisitsTotal(Number(cached.visitsTotal ?? 0))
+        setVisitsToday(Number(cached.visitsToday ?? 0))
+        setVisits7d(Number(cached.visits7d ?? 0))
+        setVisits30d(Number(cached.visits30d ?? 0))
         setTodayOrders(cached.todayOrders ?? 0)
         setTodaySales(Number(cached.todaySales ?? 0))
         setTodayProfit(Number(cached.todayProfit ?? 0))
@@ -173,6 +189,9 @@ const MerchantDashboard: React.FC = () => {
         const rate = Number(res.goodRate ?? 0)
         const nextGoodRate = Number.isFinite(rate) ? Math.max(0, Math.min(100, rate)) : 0
         const nextVisitsTotal = Number(res.visitsTotal ?? 0)
+        const nextVisitsToday = Number(res.visitsToday ?? 0)
+        const nextVisits7d = Number(res.visits7d ?? 0)
+        const nextVisits30d = Number(res.visits30d ?? 0)
         const nextTodayOrders = res.todayOrders ?? 0
         const nextTodaySales = Number(res.todaySales ?? 0)
         const nextTodayProfit = Number(res.todayProfit ?? 0)
@@ -192,14 +211,12 @@ const MerchantDashboard: React.FC = () => {
             ? followerDaily.map((value) => Number(value) || 0)
             : EMPTY_FOLLOWER_SERIES
 
+        const visitDaily = res.visitTrend?.daily ?? []
         if (labels.length === 7 && orders.length === 7) {
-          const visits30d = Math.max(0, Math.round(nextVisitsTotal))
-          const visits7d = Math.max(0, Math.round((visits30d / 30) * 7))
-          const visitsPerDay = visits7d > 0 ? Math.max(0, Math.round((visits7d / 7) * 10) / 10) : 0
           nextChart = labels.map((name, idx) => ({
             name,
             评分: nextGoodRate / 20,
-            访客: visitsPerDay,
+            访客: visitDaily.length === 7 ? Number(visitDaily[idx] ?? 0) || 0 : 0,
             订单: orders[idx] ?? 0,
           }))
         }
@@ -214,6 +231,9 @@ const MerchantDashboard: React.FC = () => {
         setFollowers(nextFollowers)
         setGoodRate(nextGoodRate)
         setVisitsTotal(nextVisitsTotal)
+        setVisitsToday(nextVisitsToday)
+        setVisits7d(nextVisits7d)
+        setVisits30d(nextVisits30d)
         setTodayOrders(nextTodayOrders)
         setTodaySales(nextTodaySales)
         setTodayProfit(nextTodayProfit)
@@ -238,6 +258,9 @@ const MerchantDashboard: React.FC = () => {
                 goodRate: nextGoodRate,
                 followers: nextFollowers,
                 visitsTotal: nextVisitsTotal,
+                visitsToday: nextVisitsToday,
+                visits7d: nextVisits7d,
+                visits30d: nextVisits30d,
                 todayOrders: nextTodayOrders,
                 todaySales: nextTodaySales,
                 todayProfit: nextTodayProfit,
@@ -272,10 +295,6 @@ const MerchantDashboard: React.FC = () => {
     }
   }, [])
 
-  const visits30d = Math.max(0, Math.round(visitsTotal))
-  const visits7d = Math.max(0, Math.round((visits30d / 30) * 7))
-  const visitsToday = Math.max(0, Math.round(visits30d / 30))
-
   const formatXAxisLabel = (value: string | number): string => {
     const v = String(value)
     const zhFromEn: Record<string, string> = {
@@ -303,11 +322,15 @@ const MerchantDashboard: React.FC = () => {
     return enFromZh[v] ?? v
   }
 
+  const displayVisits30d = visits30d > 0 ? visits30d : Math.max(0, Math.round(visitsTotal))
+  const displayVisits7d = visits7d > 0 ? visits7d : Math.max(0, Math.round((displayVisits30d / 30) * 7))
+  const displayVisitsToday = visitsToday > 0 ? visitsToday : Math.max(0, Math.round(displayVisits30d / 30))
+
   const overviewData = {
     lang,
-    visitsToday,
-    visits7d,
-    visits30d,
+    visitsToday: displayVisitsToday,
+    visits7d: displayVisits7d,
+    visits30d: displayVisits30d,
     visitsTotal,
     orderCount,
     orderSeries,
