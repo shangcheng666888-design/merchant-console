@@ -2,6 +2,14 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { api } from '../api/client'
 import { useToast } from '../components/ToastProvider'
 import { useLang } from '../context/LangContext'
+import MerchantDashboardInsight from '../components/MerchantDashboardInsight'
+import MerchantOrderStatusTabIcon, {
+  type MerchantOrderTabStatus,
+} from '../components/MerchantOrderStatusTabIcon'
+import ordersHeaderIcon from '../assets/dianpudingdan.png'
+import ordersTotalIcon from '../assets/zongdingdan.png'
+import ordersPendingIcon from '../assets/daifahuo.png'
+import ordersTransitIcon from '../assets/jinridingdan.png'
 
 type OrderStatus =
   | 'all'
@@ -17,7 +25,7 @@ type OrderStatus =
   | 'refunded'
   | 'cancelled'
 
-const STATUS_TABS: OrderStatus[] = [
+const STATUS_TABS: MerchantOrderTabStatus[] = [
   'all',
   'paid',
   'shipped',
@@ -220,6 +228,51 @@ function truncateProductName(name: string, maxLen: number = 16): string {
   return s.slice(0, maxLen) + '…'
 }
 
+function calcOrderProfit(amount: number, procurementTotal: number): { profit: number; ratio: number } {
+  const profit = Math.round((amount - procurementTotal) * 100) / 100
+  const ratio =
+    procurementTotal > 0 ? Math.round((profit / procurementTotal) * 1000) / 10 : 0
+  return { profit, ratio }
+}
+
+const ORDER_SKELETON_COUNT = 4
+
+const OrderCardSkeleton: React.FC = () => (
+  <article className="merchant-orders-card merchant-orders-card--v2 merchant-orders-card--skeleton" aria-hidden="true">
+    <div className="merchant-orders-card-top">
+      <div className="merchant-orders-card-top-left">
+        <span className="mc-skeleton merchant-orders-skeleton-chip" />
+        <span className="mc-skeleton merchant-orders-skeleton-order-no" />
+      </div>
+      <span className="mc-skeleton merchant-orders-skeleton-status" />
+    </div>
+    <div className="merchant-orders-card-main">
+      <div className="merchant-orders-card-product">
+        <span className="mc-skeleton merchant-orders-skeleton-thumb" />
+        <div className="merchant-orders-card-product-body">
+          <span className="mc-skeleton merchant-orders-skeleton-title" />
+          <span className="mc-skeleton merchant-orders-skeleton-title merchant-orders-skeleton-title--short" />
+          <div className="merchant-orders-card-meta-row">
+            <span className="mc-skeleton merchant-orders-skeleton-chip-row" />
+            <span className="mc-skeleton merchant-orders-skeleton-chip-row" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="merchant-orders-card-bar">
+      <div className="merchant-orders-card-pricing merchant-orders-card-pricing--skeleton">
+        <span className="mc-skeleton merchant-orders-skeleton-price" />
+        <span className="mc-skeleton merchant-orders-skeleton-price" />
+        <span className="mc-skeleton merchant-orders-skeleton-price" />
+      </div>
+      <div className="merchant-orders-card-actions">
+        <span className="mc-skeleton merchant-orders-skeleton-btn" />
+        <span className="mc-skeleton merchant-orders-skeleton-btn merchant-orders-skeleton-btn--primary" />
+      </div>
+    </div>
+  </article>
+)
+
 function maskAccount(account: string): string {
   const trimmed = account.trim()
   if (!trimmed) return '—'
@@ -245,6 +298,7 @@ const MerchantOrders: React.FC = () => {
   const [settleOrder, setSettleOrder] = useState<OrderItem | null>(null)
   const [apiOrders, setApiOrders] = useState<ApiOrder[]>(cachedApiOrders ?? [])
   const [loading, setLoading] = useState(!cachedApiOrders)
+  const [refreshing, setRefreshing] = useState(false)
   const [shipModalOpen, setShipModalOpen] = useState(false)
   const [shipSubmitting, setShipSubmitting] = useState(false)
   const [settlePreview, setSettlePreview] = useState<{
@@ -297,76 +351,93 @@ const MerchantOrders: React.FC = () => {
     }
   }, [shipModalOpen, settleOrder?.id])
 
-  const loadOrders = React.useCallback((silent = false) => {
-    const shopId = getAuthShopId()
-    if (!shopId) {
-      setApiOrders([])
-      cachedApiOrders = []
-      setLoading(false)
-      return
-    }
-    if (!silent && apiOrders.length === 0) setLoading(true)
-    api.get<{ list: ApiOrder[] }>(`/api/orders?shop=${encodeURIComponent(shopId)}`)
-      .then(async (res) => {
-        if (!res?.list) return
-        const list = res.list
-        setApiOrders(list)
-        cachedApiOrders = list
-        try {
-          if (typeof window !== 'undefined') {
-            window.localStorage.setItem(
-              `${ORDERS_CACHE_KEY_PREFIX}${shopId}`,
-              JSON.stringify(list),
-            )
-          }
-        } catch {
-          // ignore cache write error
-        }
-        const ids = Array.from(new Set(list.map((o) => o.userId).filter((id): id is string => !!id)))
-        if (ids.length === 0) return
-        try {
-          const results = await Promise.all(
-            ids.map(async (id) => {
-              try {
-                const u = await api.get<{ account?: string }>(
-                  `/api/users/${encodeURIComponent(id)}`,
-                )
-                const label = u.account
-                  ? maskAccount(u.account)
-                  : lang === 'zh'
-                    ? `用户 ${id}`
-                    : `User ${id}`
-                return { id, label }
-              } catch {
-                return {
-                  id,
-                  label: lang === 'zh' ? `用户 ${id}` : `User ${id}`,
-                }
-              }
-            }),
-          )
-          setBuyerAccounts((prev) => {
-            const next = { ...prev }
-            for (const { id, label } of results) {
-              if (!next[id]) next[id] = label
+  const loadOrders = React.useCallback(
+    (mode: 'silent' | 'initial' | 'refresh' = 'initial') => {
+      const shopId = getAuthShopId()
+      if (!shopId) {
+        setApiOrders([])
+        cachedApiOrders = []
+        setLoading(false)
+        setRefreshing(false)
+        return
+      }
+
+      if (mode === 'initial') setLoading(true)
+      if (mode === 'refresh') setRefreshing(true)
+
+      const cacheBust = mode === 'refresh' ? `&_t=${Date.now()}` : ''
+      const ordersPath = `/api/orders?shop=${encodeURIComponent(shopId)}${cacheBust}`
+
+      api
+        .get<{ list: ApiOrder[] }>(ordersPath)
+        .then(async (res) => {
+          if (!res?.list) return
+          const list = res.list
+          setApiOrders(list)
+          cachedApiOrders = list
+          try {
+            if (typeof window !== 'undefined') {
+              window.localStorage.setItem(
+                `${ORDERS_CACHE_KEY_PREFIX}${shopId}`,
+                JSON.stringify(list),
+              )
             }
-            cachedBuyerAccounts = next
-            return next
-          })
-        } catch {
-          // ignore buyer fetch error
-        }
-      })
-      .catch(() => {
-        if (!silent) {
-          setApiOrders([])
-          cachedApiOrders = []
-        }
-      })
-      .finally(() => {
-        if (!silent) setLoading(false)
-      })
-  }, [apiOrders.length, lang])
+          } catch {
+            // ignore cache write error
+          }
+          const ids = Array.from(new Set(list.map((o) => o.userId).filter((id): id is string => !!id)))
+          if (ids.length === 0) return
+          try {
+            const results = await Promise.all(
+              ids.map(async (id) => {
+                try {
+                  const u = await api.get<{ account?: string }>(
+                    `/api/users/${encodeURIComponent(id)}`,
+                  )
+                  const label = u.account
+                    ? maskAccount(u.account)
+                    : lang === 'zh'
+                      ? `用户 ${id}`
+                      : `User ${id}`
+                  return { id, label }
+                } catch {
+                  return {
+                    id,
+                    label: lang === 'zh' ? `用户 ${id}` : `User ${id}`,
+                  }
+                }
+              }),
+            )
+            setBuyerAccounts((prev) => {
+              const next = { ...prev }
+              for (const { id, label } of results) {
+                if (!next[id]) next[id] = label
+              }
+              cachedBuyerAccounts = next
+              return next
+            })
+          } catch {
+            // ignore buyer fetch error
+          }
+        })
+        .catch(() => {
+          if (mode === 'refresh') {
+            showToast(
+              lang === 'zh' ? '刷新失败，请稍后重试' : 'Refresh failed, please try again',
+              'error',
+            )
+          } else if (mode === 'initial') {
+            setApiOrders([])
+            cachedApiOrders = []
+          }
+        })
+        .finally(() => {
+          if (mode === 'initial') setLoading(false)
+          if (mode === 'refresh') setRefreshing(false)
+        })
+    },
+    [lang, showToast],
+  )
 
   useEffect(() => {
     // 首次进入：如果有缓存，先用缓存渲染，再静默刷新；否则正常加载
@@ -375,16 +446,16 @@ const MerchantOrders: React.FC = () => {
       if (cachedBuyerAccounts) {
         setBuyerAccounts(cachedBuyerAccounts)
       }
-      loadOrders(true)
+      loadOrders('silent')
     } else {
-      loadOrders(false)
+      loadOrders('initial')
     }
   }, [loadOrders])
 
   // 页面重新可见时立即拉取一次
   useEffect(() => {
     const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && getAuthShopId()) loadOrders(true)
+      if (document.visibilityState === 'visible' && getAuthShopId()) loadOrders('silent')
     }
     if (typeof document !== 'undefined' && document.addEventListener) {
       document.addEventListener('visibilitychange', onVisibilityChange)
@@ -396,7 +467,7 @@ const MerchantOrders: React.FC = () => {
   useEffect(() => {
     if (!getAuthShopId()) return
     const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') loadOrders(true)
+      if (document.visibilityState === 'visible') loadOrders('silent')
     }, 5000)
     return () => clearInterval(interval)
   }, [loadOrders])
@@ -463,6 +534,49 @@ const MerchantOrders: React.FC = () => {
     return list
   }, [orderList, activeStatus, orderNoSearch])
 
+  const statusCounts = useMemo(() => {
+    const counts: Partial<Record<OrderStatus, number>> = { all: orderList.length }
+    for (const order of orderList) {
+      counts[order.status] = (counts[order.status] ?? 0) + 1
+    }
+    return counts
+  }, [orderList])
+
+  const inTransitCount =
+    (statusCounts.shipped ?? 0) + (statusCounts.in_transit ?? 0)
+
+  const pendingShipCount = statusCounts.paid ?? 0
+
+  const ordersInsightText = useMemo(() => {
+    if (pendingShipCount <= 0) return ''
+    if (lang === 'zh') {
+      return pendingShipCount === 1
+        ? '您有 1 笔订单待发货，建议在 24 小时内完成发货结算，有助于提升店铺权重与曝光。'
+        : `您有 ${pendingShipCount} 笔订单待发货，建议尽快处理，24 小时内发货有助于提升店铺权重与曝光。`
+    }
+    return pendingShipCount === 1
+      ? 'You have 1 order waiting to ship. Complete shipment within 24 hours to improve shop ranking and exposure.'
+      : `You have ${pendingShipCount} orders waiting to ship. Process them soon—shipping within 24 hours helps your shop ranking and exposure.`
+  }, [pendingShipCount, lang])
+
+  const isTransitFilterActive =
+    activeStatus === 'shipped' || activeStatus === 'in_transit'
+
+  const applyStatFilter = (filter: 'all' | 'paid' | 'transit') => {
+    if (filter === 'all') {
+      setActiveStatus('all')
+    } else if (filter === 'paid') {
+      setActiveStatus('paid')
+    } else {
+      const shipped = statusCounts.shipped ?? 0
+      const inTransit = statusCounts.in_transit ?? 0
+      setActiveStatus(inTransit > 0 && shipped === 0 ? 'in_transit' : 'shipped')
+    }
+    setPage(1)
+  }
+
+  const showInitialSkeleton = loading && apiOrders.length === 0
+
   const handleShip = async () => {
     if (!settleOrder) return
     setShipSubmitting(true)
@@ -516,66 +630,202 @@ const MerchantOrders: React.FC = () => {
   const currentOrders = filteredOrders.slice((page - 1) * pageSize, page * pageSize)
 
   return (
-    <div className="merchant-orders-page">
-      <header className="merchant-orders-header">
-        <div className="merchant-orders-header-inner">
-          <h1 className="merchant-orders-title">
-            {lang === 'zh' ? '店铺订单' : 'Shop orders'}
-          </h1>
-          <p className="merchant-orders-subtitle">
-            {lang === 'zh'
-              ? '积极处理订单有助于提升店铺权重，增加曝光率'
-              : 'Actively handling orders helps improve your shop ranking and exposure.'}
-          </p>
+    <div className="merchant-orders-page merchant-orders-page--v2">
+      <header className="merchant-orders-header merchant-orders-header--v2">
+        <div className="merchant-orders-header-main">
+          <span className="merchant-orders-header-icon" aria-hidden="true">
+            <img src={ordersHeaderIcon} alt="" className="merchant-orders-header-icon-img" />
+          </span>
+          <div className="merchant-orders-header-copy">
+            <h1 className="merchant-orders-title">
+              {lang === 'zh' ? '店铺订单' : 'Shop orders'}
+            </h1>
+            <p className="merchant-orders-subtitle">
+              {lang === 'zh'
+                ? '积极处理订单有助于提升店铺权重，增加曝光率'
+                : 'Actively handling orders helps improve your shop ranking and exposure.'}
+            </p>
+          </div>
+        </div>
+        <div className="merchant-orders-stats" role="group" aria-label={lang === 'zh' ? '订单快捷筛选' : 'Order quick filters'}>
+          <button
+            type="button"
+            className={`merchant-orders-stat merchant-orders-stat--total${
+              activeStatus === 'all' ? ' merchant-orders-stat--active' : ''
+            }`}
+            onClick={() => applyStatFilter('all')}
+            aria-pressed={activeStatus === 'all'}
+          >
+            <span className="merchant-orders-stat-icon" aria-hidden="true">
+              <img src={ordersTotalIcon} alt="" />
+            </span>
+            <div className="merchant-orders-stat-body">
+              <span className="merchant-orders-stat-value">{statusCounts.all ?? 0}</span>
+              <span className="merchant-orders-stat-label">
+                {lang === 'zh' ? '全部订单' : 'All orders'}
+              </span>
+            </div>
+          </button>
+          <button
+            type="button"
+            className={`merchant-orders-stat merchant-orders-stat--pending${
+              activeStatus === 'paid' ? ' merchant-orders-stat--active' : ''
+            }`}
+            onClick={() => applyStatFilter('paid')}
+            aria-pressed={activeStatus === 'paid'}
+          >
+            <span className="merchant-orders-stat-icon" aria-hidden="true">
+              <img src={ordersPendingIcon} alt="" />
+            </span>
+            <div className="merchant-orders-stat-body">
+              <span className="merchant-orders-stat-value">{statusCounts.paid ?? 0}</span>
+              <span className="merchant-orders-stat-label">
+                {lang === 'zh' ? '待发货' : 'To ship'}
+              </span>
+            </div>
+          </button>
+          <button
+            type="button"
+            className={`merchant-orders-stat merchant-orders-stat--transit${
+              isTransitFilterActive ? ' merchant-orders-stat--active' : ''
+            }`}
+            onClick={() => applyStatFilter('transit')}
+            aria-pressed={isTransitFilterActive}
+          >
+            <span className="merchant-orders-stat-icon" aria-hidden="true">
+              <img src={ordersTransitIcon} alt="" />
+            </span>
+            <div className="merchant-orders-stat-body">
+              <span className="merchant-orders-stat-value">{inTransitCount}</span>
+              <span className="merchant-orders-stat-label">
+                {lang === 'zh' ? '配送中' : 'In transit'}
+              </span>
+            </div>
+          </button>
         </div>
       </header>
 
-      <section className="merchant-orders-section">
-        <div className="merchant-orders-toolbar">
-          <div className="merchant-orders-tabs">
-            {STATUS_TABS.map((statusKey) => (
-              <button
-                key={statusKey}
-                type="button"
-                className={`merchant-orders-tab${
-                  activeStatus === statusKey ? ' merchant-orders-tab--active' : ''
-                }`}
-                onClick={() => setActiveStatus(statusKey)}
-              >
-                {getStatusTabLabel(statusKey, lang)}
-              </button>
-            ))}
+      {pendingShipCount > 0 && ordersInsightText ? (
+        <MerchantDashboardInsight
+          storageKey="merchant-orders-pending-insight-dismissed"
+          className="merchant-orders-insight"
+          iconSrc={ordersPendingIcon}
+          kicker={lang === 'zh' ? '发货提醒' : 'Shipping reminder'}
+          text={ordersInsightText}
+          lang={lang}
+          actionLabel={lang === 'zh' ? '查看待发货' : 'View to ship'}
+          onAction={() => applyStatFilter('paid')}
+        />
+      ) : null}
+
+      <section className="merchant-orders-section merchant-orders-section--v2">
+        <div className="merchant-orders-toolbar merchant-orders-toolbar--v2">
+          <div className="merchant-orders-tabs merchant-orders-tabs--v2">
+            {STATUS_TABS.map((statusKey) => {
+              const tabCount = statusCounts[statusKey] ?? 0
+              return (
+                <button
+                  key={statusKey}
+                  type="button"
+                  className={`merchant-orders-tab${
+                    activeStatus === statusKey ? ' merchant-orders-tab--active' : ''
+                  }`}
+                  onClick={() => {
+                    setActiveStatus(statusKey)
+                    setPage(1)
+                  }}
+                >
+                  <span className="merchant-orders-tab-icon" aria-hidden="true">
+                    <MerchantOrderStatusTabIcon status={statusKey} />
+                  </span>
+                  <span className="merchant-orders-tab-label">
+                    {getStatusTabLabel(statusKey, lang)}
+                  </span>
+                  {tabCount > 0 && (
+                    <span className="merchant-orders-tab-count">{tabCount}</span>
+                  )}
+                </button>
+              )
+            })}
           </div>
-          <div className="merchant-orders-search">
-            <input
-              type="text"
-              className="merchant-orders-search-input"
-              placeholder={lang === 'zh' ? '搜索订单号' : 'Search by order number'}
-              value={orderNoSearch}
-              onChange={(e) => setOrderNoSearch(e.target.value)}
-            />
+          <div className="merchant-orders-search merchant-orders-search--v2">
+            <label className="merchant-orders-search-field">
+              <span className="merchant-orders-search-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                className="merchant-orders-search-input"
+                placeholder={lang === 'zh' ? '搜索订单号' : 'Search by order number'}
+                value={orderNoSearch}
+                onChange={(e) => {
+                  setOrderNoSearch(e.target.value)
+                  setPage(1)
+                }}
+              />
+            </label>
             <button
               type="button"
-              className="merchant-orders-refresh-btn"
-              onClick={() => loadOrders()}
-              disabled={loading}
+              className={`merchant-orders-refresh-btn${
+                refreshing ? ' merchant-orders-refresh-btn--loading' : ''
+              }`}
+              onClick={() => loadOrders('refresh')}
+              disabled={refreshing || loading}
+              aria-label={
+                refreshing
+                  ? lang === 'zh'
+                    ? '刷新中'
+                    : 'Refreshing'
+                  : lang === 'zh'
+                    ? '刷新订单列表'
+                    : 'Refresh order list'
+              }
               title={
                 lang === 'zh'
                   ? '刷新订单列表（管理员修改状态后会同步显示）'
                   : 'Refresh order list (sync changes made in admin)'
               }
             >
-              {lang === 'zh' ? '刷新' : 'Refresh'}
+              <svg
+                className="merchant-orders-refresh-icon"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 12a9 9 0 11-2.64-6.36" />
+                <path d="M21 3v6h-6" />
+              </svg>
             </button>
           </div>
         </div>
 
-        <div className="merchant-orders-table-wrap">
-          {loading ? (
-            <div className="merchant-orders-empty">
-              <p className="merchant-orders-empty-text">
-                {lang === 'zh' ? '加载中…' : 'Loading…'}
-              </p>
+        <div
+          className={`merchant-orders-table-wrap${
+            refreshing ? ' merchant-orders-table-wrap--refreshing' : ''
+          }`}
+        >
+          {refreshing && (
+            <div className="merchant-orders-refresh-overlay" role="status" aria-live="polite">
+              <span className="merchant-orders-refresh-overlay-spinner" aria-hidden="true" />
+              <span className="merchant-orders-refresh-overlay-text">
+                {lang === 'zh' ? '正在刷新订单…' : 'Refreshing orders…'}
+              </span>
+            </div>
+          )}
+          {showInitialSkeleton ? (
+            <div className="merchant-orders-card-list">
+              {Array.from({ length: ORDER_SKELETON_COUNT }, (_, index) => (
+                <OrderCardSkeleton key={index} />
+              ))}
             </div>
           ) : currentOrders.length === 0 ? (
             <div className="merchant-orders-empty">
@@ -592,13 +842,21 @@ const MerchantOrders: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="merchant-orders-card-list">
-              {currentOrders.map((order) => (
-                <article key={order.id} className="merchant-orders-card">
-                  <div className="merchant-orders-card-head">
-                    <div className="merchant-orders-card-row">
-                      <span className="merchant-orders-card-order-label">
-                        {lang === 'zh' ? '订单号' : 'Order No.'}
+            <div className="merchant-orders-card-list merchant-orders-card-list--animated">
+              {currentOrders.map((order, index) => {
+                const { profit, ratio } = calcOrderProfit(order.amount, order.procurementTotal)
+                return (
+                <article
+                  key={order.id}
+                  className={`merchant-orders-card merchant-orders-card--v2${
+                    order.status === 'paid' ? ' merchant-orders-card--urgent' : ''
+                  }`}
+                  style={{ '--mc-stagger': `${index * 0.055}s` } as React.CSSProperties}
+                >
+                  <div className="merchant-orders-card-top">
+                    <div className="merchant-orders-card-top-left">
+                      <span className="merchant-orders-card-chip">
+                        {lang === 'zh' ? '订单号' : 'Order'}
                       </span>
                       <span className="merchant-orders-card-order-no">{order.orderNo}</span>
                     </div>
@@ -608,70 +866,105 @@ const MerchantOrders: React.FC = () => {
                       {getStatusLabel(order.status, lang)}
                     </span>
                   </div>
-                  <div className="merchant-orders-card-body">
-                    <div className="merchant-orders-card-meta-col">
-                      <div className="merchant-orders-card-row">
-                        <span className="merchant-orders-card-meta-label">
-                          {lang === 'zh' ? '下单时间' : 'Order time'}
-                        </span>
-                        <span className="merchant-orders-card-meta-value">{order.orderTime}</span>
-                      </div>
-                      <div className="merchant-orders-card-row">
-                        <span className="merchant-orders-card-meta-label">
-                          {lang === 'zh' ? '买家' : 'Buyer'}
-                        </span>
-                        <span className="merchant-orders-card-meta-value">{order.buyer}</span>
-                      </div>
-                    </div>
-                    <div className="merchant-orders-card-products-col">
-                      <div className="merchant-orders-card-products">
-                        {order.firstProductImage && (
-                          <div className="merchant-orders-card-thumb">
-                            <img
-                              src={order.firstProductImage}
-                              alt={
-                                order.firstProductTitle ||
-                                (lang === 'zh' ? '商品图片' : 'Product image')
-                              }
-                              loading="lazy"
-                            />
-                          </div>
+
+                  <div className="merchant-orders-card-main">
+                    <div className="merchant-orders-card-product">
+                      <div className="merchant-orders-card-thumb">
+                        {order.firstProductImage ? (
+                          <img
+                            src={order.firstProductImage}
+                            alt={
+                              order.firstProductTitle ||
+                              (lang === 'zh' ? '商品图片' : 'Product image')
+                            }
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="merchant-orders-card-thumb-fallback" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5">
+                              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                              <path d="M3 6h18" />
+                              <path d="M16 10a4 4 0 01-8 0" />
+                            </svg>
+                          </span>
                         )}
-                        <div className="merchant-orders-card-products-text">
-                          <div className="merchant-orders-card-product-title">
-                            {order.firstProductTitle || order.productCodes || '—'}
-                          </div>
+                      </div>
+                      <div className="merchant-orders-card-product-body">
+                        <h3 className="merchant-orders-card-product-title" title={order.firstProductTitle || order.productCodes}>
+                          {order.firstProductTitle || order.productCodes || '—'}
+                        </h3>
+                        <div className="merchant-orders-card-meta-row">
+                          <span className="merchant-orders-card-meta-chip">
+                            <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                              <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            </svg>
+                            {order.orderTime}
+                          </span>
+                          <span className="merchant-orders-card-meta-chip">
+                            <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                              <circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                              <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            </svg>
+                            {order.buyer}
+                          </span>
                           {order.totalItems > 0 && (
-                            <div className="merchant-orders-card-product-sub">
+                            <span className="merchant-orders-card-meta-chip merchant-orders-card-meta-chip--qty">
                               {lang === 'zh'
-                                ? `共 ${order.totalItems} 件商品`
-                                : `${order.totalItems} item(s)`}
-                            </div>
+                                ? `${order.totalItems} 件`
+                                : `${order.totalItems} items`}
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="merchant-orders-card-foot">
-                    <div className="merchant-orders-card-amount">
-                      <span className="merchant-orders-card-amount-label">
-                        {lang === 'zh' ? '买家实付金额' : 'Buyer paid amount'}
-                      </span>
-                      <span className="merchant-orders-card-amount-value">
-                        ${order.amount.toFixed(2)}
-                      </span>
-                      <span className="merchant-orders-card-amount-sub">
-                        {lang === 'zh' ? '采购总价' : 'Purchase total'} $
-                        {order.procurementTotal.toFixed(2)}
-                      </span>
+
+                  <div className="merchant-orders-card-bar">
+                    <div className="merchant-orders-card-pricing">
+                      <div className="merchant-orders-card-price-block">
+                        <span className="merchant-orders-card-price-label">
+                          {lang === 'zh' ? '买家实付' : 'Paid'}
+                        </span>
+                        <span className="merchant-orders-card-price-value">
+                          ${order.amount.toFixed(2)}
+                        </span>
+                      </div>
+                      <span className="merchant-orders-card-price-sep" aria-hidden="true" />
+                      <div className="merchant-orders-card-price-block merchant-orders-card-price-block--cost">
+                        <span className="merchant-orders-card-price-label">
+                          {lang === 'zh' ? '采购成本' : 'Cost'}
+                        </span>
+                        <span className="merchant-orders-card-price-value merchant-orders-card-price-value--muted">
+                          ${order.procurementTotal.toFixed(2)}
+                        </span>
+                      </div>
+                      <span className="merchant-orders-card-price-sep" aria-hidden="true" />
+                      <div className="merchant-orders-card-price-block merchant-orders-card-price-block--profit">
+                        <span className="merchant-orders-card-price-label">
+                          {lang === 'zh' ? '预估利润' : 'Profit'}
+                        </span>
+                        <span
+                          className={`merchant-orders-card-price-value merchant-orders-card-price-value--profit${
+                            profit < 0 ? ' merchant-orders-card-price-value--negative' : ''
+                          }`}
+                        >
+                          ${profit.toFixed(2)}
+                          {order.procurementTotal > 0 && (
+                            <em className="merchant-orders-card-profit-ratio">
+                              {ratio}%
+                            </em>
+                          )}
+                        </span>
+                      </div>
                     </div>
-                    <div className="merchant-orders-actions">
+                    <div className="merchant-orders-card-actions">
                       <button
                         type="button"
                         className="merchant-orders-action-btn"
                         onClick={() => setDetailOrder(order)}
                       >
-                        {lang === 'zh' ? '查看' : 'View'}
+                        {lang === 'zh' ? '查看详情' : 'Details'}
                       </button>
                       {order.status === 'paid' && (
                         <button
@@ -679,13 +972,13 @@ const MerchantOrders: React.FC = () => {
                           className="merchant-orders-action-btn merchant-orders-action-btn--primary"
                           onClick={() => { setSettleOrder(order); setShipModalOpen(true) }}
                         >
-                          {lang === 'zh' ? '发货' : 'Ship'}
+                          {lang === 'zh' ? '立即发货' : 'Ship now'}
                         </button>
                       )}
                     </div>
                   </div>
                 </article>
-              ))}
+              )})}
             </div>
           )}
         </div>

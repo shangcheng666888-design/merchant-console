@@ -2,36 +2,45 @@ import React from 'react'
 import AnimatedMetric, { type AnimatedMetricFormat } from './AnimatedMetric'
 import jinridingdan from '../assets/jinridingdan.png'
 import jinrixiaoshoue from '../assets/jinrixiaoshoue.png'
+import leijixiaoshoue from '../assets/leijixiaoshoue.png'
 import zongdingdan from '../assets/zongdingdan.png'
 import shangpinzongshu from '../assets/shangpinzongshu.png'
 import yujilirun from '../assets/yujilirun.png'
 import zonglirun from '../assets/zonglirun.png'
 import daijiesuan from '../assets/daijiesuan.png'
+import daifahuo from '../assets/daifahuo.png'
+import yunyingjihua from '../assets/yunyingjihua.png'
+import caiwubaogao from '../assets/caiwubaogao.png'
+import wodeqianbao from '../assets/wodeqianbao.png'
+import haopinglv from '../assets/haopinglv.png'
+import xinyongfen from '../assets/xinyongfen.png'
+import guanzhu from '../assets/guanzhu.png'
 import {
   getMerchantShopLevel,
   getNextMerchantShopLevel,
   type MerchantShopLevel,
 } from '../constants/merchantShopLevels'
+import MiniSparkline from './MiniSparkline'
 
 function HealthRing({ value, label }: { value: number; label: string }) {
-  const radius = 34
+  const radius = 37
   const circumference = 2 * Math.PI * radius
   const progress = Math.min(100, Math.max(0, value)) / 100
   const offset = circumference * (1 - progress)
 
   return (
     <div className="merchant-cmd-health" aria-label={`${label} ${value}`}>
-      <svg className="merchant-cmd-health-svg" viewBox="0 0 88 88" aria-hidden="true">
+      <svg className="merchant-cmd-health-svg" viewBox="0 0 96 96" aria-hidden="true">
         <defs>
           <linearGradient id="mc-health-gradient" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#6ee7b7" />
             <stop offset="100%" stopColor="#5b6cff" />
           </linearGradient>
         </defs>
-        <circle cx="44" cy="44" r={radius} className="merchant-cmd-health-track" />
+        <circle cx="48" cy="48" r={radius} className="merchant-cmd-health-track" />
         <circle
-          cx="44"
-          cy="44"
+          cx="48"
+          cy="48"
           r={radius}
           className="merchant-cmd-health-progress"
           strokeDasharray={circumference}
@@ -46,9 +55,46 @@ function HealthRing({ value, label }: { value: number; label: string }) {
   )
 }
 
+function HealthFactor({
+  label,
+  value,
+  format,
+  decimals,
+  tone,
+  iconSrc,
+}: {
+  label: string
+  value: number
+  format: AnimatedMetricFormat
+  decimals?: number
+  tone: 'emerald' | 'blue'
+  iconSrc?: string
+}) {
+  return (
+    <div className={`merchant-cmd-health-factor merchant-cmd-health-factor--${tone}`}>
+      {iconSrc ? (
+        <span className="merchant-cmd-health-factor-icon merchant-cmd-health-factor-icon--img" aria-hidden="true">
+          <img src={iconSrc} alt="" className="merchant-cmd-health-factor-icon-img" />
+        </span>
+      ) : null}
+      <span className="merchant-cmd-health-factor-label">{label}</span>
+      <AnimatedMetric
+        value={value}
+        format={format}
+        decimals={decimals}
+        className="merchant-cmd-health-factor-value"
+      />
+    </div>
+  )
+}
+
 type CmdActionKey = 'orders' | 'plan' | 'finance' | 'wallet'
 
-function CmdActionIcon({ name }: { name: CmdActionKey }) {
+function CmdActionIcon({ name, iconSrc }: { name: CmdActionKey; iconSrc?: string }) {
+  if (iconSrc) {
+    return <img src={iconSrc} alt="" className="merchant-cmd-action-icon-img" />
+  }
+
   const icons: Record<CmdActionKey, React.ReactNode> = {
     orders: (
       <path d="M8 5.2h8l1.4 2v10.4c0 .6-.5 1-1 1H7.6c-.5 0-1-.4-1-1V7.2L8 5.2zM9.2 12h5.6" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" />
@@ -153,6 +199,7 @@ interface CommandHeroProps {
   goodRate: number
   creditScore: number
   followers: number
+  followerSeries: number[]
   totalSales: number
   orderCount: number
   totalProfit: number
@@ -198,6 +245,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   goodRate,
   creditScore,
   followers,
+  followerSeries,
   totalSales,
   orderCount,
   totalProfit,
@@ -212,6 +260,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   const levelInfo = getMerchantShopLevel(shopLevel)
   const nextLevel = getNextMerchantShopLevel(shopLevel)
   const { progress: levelProgress, label: levelProgressLabel } = levelProgressCopy(lang, levelInfo, nextLevel, totalSales)
+  const followerWeekGain = followerSeries.reduce((sum, value) => sum + value, 0)
 
   const dateLabel = new Date().toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', {
     year: 'numeric',
@@ -220,29 +269,11 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
     weekday: 'short',
   })
 
-  const quickActions: { key: CmdActionKey; path: string; zh: string; en: string; badge: number; primary: boolean }[] = [
-    { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', badge: pendingOrders, primary: pendingOrders > 0 },
-    { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', badge: 0, primary: false },
-    { key: 'finance', path: '/finance', zh: '财务报告', en: 'Finance', badge: 0, primary: false },
-    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', badge: 0, primary: false },
-  ]
-
-  const vitals = [
-    {
-      label: lang === 'zh' ? '好评率' : 'Rating',
-      value: <AnimatedMetric value={goodRate} format="percent" decimals={1} />,
-      tone: 'emerald',
-    },
-    {
-      label: lang === 'zh' ? '信用分' : 'Credit',
-      value: <AnimatedMetric value={creditScore} format="number" />,
-      tone: 'blue',
-    },
-    {
-      label: lang === 'zh' ? '关注' : 'Followers',
-      value: <AnimatedMetric value={followers} format="compact" />,
-      tone: 'violet',
-    },
+  const quickActions: { key: CmdActionKey; path: string; zh: string; en: string; badge: number; primary: boolean; iconSrc?: string }[] = [
+    { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', badge: pendingOrders, primary: pendingOrders > 0, iconSrc: daifahuo },
+    { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', badge: 0, primary: false, iconSrc: yunyingjihua },
+    { key: 'finance', path: '/finance', zh: '财务报告', en: 'Finance', badge: 0, primary: false, iconSrc: caiwubaogao },
+    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', badge: 0, primary: false, iconSrc: wodeqianbao },
   ]
 
   return (
@@ -257,22 +288,26 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
       <div className="merchant-cmd-inner">
         <header className="merchant-cmd-header">
           <div className="merchant-cmd-identity">
-            <div className={`merchant-cmd-shop-emblem merchant-cmd-shop-emblem--${levelInfo.key}`}>
-              <img
-                src={shopLogo || levelInfo.icon}
-                alt=""
-                className={`merchant-cmd-shop-emblem-img${shopLogo ? '' : ' merchant-cmd-shop-emblem-img--icon'}`}
-              />
+            <div className="merchant-cmd-identity-emblem-col">
+              <div className={`merchant-cmd-shop-emblem merchant-cmd-shop-emblem--${levelInfo.key}`}>
+                <img
+                  src={shopLogo || levelInfo.icon}
+                  alt=""
+                  className={`merchant-cmd-shop-emblem-img${shopLogo ? '' : ' merchant-cmd-shop-emblem-img--icon'}`}
+                />
+              </div>
+              <h2 className="merchant-cmd-shop-name">{shopName || (lang === 'zh' ? '我的店铺' : 'My shop')}</h2>
             </div>
             <div className="merchant-cmd-identity-body">
-              <h2 className="merchant-cmd-shop-name">{shopName || (lang === 'zh' ? '我的店铺' : 'My shop')}</h2>
-              <span className={`merchant-cmd-level-badge merchant-cmd-level-badge--${levelInfo.key}`}>
-                <img src={levelInfo.icon} alt="" className="merchant-cmd-level-badge-icon" />
-                {lang === 'zh' ? levelInfo.sellerZh : levelInfo.sellerEn}
-              </span>
-              <button type="button" className="merchant-cmd-level-link" onClick={() => onNavigate('/plan')}>
-                {lang === 'zh' ? '查看等级权益' : 'View level benefits'}
-              </button>
+              <div className="merchant-cmd-level-row">
+                <span className={`merchant-cmd-level-badge merchant-cmd-level-badge--${levelInfo.key}`}>
+                  <img src={levelInfo.icon} alt="" className="merchant-cmd-level-badge-icon" />
+                  {lang === 'zh' ? levelInfo.sellerZh : levelInfo.sellerEn}
+                </span>
+                <button type="button" className="merchant-cmd-level-link" onClick={() => onNavigate('/plan')}>
+                  {lang === 'zh' ? '查看等级权益' : 'View level benefits'}
+                </button>
+              </div>
               <div className="merchant-cmd-level-progress">
                 <div className="merchant-cmd-level-progress-meta">
                   <span>{levelProgressLabel}</span>
@@ -290,17 +325,8 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
           <div className="merchant-cmd-header-meta">
             <span className="merchant-cmd-date">{dateLabel}</span>
             <div className="merchant-cmd-total-sales">
-              <span className="merchant-cmd-total-sales-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18">
-                  <path
-                    d="M6 16.2V9.8l3-2.2 3 1.8 4-3.4v7.2H6z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    fill="none"
-                    strokeLinejoin="round"
-                  />
-                  <path d="M8 13.5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
+              <span className="merchant-cmd-total-sales-icon merchant-cmd-total-sales-icon--img" aria-hidden="true">
+                <img src={leijixiaoshoue} alt="" className="merchant-cmd-total-sales-icon-img" />
               </span>
               <div className="merchant-cmd-total-sales-body">
                 <span className="merchant-cmd-total-sales-label">
@@ -383,17 +409,53 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
           </div>
 
           <div className="merchant-cmd-side-board">
-            <HealthRing value={healthIndex} label={lang === 'zh' ? '健康综合分' : 'Health score'} />
-            <p className="merchant-cmd-health-note">
-              {lang === 'zh' ? '综合好评率与信用分' : 'Combined rating & credit score'}
-            </p>
-            <div className="merchant-cmd-vitals">
-              {vitals.map((item) => (
-                <div key={item.label} className={`merchant-cmd-vital merchant-cmd-vital--${item.tone}`}>
-                  <span className="merchant-cmd-vital-label">{item.label}</span>
-                  <span className="merchant-cmd-vital-value">{item.value}</span>
+            <div className="merchant-cmd-health-row">
+              <HealthFactor
+                label={lang === 'zh' ? '好评率' : 'Rating'}
+                value={goodRate}
+                format="percent"
+                decimals={1}
+                tone="emerald"
+                iconSrc={haopinglv}
+              />
+              <HealthRing value={healthIndex} label={lang === 'zh' ? '健康综合分' : 'Health score'} />
+              <HealthFactor
+                label={lang === 'zh' ? '信用分' : 'Credit'}
+                value={creditScore}
+                format="number"
+                tone="blue"
+                iconSrc={xinyongfen}
+              />
+            </div>
+            <div className="merchant-cmd-followers-card">
+              <div className="merchant-cmd-followers-pill">
+                <span className="merchant-cmd-followers-pill-icon merchant-cmd-followers-pill-icon--img" aria-hidden="true">
+                  <img src={guanzhu} alt="" className="merchant-cmd-followers-pill-icon-img" />
+                </span>
+                <span className="merchant-cmd-followers-pill-label">{lang === 'zh' ? '关注' : 'Followers'}</span>
+                <AnimatedMetric value={followers} format="compact" className="merchant-cmd-followers-pill-value" />
+              </div>
+              <div className="merchant-cmd-followers-trend">
+                <div className="merchant-cmd-followers-trend-head">
+                  <span className="merchant-cmd-followers-trend-title">
+                    {lang === 'zh' ? '7日关注趋势' : '7-day follower trend'}
+                  </span>
+                  <span className="merchant-cmd-followers-trend-delta">
+                    {followerWeekGain > 0 ? `+${followerWeekGain}` : followerWeekGain === 0 ? (lang === 'zh' ? '持平' : 'Flat') : followerWeekGain}
+                    {followerWeekGain > 0 ? (
+                      <span className="merchant-cmd-followers-trend-delta-label">
+                        {lang === 'zh' ? ' 本周' : ' this week'}
+                      </span>
+                    ) : null}
+                  </span>
                 </div>
-              ))}
+                <MiniSparkline
+                  data={followerSeries}
+                  color="#8b5cf6"
+                  delay={0.2}
+                  className="merchant-cmd-followers-sparkline"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -406,8 +468,8 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
               className={`merchant-cmd-action${action.primary ? ' merchant-cmd-action--primary' : ''}`}
               onClick={() => onNavigate(action.path)}
             >
-              <span className="merchant-cmd-action-icon">
-                <CmdActionIcon name={action.key} />
+              <span className={`merchant-cmd-action-icon${action.iconSrc ? ' merchant-cmd-action-icon--img' : ''}`}>
+                <CmdActionIcon name={action.key} iconSrc={action.iconSrc} />
               </span>
               <span className="merchant-cmd-action-text">
                 {lang === 'zh' ? action.zh : action.en}

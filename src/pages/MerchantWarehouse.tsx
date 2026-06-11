@@ -3,6 +3,12 @@ import { useToast } from '../components/ToastProvider'
 import { api } from '../api/client'
 import { getCategoryNameZh } from '../constants/categoryNameZh'
 import { useLang } from '../context/LangContext'
+import warehouseHeaderIcon from '../assets/cangku.png'
+import warehouseTotalIcon from '../assets/shangpinzongshu.png'
+import warehouseOnIcon from '../assets/jinrixiaoshoue.png'
+import warehouseOffIcon from '../assets/yixiajia.png'
+import MerchantDashboardInsight from '../components/MerchantDashboardInsight'
+import MerchantConfirmModal, { type MerchantConfirmVariant } from '../components/MerchantConfirmModal'
 
 interface WarehouseItem {
   /** 店铺上架记录唯一 ID（listingId） */
@@ -55,6 +61,42 @@ interface CategoryItem {
 }
 
 const PAGE_SIZE = 12
+const PROCURE_VISIBLE_CATEGORIES = 8
+
+function ProcureCategoryExpandIcon({ expanded }: { expanded: boolean }) {
+  if (expanded) {
+    return (
+      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+        <rect x="2" y="2" width="7" height="7" rx="2" fill="currentColor" opacity="0.35" />
+        <rect x="11" y="2" width="7" height="7" rx="2" fill="currentColor" opacity="0.35" />
+        <rect x="2" y="11" width="7" height="7" rx="2" fill="currentColor" opacity="0.35" />
+        <rect x="11" y="11" width="7" height="7" rx="2" fill="currentColor" opacity="0.35" />
+        <path
+          d="M7 15h6"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+      <rect x="2" y="2" width="7" height="7" rx="2" fill="currentColor" opacity="0.95" />
+      <rect x="11" y="2" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
+      <rect x="2" y="11" width="7" height="7" rx="2" fill="currentColor" opacity="0.55" />
+      <rect x="11" y="11" width="7" height="7" rx="2" fill="currentColor" opacity="0.3" />
+      <circle cx="15.5" cy="15.5" r="3.6" fill="currentColor" />
+      <path
+        d="M15.5 13.7v3.6M13.7 15.5h3.6"
+        stroke="#ffffff"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
 
 function getAuthShopId(): string | null {
   try {
@@ -135,8 +177,12 @@ const MerchantWarehouse: React.FC = () => {
   const [catalogImageIndex, setCatalogImageIndex] = useState<Record<string, number>>({})
   /** 我的商品卡片主图轮播下标 */
   const [mineImageIndex, setMineImageIndex] = useState<Record<string, number>>({})
-  /** 删除确认弹窗：当前要永久删除的商品，null 表示关闭 */
-  const [deleteConfirmItem, setDeleteConfirmItem] = useState<WarehouseItem | null>(null)
+  /** 上架 / 下架 / 删除确认弹窗 */
+  const [confirmModal, setConfirmModal] = useState<{
+    item: WarehouseItem
+    action: 'list' | 'unlist' | 'delete' | 'recommend' | 'unrecommend' | 'recommend_blocked'
+  } | null>(null)
+  const [confirmLoading, setConfirmLoading] = useState(false)
 
   const shopId = useMemo(() => getAuthShopId(), [])
 
@@ -167,7 +213,7 @@ const MerchantWarehouse: React.FC = () => {
           status: row.status === 'off' ? 'off' : 'on',
           image: row.image || undefined,
           images: row.images && row.images.length > 0 ? row.images : undefined,
-          recommended: Boolean(row.recommended),
+          recommended: row.status === 'on' && Boolean(row.recommended),
         }))
         setMyProducts(mapped)
         try {
@@ -207,6 +253,116 @@ const MerchantWarehouse: React.FC = () => {
 
   const totalProcurePages = Math.max(1, Math.ceil(procureTotal / PAGE_SIZE))
 
+  const onSaleCount = useMemo(
+    () => myProducts.filter((p) => p.status === 'on').length,
+    [myProducts],
+  )
+  const offSaleCount = useMemo(
+    () => myProducts.filter((p) => p.status === 'off').length,
+    [myProducts],
+  )
+
+  const applyWarehouseStat = (filter: 'all' | 'on' | 'off') => {
+    setTab('mine')
+    setStatusFilter(filter)
+    setMinePage(1)
+  }
+
+  const recommendedCount = useMemo(
+    () => myProducts.filter((p) => p.status === 'on' && p.recommended).length,
+    [myProducts],
+  )
+
+  const warehouseInsight = useMemo(() => {
+    const total = myProducts.length
+    const q = search.trim()
+
+    if (total === 0) {
+      return {
+        text:
+          lang === 'zh'
+            ? '店铺暂无商品，前往「采购上架」挑选供货商品，设置售价后即可开始赚取差价利润。'
+            : 'No products yet — go to Procure & list, pick supply items, set your price, and start earning margin.',
+        actionLabel: lang === 'zh' ? '去采购上架' : 'Procure & list',
+        onAction: () => setTab('procure'),
+      }
+    }
+
+    if (offSaleCount > 0 && onSaleCount === 0) {
+      return {
+        text:
+          lang === 'zh'
+            ? `全部 ${total} 件商品均已下架，建议检查库存与定价后重新上架，恢复店铺曝光。`
+            : `All ${total} product(s) are unlisted — review stock and pricing, then relist to restore visibility.`,
+        actionLabel: lang === 'zh' ? '查看已下架' : 'View unlisted',
+        onAction: () => applyWarehouseStat('off'),
+      }
+    }
+
+    if (offSaleCount > 0) {
+      return {
+        text:
+          lang === 'zh'
+            ? `在售 ${onSaleCount} 件，已下架 ${offSaleCount} 件。下架商品不会获得曝光，可考虑优化后重新上架。`
+            : `${onSaleCount} on sale, ${offSaleCount} unlisted. Unlisted items get no exposure — consider optimizing and relisting.`,
+        actionLabel: lang === 'zh' ? '查看已下架' : 'View unlisted',
+        onAction: () => applyWarehouseStat('off'),
+      }
+    }
+
+    if (q) {
+      return {
+        text:
+          lang === 'zh'
+            ? `搜索到 ${filtered.length} 件相关商品（店铺共 ${total} 件）。`
+            : `Found ${filtered.length} matching product(s) out of ${total} total.`,
+      }
+    }
+
+    if (statusFilter === 'on') {
+      return {
+        text:
+          lang === 'zh'
+            ? `当前查看在售商品 ${filtered.length} 件，点击顶部统计卡片可切换筛选。`
+            : `Viewing ${filtered.length} on-sale product(s). Use the stat cards above to switch filters.`,
+      }
+    }
+
+    if (statusFilter === 'off') {
+      return {
+        text:
+          lang === 'zh'
+            ? `当前查看已下架商品 ${filtered.length} 件，重新上架后可恢复店铺曝光。`
+            : `Viewing ${filtered.length} unlisted product(s). Relist them to restore shop visibility.`,
+      }
+    }
+
+    if (onSaleCount > 0 && recommendedCount === 0) {
+      return {
+        text:
+          lang === 'zh'
+            ? `当前 ${onSaleCount} 件商品在售，建议设置 1–3 款主推商品，有助于提升转化与曝光权重。`
+            : `${onSaleCount} product(s) on sale — set 1–3 featured items to improve conversion and visibility.`,
+      }
+    }
+
+    return {
+      text:
+        lang === 'zh'
+          ? `共 ${total} 件商品运行中，保持商品信息更新与合理定价有助于持续出单。`
+          : `${total} product(s) in your catalog — keep listings fresh and priced well for steady orders.`,
+    }
+  }, [
+    myProducts.length,
+    offSaleCount,
+    onSaleCount,
+    recommendedCount,
+    search,
+    statusFilter,
+    filtered.length,
+    lang,
+  ])
+
   React.useEffect(() => {
     setMinePage(1)
   }, [search, statusFilter])
@@ -227,7 +383,12 @@ const MerchantWarehouse: React.FC = () => {
         if (raw) {
           const cached = JSON.parse(raw) as WarehouseItem[]
           if (Array.isArray(cached)) {
-            setMyProducts(cached)
+            setMyProducts(
+              cached.map((p) => ({
+                ...p,
+                recommended: p.status === 'on' && Boolean(p.recommended),
+              })),
+            )
           }
         }
       } catch {
@@ -482,10 +643,20 @@ const MerchantWarehouse: React.FC = () => {
     }
   }, [tab, myProducts])
 
-  const toggleStatus = (id: string) => {
-    const target = myProducts.find((p) => p.id === id)
-    if (!target) return
-    if (!target.productId) {
+  const openConfirmModal = (
+    item: WarehouseItem,
+    action: 'list' | 'unlist' | 'delete' | 'recommend' | 'unrecommend' | 'recommend_blocked',
+  ) => {
+    if (action === 'recommend' && item.status === 'off') {
+      setConfirmModal({ item, action: 'recommend_blocked' })
+      return
+    }
+    if (
+      action !== 'recommend' &&
+      action !== 'unrecommend' &&
+      action !== 'recommend_blocked' &&
+      !item.productId
+    ) {
       showToast(lang === 'zh' ? '商品数据异常' : 'Product data error', 'error')
       return
     }
@@ -496,84 +667,210 @@ const MerchantWarehouse: React.FC = () => {
       )
       return
     }
-    if (target.status === 'on') {
-      api
-        .delete(`/api/shop-products/${shopId}/${target.productId}`)
-        .then(() => {
-          showToast(lang === 'zh' ? '已下架' : 'Unlisted from shop')
-          loadMineProducts()
-        })
-        .catch(() => {
-          showToast(lang === 'zh' ? '下架失败' : 'Failed to unlist', 'error')
-        })
-    } else {
-      api
-        .post('/api/shop-products', {
-          shopId,
-          productId: target.productId,
-          price: target.price,
-        })
-        .then(() => {
-          showToast(lang === 'zh' ? '已上架' : 'Listed to shop')
-          loadMineProducts()
-        })
-        .catch(() => {
-          showToast(lang === 'zh' ? '上架失败' : 'Failed to list', 'error')
-        })
-    }
+    setConfirmModal({ item, action })
   }
 
-  /** 永久删除店铺内该商品（从店铺商品表删除，不再显示） */
-  const handleDeleteFromShop = () => {
-    if (!deleteConfirmItem || !shopId) return
-    const { productId } = deleteConfirmItem
-    api
-      .delete(`/api/shop-products/${shopId}/${encodeURIComponent(productId)}?permanent=1`)
-      .then(() => {
-        showToast(lang === 'zh' ? '已删除' : 'Deleted from shop')
-        setDeleteConfirmItem(null)
+  const handleConfirmAction = async () => {
+    if (!confirmModal || !shopId) return
+    const { item, action } = confirmModal
+    setConfirmLoading(true)
+    try {
+      if (action === 'delete') {
+        const wasFeatured = item.recommended
+        await api.delete(
+          `/api/shop-products/${shopId}/${encodeURIComponent(item.productId)}?permanent=1`,
+        )
+        showToast(
+          lang === 'zh'
+            ? wasFeatured
+              ? '已删除，并已自动取消主推'
+              : '已删除'
+            : wasFeatured
+              ? 'Deleted and removed from featured'
+              : 'Deleted from shop',
+        )
         loadMineProducts()
-      })
-      .catch(() => {
-        showToast(lang === 'zh' ? '删除失败' : 'Failed to delete', 'error')
-      })
-  }
-
-  const toggleRecommended = (item: WarehouseItem) => {
-    if (!shopId) {
-      showToast(
-        lang === 'zh' ? '未登录商家或未绑定店铺' : 'Not logged in or shop not bound',
-        'error',
-      )
-      return
-    }
-    const userId = getAuthUserId()
-    if (!userId) {
-      showToast(lang === 'zh' ? '请先登录' : 'Please log in first', 'error')
-      return
-    }
-    if (item.recommended) {
-      api
-        .delete(`/api/shops/${shopId}/recommendations/${encodeURIComponent(item.id)}?userId=${encodeURIComponent(userId)}`)
-        .then(() => {
+      } else if (action === 'unlist') {
+        const wasFeatured = item.recommended
+        await api.delete(`/api/shop-products/${shopId}/${encodeURIComponent(item.productId)}`)
+        if (wasFeatured) {
+          const userId = getAuthUserId()
+          if (userId) {
+            try {
+              await api.delete(
+                `/api/shops/${shopId}/recommendations/${encodeURIComponent(item.id)}?userId=${encodeURIComponent(userId)}`,
+              )
+            } catch {
+              // 后端下架接口也会清理主推，此处为兜底
+            }
+          }
+        }
+        setMyProducts((prev) =>
+          prev.map((p) =>
+            p.id === item.id ? { ...p, status: 'off' as const, recommended: false } : p,
+          ),
+        )
+        showToast(
+          lang === 'zh'
+            ? wasFeatured
+              ? '已下架，并已自动取消主推'
+              : '已下架'
+            : wasFeatured
+              ? 'Unlisted and removed from featured'
+              : 'Unlisted from shop',
+        )
+        loadMineProducts()
+      } else if (action === 'recommend_blocked') {
+        setConfirmModal({ item, action: 'list' })
+        return
+      } else if (action === 'recommend' || action === 'unrecommend') {
+        const userId = getAuthUserId()
+        if (!userId) {
+          showToast(lang === 'zh' ? '请先登录' : 'Please log in first', 'error')
+          return
+        }
+        if (action === 'recommend') {
+          if (item.status === 'off') {
+            setConfirmModal({ item, action: 'recommend_blocked' })
+            return
+          }
+          await api.post(`/api/shops/${shopId}/recommendations`, {
+            userId,
+            listingId: item.id,
+          })
           setMyProducts((prev) =>
-            prev.map((p) => (p.id === item.id ? { ...p, recommended: false } : p))
-          )
-          showToast(lang === 'zh' ? '已取消主推' : 'Removed from featured',)
-        })
-        .catch(() => showToast(lang === 'zh' ? '取消失败' : 'Failed to remove featured', 'error'))
-    } else {
-      api
-        .post(`/api/shops/${shopId}/recommendations`, { userId, listingId: item.id })
-        .then(() => {
-          setMyProducts((prev) =>
-            prev.map((p) => (p.id === item.id ? { ...p, recommended: true } : p))
+            prev.map((p) => (p.id === item.id ? { ...p, recommended: true } : p)),
           )
           showToast(lang === 'zh' ? '已设为主推' : 'Set as featured')
+        } else {
+          await api.delete(
+            `/api/shops/${shopId}/recommendations/${encodeURIComponent(item.id)}?userId=${encodeURIComponent(userId)}`,
+          )
+          setMyProducts((prev) =>
+            prev.map((p) => (p.id === item.id ? { ...p, recommended: false } : p)),
+          )
+          showToast(lang === 'zh' ? '已取消主推' : 'Removed from featured')
+        }
+      } else if (action === 'list') {
+        await api.post('/api/shop-products', {
+          shopId,
+          productId: item.productId,
+          price: item.price,
         })
-        .catch(() => showToast(lang === 'zh' ? '设置失败' : 'Failed to set featured', 'error'))
+        showToast(lang === 'zh' ? '已上架' : 'Listed to shop')
+        loadMineProducts()
+      }
+      setConfirmModal(null)
+    } catch {
+      const errorMessage =
+        action === 'delete'
+          ? lang === 'zh'
+            ? '删除失败'
+            : 'Failed to delete'
+          : action === 'unlist'
+            ? lang === 'zh'
+              ? '下架失败'
+              : 'Failed to unlist'
+            : action === 'recommend'
+              ? lang === 'zh'
+                ? '设置失败'
+                : 'Failed to set featured'
+              : action === 'unrecommend'
+                ? lang === 'zh'
+                  ? '取消失败'
+                  : 'Failed to remove featured'
+                : lang === 'zh'
+                  ? '上架失败'
+                  : 'Failed to list'
+      showToast(errorMessage, 'error')
+    } finally {
+      setConfirmLoading(false)
     }
   }
+
+  const confirmModalCopy = useMemo(() => {
+    if (!confirmModal) return null
+    const { item, action } = confirmModal
+    const isFeatured = Boolean(item.recommended)
+
+    if (action === 'list') {
+      return {
+        variant: 'brand' as MerchantConfirmVariant,
+        title: lang === 'zh' ? '确认上架售卖？' : 'List for sale?',
+        subtitle:
+          lang === 'zh'
+            ? '上架后买家可在店铺正常购买该商品。'
+            : 'Buyers will be able to purchase this item in your shop.',
+        confirmLabel: lang === 'zh' ? '确认上架' : 'List for sale',
+      }
+    }
+
+    if (action === 'unlist') {
+      return {
+        variant: 'warning' as MerchantConfirmVariant,
+        title: lang === 'zh' ? '确认下架商品？' : 'Unlist this product?',
+        subtitle:
+          lang === 'zh'
+            ? isFeatured
+              ? '该商品当前为主推商品。下架后用户将无法购买，并会自动取消主推展示。'
+              : '下架后用户将无法购买该商品。'
+            : isFeatured
+              ? 'This item is currently featured. After unlisting, customers cannot purchase it and featured status will be removed automatically.'
+              : 'Customers will no longer be able to purchase this item.',
+        confirmLabel: lang === 'zh' ? '确认下架' : 'Unlist product',
+      }
+    }
+
+    if (action === 'recommend_blocked') {
+      return {
+        variant: 'warning' as MerchantConfirmVariant,
+        title: lang === 'zh' ? '无法设为主推' : 'Cannot set as featured',
+        subtitle:
+          lang === 'zh'
+            ? '该商品已下架，需先上架售卖后才能设为主推。'
+            : 'This product is unlisted. List it for sale before setting it as featured.',
+        confirmLabel: lang === 'zh' ? '去上架' : 'List for sale',
+      }
+    }
+
+    if (action === 'recommend') {
+      return {
+        variant: 'brand' as MerchantConfirmVariant,
+        title: lang === 'zh' ? '确认设为主推？' : 'Set as featured?',
+        subtitle:
+          lang === 'zh'
+            ? '主推商品将在店铺「推荐」专区优先展示，并出现在商品详情页的店铺推荐中，有助于提升曝光与转化。建议设置 1–3 款主推商品。'
+            : 'Featured items appear first in your shop’s Recommended section and in product detail recommendations, helping boost visibility and conversion. We suggest featuring 1–3 items.',
+        confirmLabel: lang === 'zh' ? '确认主推' : 'Set featured',
+      }
+    }
+
+    if (action === 'unrecommend') {
+      return {
+        variant: 'warning' as MerchantConfirmVariant,
+        title: lang === 'zh' ? '确认取消主推？' : 'Remove from featured?',
+        subtitle:
+          lang === 'zh'
+            ? '取消后该商品将不再在店铺「推荐」专区优先展示。'
+            : 'This item will no longer be prioritized in your shop’s Recommended section.',
+        confirmLabel: lang === 'zh' ? '确认取消主推' : 'Remove featured',
+      }
+    }
+
+    return {
+      variant: 'danger' as MerchantConfirmVariant,
+      title: lang === 'zh' ? '确认删除商品？' : 'Delete this product?',
+      subtitle:
+        lang === 'zh'
+          ? isFeatured
+            ? '该商品当前为主推商品。删除后将从店铺永久移除，并自动取消主推，此操作不可恢复。'
+            : '删除后该商品将从店铺永久移除，此操作不可恢复。'
+          : isFeatured
+            ? 'This item is currently featured. It will be permanently removed and unfeatured. This cannot be undone.'
+            : 'This item will be permanently removed from your shop. This cannot be undone.',
+      confirmLabel: lang === 'zh' ? '确认删除' : 'Delete product',
+    }
+  }, [confirmModal, lang])
 
   /** 将采购商品加入「我的商品」并上架（售价由系统按店铺等级自动计算） */
   const addProcureAndList = (item: CatalogItem) => {
@@ -704,82 +1001,147 @@ const MerchantWarehouse: React.FC = () => {
   const canNextImage = detailTotalImages > 1 && detailImageIndex < detailTotalImages - 1
 
   return (
-    <div className="merchant-warehouse-page">
-      <div className="merchant-warehouse-header">
-        <h1 className="merchant-warehouse-title">
-          {lang === 'zh' ? '商品仓库' : 'Product warehouse'}
-        </h1>
-        <div className="merchant-warehouse-header-actions">
+    <div className="merchant-warehouse-page merchant-warehouse-page--v2">
+      <header className="merchant-warehouse-header merchant-warehouse-header--v2">
+        <div className="merchant-warehouse-header-top">
+          <div className="merchant-warehouse-header-main">
+            <span className="merchant-warehouse-header-icon" aria-hidden="true">
+              <img src={warehouseHeaderIcon} alt="" className="merchant-warehouse-header-icon-img" />
+            </span>
+            <div className="merchant-warehouse-header-copy">
+              <h1 className="merchant-warehouse-title">
+                {lang === 'zh' ? '商品仓库' : 'Product warehouse'}
+              </h1>
+              <p className="merchant-warehouse-subtitle">
+                {lang === 'zh'
+                  ? '管理店铺商品、调整上下架，并从供货市场采购赚取利润'
+                  : 'Manage shop products, listing status, and procure from supply market for profit.'}
+              </p>
+            </div>
+          </div>
+          <div
+            className="merchant-warehouse-main-tabs"
+            role="tablist"
+            aria-label={lang === 'zh' ? '仓库视图' : 'Warehouse views'}
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'mine'}
+              className={`merchant-warehouse-tab-btn${
+                tab === 'mine' ? ' merchant-warehouse-tab-btn--active' : ''
+              }`}
+              onClick={() => setTab('mine')}
+            >
+              {lang === 'zh' ? '我的商品' : 'My products'}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'procure'}
+              className={`merchant-warehouse-tab-btn${
+                tab === 'procure' ? ' merchant-warehouse-tab-btn--active' : ''
+              }`}
+              onClick={() => setTab('procure')}
+            >
+              {lang === 'zh' ? '采购上架' : 'Procure & list'}
+            </button>
+          </div>
+        </div>
+        <div
+          className="merchant-warehouse-stats"
+          role="group"
+          aria-label={lang === 'zh' ? '商品快捷筛选' : 'Product quick filters'}
+        >
           <button
             type="button"
-            className={`merchant-warehouse-tab-btn${
-              tab === 'mine' ? ' merchant-warehouse-tab-btn--active' : ''
+            className={`merchant-warehouse-stat merchant-warehouse-stat--total${
+              tab === 'mine' && statusFilter === 'all' ? ' merchant-warehouse-stat--active' : ''
             }`}
-            onClick={() => setTab('mine')}
+            onClick={() => applyWarehouseStat('all')}
+            aria-pressed={tab === 'mine' && statusFilter === 'all'}
           >
-            {lang === 'zh' ? '我的商品' : 'My products'}
+            <span className="merchant-warehouse-stat-icon" aria-hidden="true">
+              <img src={warehouseTotalIcon} alt="" />
+            </span>
+            <div className="merchant-warehouse-stat-body">
+              <span className="merchant-warehouse-stat-value">{myProducts.length}</span>
+              <span className="merchant-warehouse-stat-label">
+                {lang === 'zh' ? '全部商品' : 'All products'}
+              </span>
+            </div>
           </button>
           <button
             type="button"
-            className={`merchant-warehouse-tab-btn${
-              tab === 'procure' ? ' merchant-warehouse-tab-btn--active' : ''
+            className={`merchant-warehouse-stat merchant-warehouse-stat--on${
+              tab === 'mine' && statusFilter === 'on' ? ' merchant-warehouse-stat--active' : ''
             }`}
-            onClick={() => setTab('procure')}
+            onClick={() => applyWarehouseStat('on')}
+            aria-pressed={tab === 'mine' && statusFilter === 'on'}
           >
-            {lang === 'zh' ? '采购上架' : 'Procure & list'}
+            <span className="merchant-warehouse-stat-icon" aria-hidden="true">
+              <img src={warehouseOnIcon} alt="" />
+            </span>
+            <div className="merchant-warehouse-stat-body">
+              <span className="merchant-warehouse-stat-value">{onSaleCount}</span>
+              <span className="merchant-warehouse-stat-label">
+                {lang === 'zh' ? '在售' : 'On sale'}
+              </span>
+            </div>
+          </button>
+          <button
+            type="button"
+            className={`merchant-warehouse-stat merchant-warehouse-stat--off${
+              tab === 'mine' && statusFilter === 'off' ? ' merchant-warehouse-stat--active' : ''
+            }`}
+            onClick={() => applyWarehouseStat('off')}
+            aria-pressed={tab === 'mine' && statusFilter === 'off'}
+          >
+            <span className="merchant-warehouse-stat-icon" aria-hidden="true">
+              <img src={warehouseOffIcon} alt="" />
+            </span>
+            <div className="merchant-warehouse-stat-body">
+              <span className="merchant-warehouse-stat-value">{offSaleCount}</span>
+              <span className="merchant-warehouse-stat-label">
+                {lang === 'zh' ? '已下架' : 'Unlisted'}
+              </span>
+            </div>
           </button>
         </div>
-      </div>
+      </header>
 
+      <section className="merchant-warehouse-section merchant-warehouse-section--v2">
       {tab === 'mine' && (
         <>
-          <div className="merchant-warehouse-toolbar">
-            <div className="merchant-warehouse-search-wrap">
-              <span className="merchant-warehouse-search-icon" aria-hidden>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              </span>
-              <input
-                type="text"
-                className="merchant-warehouse-search"
-                placeholder={
-                  lang === 'zh' ? '搜索商品编号 / 商品名称' : 'Search by product code / name'
-                }
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+          <div className="merchant-warehouse-toolbar merchant-warehouse-toolbar--v2">
+            <div className="merchant-warehouse-toolbar-row">
+              <div className="merchant-warehouse-search-wrap">
+                <span className="merchant-warehouse-search-icon" aria-hidden>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </span>
+                <input
+                  type="text"
+                  className="merchant-warehouse-search"
+                  placeholder={
+                    lang === 'zh' ? '搜索商品编号 / 商品名称' : 'Search by product code / name'
+                  }
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <MerchantDashboardInsight
+                storageKey="merchant-warehouse-insight-dismissed"
+                className="merchant-warehouse-insight"
+                kicker={lang === 'zh' ? '智能摘要' : 'Smart insight'}
+                text={warehouseInsight.text}
+                lang={lang}
+                actionLabel={warehouseInsight.actionLabel}
+                onAction={warehouseInsight.onAction}
               />
-            </div>
-            <div className="merchant-warehouse-filters">
-              <button
-                type="button"
-                className={`merchant-warehouse-filter-btn${
-                  statusFilter === 'all' ? ' merchant-warehouse-filter-btn--active' : ''
-                }`}
-                onClick={() => setStatusFilter('all')}
-              >
-                {lang === 'zh' ? '全部' : 'All'}
-              </button>
-              <button
-                type="button"
-                className={`merchant-warehouse-filter-btn${
-                  statusFilter === 'on' ? ' merchant-warehouse-filter-btn--active' : ''
-                }`}
-                onClick={() => setStatusFilter('on')}
-              >
-                {lang === 'zh' ? '在售' : 'On sale'}
-              </button>
-              <button
-                type="button"
-                className={`merchant-warehouse-filter-btn${
-                  statusFilter === 'off' ? ' merchant-warehouse-filter-btn--active' : ''
-                }`}
-                onClick={() => setStatusFilter('off')}
-              >
-                {lang === 'zh' ? '已下架' : 'Unlisted'}
-              </button>
             </div>
           </div>
 
-          <div className="merchant-warehouse-mine-wrap">
+          <div className="merchant-warehouse-mine-wrap merchant-warehouse-mine-wrap--v2">
             {filtered.length === 0 ? (
               myProducts.length === 0 ? (
                 <div className="merchant-warehouse-empty merchant-warehouse-empty--mine">
@@ -826,13 +1188,13 @@ const MerchantWarehouse: React.FC = () => {
               )
             ) : (
               <>
-                <ul className="merchant-warehouse-cards">
+                <ul className="merchant-warehouse-cards merchant-warehouse-cards--v2">
                   {paginatedMine.map((item) => (
                     <li
                       key={item.id}
                       role="button"
                       tabIndex={0}
-                      className="merchant-warehouse-card"
+                      className="merchant-warehouse-card merchant-warehouse-card--v2"
                       onClick={() => openMineDetail(item)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openMineDetail(item) } }}
                     >
@@ -855,31 +1217,6 @@ const MerchantWarehouse: React.FC = () => {
                           const src = imgs[idx] ?? imgs[0]
                           return <img src={src} alt="" className="merchant-warehouse-card-img" loading="lazy" />
                         })()}
-                        <button
-                          type="button"
-                          className={`merchant-warehouse-card-recommend ${item.recommended ? 'merchant-warehouse-card-recommend--on' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); toggleRecommended(item) }}
-                          title={
-                            item.recommended
-                              ? lang === 'zh'
-                                ? '取消主推'
-                                : 'Remove from featured'
-                              : lang === 'zh'
-                                ? '设为主推'
-                                : 'Set as featured'
-                          }
-                          aria-label={
-                            item.recommended
-                              ? lang === 'zh'
-                                ? '取消主推'
-                                : 'Remove from featured'
-                              : lang === 'zh'
-                                ? '设为主推'
-                                : 'Set as featured'
-                          }
-                        >
-                          <span className="merchant-warehouse-card-recommend-emoji" aria-hidden>👍</span>
-                        </button>
                         <span
                           className={`merchant-warehouse-card-status merchant-warehouse-card-status--${item.status}`}
                         >
@@ -916,33 +1253,72 @@ const MerchantWarehouse: React.FC = () => {
                             </span>
                           </span>
                         </div>
-                        <div className="merchant-warehouse-card-actions" onClick={(e) => e.stopPropagation()}>
-                          {item.status === 'on' ? (
-                            <button
-                              type="button"
-                              className="merchant-warehouse-action-btn"
-                              onClick={(e) => { e.stopPropagation(); toggleStatus(item.id) }}
-                            >
-                              {lang === 'zh' ? '下架' : 'Unlist'}
-                            </button>
-                          ) : (
-                            <>
+                        <div
+                          className="merchant-warehouse-card-actions merchant-warehouse-card-actions--v2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="merchant-warehouse-card-actions-primary">
+                            {item.status === 'on' ? (
                               <button
                                 type="button"
                                 className="merchant-warehouse-action-btn"
-                                onClick={(e) => { e.stopPropagation(); toggleStatus(item.id) }}
+                                onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'unlist') }}
                               >
-                                {lang === 'zh' ? '上架' : 'List'}
+                                {lang === 'zh' ? '下架' : 'Unlist'}
                               </button>
-                              <button
-                                type="button"
-                                className="merchant-warehouse-action-btn merchant-warehouse-action-btn--danger"
-                                onClick={(e) => { e.stopPropagation(); setDeleteConfirmItem(item) }}
-                              >
-                                {lang === 'zh' ? '删除' : 'Delete'}
-                              </button>
-                            </>
-                          )}
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  className="merchant-warehouse-action-btn"
+                                  onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'list') }}
+                                >
+                                  {lang === 'zh' ? '上架' : 'List'}
+                                </button>
+                                <button
+                                  type="button"
+                                  className="merchant-warehouse-action-btn merchant-warehouse-action-btn--danger"
+                                  onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'delete') }}
+                                >
+                                  {lang === 'zh' ? '删除' : 'Delete'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            className={`merchant-warehouse-card-recommend merchant-warehouse-card-recommend--actions${
+                              item.recommended ? ' merchant-warehouse-card-recommend--on' : ''
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (item.status === 'off' && !item.recommended) {
+                                openConfirmModal(item, 'recommend_blocked')
+                                return
+                              }
+                              openConfirmModal(item, item.recommended ? 'unrecommend' : 'recommend')
+                            }}
+                            title={
+                              item.recommended
+                                ? lang === 'zh'
+                                  ? '取消主推'
+                                  : 'Remove from featured'
+                                : lang === 'zh'
+                                  ? '设为主推'
+                                  : 'Set as featured'
+                            }
+                            aria-label={
+                              item.recommended
+                                ? lang === 'zh'
+                                  ? '取消主推'
+                                  : 'Remove from featured'
+                                : lang === 'zh'
+                                  ? '设为主推'
+                                  : 'Set as featured'
+                            }
+                          >
+                            <span className="merchant-warehouse-card-recommend-emoji" aria-hidden>👍</span>
+                          </button>
                         </div>
                       </div>
                     </li>
@@ -979,9 +1355,9 @@ const MerchantWarehouse: React.FC = () => {
 
       {tab === 'procure' && (
         <>
-          <div className="merchant-warehouse-procure-toolbar">
-            <div className="merchant-warehouse-procure-search-row">
-              <div className="merchant-warehouse-search-wrap">
+          <div className="merchant-warehouse-procure-toolbar merchant-warehouse-procure-toolbar--v2">
+            <div className="merchant-warehouse-procure-toolbar-row">
+              <div className="merchant-warehouse-search-wrap merchant-warehouse-search-wrap--procure">
                 <span className="merchant-warehouse-search-icon" aria-hidden>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 </span>
@@ -1022,44 +1398,67 @@ const MerchantWarehouse: React.FC = () => {
                   {lang === 'zh' ? '搜索' : 'Search'}
                 </button>
               </div>
-            </div>
-            <div className="merchant-warehouse-procure-categories">
-              <span className="merchant-warehouse-procure-categories-label">
-                {lang === 'zh' ? '分类' : 'Category'}
-              </span>
-              <div className="merchant-warehouse-procure-categories-list">
-                {(procureCategoriesExpanded
-                  ? procureCategories
-                  : procureCategories.slice(0, 8)
-                ).map((cat) => (
-                  <button
-                    key={cat.id || 'all'}
-                    type="button"
-                    className={`merchant-warehouse-filter-btn merchant-warehouse-procure-cat-btn${procureCategoryId === cat.id ? ' merchant-warehouse-filter-btn--active' : ''}`}
-                    onClick={() => setProcureCategoryId(cat.id)}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-                {procureCategories.length > 8 && (
-                  <button
-                    type="button"
-                    className="merchant-warehouse-procure-toggle"
-                    onClick={() => setProcureCategoriesExpanded((v) => !v)}
-                  >
-                    {procureCategoriesExpanded
-                      ? lang === 'zh'
-                        ? '收起'
-                        : 'Collapse'
-                      : lang === 'zh'
-                        ? '展开更多'
-                        : 'Show more'}
-                  </button>
-                )}
+              <div
+                className={`merchant-warehouse-procure-categories merchant-warehouse-procure-categories--inline${
+                  procureCategoriesExpanded ? ' merchant-warehouse-procure-categories--expanded' : ''
+                }`}
+              >
+                <span className="merchant-warehouse-procure-categories-label">
+                  {lang === 'zh' ? '商品分类' : 'Categories'}
+                </span>
+                <div className="merchant-warehouse-procure-categories-inner">
+                  <div className="merchant-warehouse-procure-categories-list merchant-warehouse-procure-categories-list--v2">
+                    {(procureCategoriesExpanded
+                      ? procureCategories
+                      : procureCategories.slice(0, PROCURE_VISIBLE_CATEGORIES)
+                    ).map((cat) => (
+                      <button
+                        key={cat.id || 'all'}
+                        type="button"
+                        className={`merchant-warehouse-filter-btn merchant-warehouse-procure-cat-btn${
+                          procureCategoryId === cat.id ? ' merchant-warehouse-filter-btn--active' : ''
+                        }`}
+                        onClick={() => setProcureCategoryId(cat.id)}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                  {procureCategories.length > PROCURE_VISIBLE_CATEGORIES && (
+                    <button
+                      type="button"
+                      className={`merchant-warehouse-procure-expand-btn${
+                        procureCategoriesExpanded ? ' merchant-warehouse-procure-expand-btn--expanded' : ''
+                      }`}
+                      onClick={() => setProcureCategoriesExpanded((v) => !v)}
+                      aria-expanded={procureCategoriesExpanded}
+                      aria-label={
+                        procureCategoriesExpanded
+                          ? lang === 'zh'
+                            ? '收起分类'
+                            : 'Collapse categories'
+                          : lang === 'zh'
+                            ? '展开更多分类'
+                            : 'Show more categories'
+                      }
+                      title={
+                        procureCategoriesExpanded
+                          ? lang === 'zh'
+                            ? '收起分类'
+                            : 'Collapse categories'
+                          : lang === 'zh'
+                            ? '展开更多分类'
+                            : 'Show more categories'
+                      }
+                    >
+                      <ProcureCategoryExpandIcon expanded={procureCategoriesExpanded} />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-          <div className="merchant-warehouse-catalog-wrap">
+          <div className="merchant-warehouse-catalog-wrap merchant-warehouse-catalog-wrap--v2">
             {procureLoading && procureList.length === 0 ? (
               <div className="merchant-warehouse-catalog merchant-warehouse-catalog--skeleton">
                 {Array.from({ length: 6 }).map((_, idx) => (
@@ -1085,13 +1484,13 @@ const MerchantWarehouse: React.FC = () => {
               </div>
             ) : (
               <>
-                <div className="merchant-warehouse-catalog">
+                <div className="merchant-warehouse-catalog merchant-warehouse-catalog--v2">
                   {procureList.map((item) => (
                     <div
                       key={item.id}
                       role="button"
                       tabIndex={0}
-                      className={`merchant-warehouse-catalog-card${
+                      className={`merchant-warehouse-catalog-card merchant-warehouse-catalog-card--v2${
                         item.status === 'off' ? ' merchant-warehouse-catalog-card--disabled' : ''
                       }`}
                       onClick={() => item.status !== 'off' && openProcureDetail(item)}
@@ -1171,6 +1570,7 @@ const MerchantWarehouse: React.FC = () => {
           </div>
         </>
       )}
+      </section>
 
       {mineDetailItem && (() => {
         const mineDetailImages = mineDetailEnriched?.images?.length
@@ -1398,54 +1798,19 @@ const MerchantWarehouse: React.FC = () => {
 
       {/* 采购定价并上架弹层已废弃：采购时由系统根据店铺等级和采购价自动定价 */}
 
-      {deleteConfirmItem && (
-        <>
-          <div
-            className="merchant-warehouse-pricing-overlay"
-            onClick={() => setDeleteConfirmItem(null)}
-            role="presentation"
-            aria-hidden="true"
-          />
-          <div
-            className="merchant-warehouse-delete-confirm-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="merchant-warehouse-delete-confirm-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="merchant-warehouse-delete-confirm-icon" aria-hidden>
-              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v4M12 16h.01" />
-              </svg>
-            </div>
-            <h2
-              id="merchant-warehouse-delete-confirm-title"
-              className="merchant-warehouse-delete-confirm-title"
-            >
-              {lang === 'zh'
-                ? '你确定删除店铺内该商品？'
-                : 'Are you sure you want to delete this product from your shop?'}
-            </h2>
-            <div className="merchant-warehouse-delete-confirm-actions">
-              <button
-                type="button"
-                className="merchant-warehouse-pricing-btn merchant-warehouse-pricing-btn--secondary"
-                onClick={() => setDeleteConfirmItem(null)}
-              >
-                {lang === 'zh' ? '取消' : 'Cancel'}
-              </button>
-              <button
-                type="button"
-                className="merchant-warehouse-pricing-btn merchant-warehouse-pricing-btn--primary"
-                onClick={handleDeleteFromShop}
-              >
-                {lang === 'zh' ? '确认' : 'Confirm'}
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <MerchantConfirmModal
+        open={Boolean(confirmModal && confirmModalCopy)}
+        title={confirmModalCopy?.title ?? ''}
+        subtitle={confirmModalCopy?.subtitle}
+        confirmLabel={confirmModalCopy?.confirmLabel ?? ''}
+        cancelLabel={lang === 'zh' ? '取消' : 'Cancel'}
+        variant={confirmModalCopy?.variant}
+        loading={confirmLoading}
+        onConfirm={handleConfirmAction}
+        onCancel={() => {
+          if (!confirmLoading) setConfirmModal(null)
+        }}
+      />
     </div>
   )
 }

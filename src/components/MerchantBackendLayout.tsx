@@ -13,6 +13,8 @@ import dianpu2 from '../assets/dianpu2.png'
 import dianpu3 from '../assets/dianpu3.png'
 import dianpu4 from '../assets/dianpu4.png'
 import serviceIcon from '../assets/kefu.png'
+import zhFlagIcon from '../assets/lang-zh.png'
+import enFlagIcon from '../assets/lang-en.png'
 
 const AUTH_USER_KEY = 'authUser'
 
@@ -158,13 +160,21 @@ const MerchantBackendLayoutInner: React.FC = () => {
                 type="button"
                 className="merchant-backend-lang-btn"
                 onClick={() => setLangDropdownOpen((v) => !v)}
+                aria-haspopup="listbox"
                 aria-expanded={langDropdownOpen}
               >
-                {lang === 'zh' ? '简体中文' : 'English'}
+                <span className="merchant-backend-lang-flag" aria-hidden="true">
+                  <img
+                    src={lang === 'zh' ? zhFlagIcon : enFlagIcon}
+                    alt=""
+                    className="merchant-backend-lang-flag-img"
+                  />
+                </span>
+                <span>{lang === 'zh' ? '简体中文' : 'English'}</span>
                 <span className="merchant-backend-lang-caret">▼</span>
               </button>
               {langDropdownOpen && (
-                <div className="merchant-backend-lang-dropdown">
+                <div className="merchant-backend-lang-dropdown" role="listbox">
                   <button
                     type="button"
                     className="merchant-backend-lang-option"
@@ -174,7 +184,10 @@ const MerchantBackendLayoutInner: React.FC = () => {
                       setLangDropdownOpen(false)
                     }}
                   >
-                    简体中文
+                    <span className="merchant-backend-lang-option-flag" aria-hidden="true">
+                      <img src={zhFlagIcon} alt="" className="merchant-backend-lang-flag-img" />
+                    </span>
+                    <span>简体中文</span>
                   </button>
                   <button
                     type="button"
@@ -185,7 +198,10 @@ const MerchantBackendLayoutInner: React.FC = () => {
                       setLangDropdownOpen(false)
                     }}
                   >
-                    English
+                    <span className="merchant-backend-lang-option-flag" aria-hidden="true">
+                      <img src={enFlagIcon} alt="" className="merchant-backend-lang-flag-img" />
+                    </span>
+                    <span>English</span>
                   </button>
                 </div>
               )}

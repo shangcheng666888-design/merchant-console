@@ -35,10 +35,5 @@ export function openCrispChat(options?: CrispChatOptions): void {
     }
   }
 
-  crisp.push(['do', 'chat:show'])
-  setTimeout(() => {
-    if (window.$crisp && typeof window.$crisp.push === 'function') {
-      window.$crisp.push(['do', 'chat:open'])
-    }
-  }, 100)
+  crisp.push(['do', 'chat:open'])
 }

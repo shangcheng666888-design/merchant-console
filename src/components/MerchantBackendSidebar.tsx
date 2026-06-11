@@ -4,6 +4,7 @@ import { MerchantSidebarNavIcon, type MerchantSidebarIconName } from './Merchant
 import { api } from '../api/client'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { useLang } from '../context/LangContext'
+import { getMerchantBrand } from '../constants/merchantBrand'
 
 export const MERCHANT_NAV_ITEMS = [
   { path: '/dashboard', labelZh: '仪表盘', labelEn: 'Dashboard', icon: 'dashboard' as const },
@@ -28,37 +29,26 @@ const MerchantBackendSidebar: React.FC<MerchantBackendSidebarProps> = ({ collaps
   const location = useLocation()
   const { shop } = useMerchantShop()
   const { lang } = useLang()
+  const brand = getMerchantBrand(lang)
 
   return (
     <aside
       className={`merchant-backend-sidebar${collapsed ? ' merchant-backend-sidebar--collapsed' : ''}`}
     >
-      <div className="merchant-backend-user">
-        <div className="merchant-backend-avatar-wrap">
-          {shop?.logo ? (
-            <img
-              src={shop.logo}
-              alt="店铺头像"
-              className="merchant-backend-avatar"
-              loading="lazy"
-            />
-          ) : (
-            <div className="merchant-backend-avatar" aria-hidden="true">
-              <span>{shop?.name ? shop.name.slice(0, 1) : '店'}</span>
-            </div>
-          )}
-        </div>
-        <div className="merchant-backend-user-id" title={shop?.name || '我的店铺'}>
-          {shop?.name || '我的店铺'}
-        </div>
-        {shop?.id && (
-          <div className="merchant-backend-user-phone">店铺ID：{shop.id}</div>
-        )}
-        {shop?.id && (
-          <Link to={`/shops/${shop.id}`} className="merchant-backend-view-shop-btn">
-            {lang === 'zh' ? '查看我的店铺' : 'View my shop'}
-          </Link>
-        )}
+      <div className="merchant-backend-brand">
+        <img
+          src={brand.logo}
+          alt=""
+          className="merchant-backend-brand-logo"
+          aria-hidden="true"
+        />
+        {!collapsed ? (
+          <div className="merchant-backend-brand-copy">
+            <strong className="merchant-backend-brand-name">{brand.name}</strong>
+            <span className="merchant-backend-brand-product">{brand.productLine}</span>
+            <span className="merchant-backend-brand-tagline">{brand.tagline}</span>
+          </div>
+        ) : null}
       </div>
       <nav className="merchant-backend-nav" aria-label={lang === 'zh' ? '店铺后台导航' : 'Seller navigation'}>
         {MERCHANT_NAV_ITEMS.map((item) => {
@@ -85,7 +75,11 @@ const MerchantBackendSidebar: React.FC<MerchantBackendSidebarProps> = ({ collaps
               aria-current={isActive ? 'page' : undefined}
             >
               <span className="merchant-backend-nav-icon-wrap">
-                <MerchantSidebarNavIcon name={item.icon} className="merchant-backend-nav-icon-svg" />
+                <MerchantSidebarNavIcon
+                  name={item.icon}
+                  className="merchant-backend-nav-icon-svg"
+                  variant="light"
+                />
               </span>
               <span className="merchant-backend-nav-label">
                 {lang === 'zh' ? item.labelZh : item.labelEn}

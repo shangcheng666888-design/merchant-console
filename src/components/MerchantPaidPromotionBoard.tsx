@@ -1,0 +1,517 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { api } from '../api/client'
+import { useToast } from './ToastProvider'
+import paidTiktok from '../assets/paid-tiktok.png'
+import paidMeta from '../assets/paid-meta.png'
+import paidGoogle from '../assets/paid-google.png'
+import liulianggaikuang from '../assets/liulianggaikuang.png'
+import MiniSparkline from './MiniSparkline'
+
+type PaidChannel = 'tiktok' | 'meta' | 'google' | 'other'
+type TargetType = 'shop' | 'product'
+type PromoStatus = 'pending' | 'awaiting_launch' | 'active' | 'paused' | 'ended' | 'completed'
+
+interface OptionItem {
+  value: string
+  labelZh: string
+  labelEn: string
+}
+
+interface PromotionInfo {
+  id: number
+  shopId: string
+  channel: PaidChannel
+  status: PromoStatus
+  targetType: TargetType | null
+  targetListingId: string | null
+  targetProductTitle: string | null
+  targetProductImage: string | null
+  targetRegion: string | null
+  targetAudience: string | null
+  merchantConfirmedAt: string | null
+  campaignStartAt: string | null
+  campaignEndAt: string | null
+  budgetTotal: number | null
+}
+
+interface MetricPoint {
+  date: string
+  impressions: number
+  clicks: number
+  visits: number
+  orders: number
+  spend: number
+  revenue: number
+}
+
+interface MetricTotals {
+  impressions: number
+  clicks: number
+  visits: number
+  orders: number
+  spend: number
+  revenue: number
+}
+
+interface ListedProduct {
+  listingId: string | number
+  title: string
+  image: string
+  price: number
+  status: string
+}
+
+const CHANNEL_META: Record<PaidChannel, { zh: string; en: string; icon?: string }> = {
+  tiktok: { zh: 'TikTok', en: 'TikTok', icon: paidTiktok },
+  meta: { zh: 'Meta', en: 'Meta', icon: paidMeta },
+  google: { zh: 'Google', en: 'Google', icon: paidGoogle },
+  other: { zh: '其他渠道', en: 'Other' },
+}
+
+const DEFAULT_REGIONS: OptionItem[] = [
+  { value: 'north_america', labelZh: '北美', labelEn: 'North America' },
+  { value: 'europe', labelZh: '欧洲', labelEn: 'Europe' },
+  { value: 'southeast_asia', labelZh: '东南亚', labelEn: 'Southeast Asia' },
+  { value: 'middle_east', labelZh: '中东', labelEn: 'Middle East' },
+  { value: 'latin_america', labelZh: '拉美', labelEn: 'Latin America' },
+  { value: 'global', labelZh: '全球', labelEn: 'Global' },
+]
+
+const DEFAULT_AUDIENCES: OptionItem[] = [
+  { value: 'all', labelZh: '全部受众', labelEn: 'All audiences' },
+  { value: 'young_adults', labelZh: '年轻群体 18-34', labelEn: 'Young adults 18-34' },
+  { value: 'women', labelZh: '女性用户', labelEn: 'Women' },
+  { value: 'men', labelZh: '男性用户', labelEn: 'Men' },
+  { value: 'parents', labelZh: '家长群体', labelEn: 'Parents' },
+  { value: 'high_intent', labelZh: '高购买意向', labelEn: 'High purchase intent' },
+]
+
+function isPromotionSetupEditable(promotion: PromotionInfo | null): boolean {
+  if (!promotion) return false
+  if (promotion.status === 'pending') return true
+  if (promotion.status === 'active' && !promotion.merchantConfirmedAt) return true
+  return false
+}
+
+function readAuth(): { userId: string; shopId: string } | null {
+  try {
+    const raw = window.localStorage.getItem('authUser')
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as { id?: string; shopId?: string }
+    const userId = typeof parsed.id === 'string' ? parsed.id.trim() : ''
+    const shopId = typeof parsed.shopId === 'string' ? parsed.shopId.trim() : ''
+    if (!userId || !shopId) return null
+    return { userId, shopId }
+  } catch {
+    return null
+  }
+}
+
+function labelForOption(options: OptionItem[], value: string | null, lang: 'zh' | 'en') {
+  if (!value) return '—'
+  const item = options.find((opt) => opt.value === value)
+  if (!item) return value
+  return lang === 'zh' ? item.labelZh : item.labelEn
+}
+
+interface MerchantPaidPromotionBoardProps {
+  lang: 'zh' | 'en'
+}
+
+const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({ lang }) => {
+  const { showToast } = useToast()
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [promotion, setPromotion] = useState<PromotionInfo | null>(null)
+  const [targetSelected, setTargetSelected] = useState(false)
+  const [metrics, setMetrics] = useState<{
+    series: MetricPoint[]
+    totals: MetricTotals
+    presets?: MetricTotals
+    campaignProgress?: number
+    budgetProgress?: number
+    isCompleted?: boolean
+  } | null>(null)
+  const [products, setProducts] = useState<ListedProduct[]>([])
+  const [regions, setRegions] = useState<OptionItem[]>(DEFAULT_REGIONS)
+  const [audiences, setAudiences] = useState<OptionItem[]>(DEFAULT_AUDIENCES)
+  const [targetType, setTargetType] = useState<TargetType>('product')
+  const [selectedListingId, setSelectedListingId] = useState('')
+  const [targetRegion, setTargetRegion] = useState('')
+  const [targetAudience, setTargetAudience] = useState('')
+
+  const channelInfo = promotion ? CHANNEL_META[promotion.channel] : null
+  const formLocked = !isPromotionSetupEditable(promotion)
+  const regionOptions = regions.length > 0 ? regions : DEFAULT_REGIONS
+  const audienceOptions = audiences.length > 0 ? audiences : DEFAULT_AUDIENCES
+
+  const fetchBoard = useCallback(async () => {
+    const auth = readAuth()
+    if (!auth) {
+      setLoading(false)
+      return
+    }
+    try {
+      const res = await api.get<{
+        active: boolean
+        promotion: PromotionInfo | null
+        metrics: {
+          series: MetricPoint[]
+          totals: MetricTotals
+          presets?: MetricTotals
+          campaignProgress?: number
+          budgetProgress?: number
+          isCompleted?: boolean
+        } | null
+        targetSelected?: boolean
+        regions?: OptionItem[]
+        audiences?: OptionItem[]
+      }>(
+        `/api/shops/${encodeURIComponent(auth.shopId)}/paid-promotion?userId=${encodeURIComponent(auth.userId)}`,
+      )
+      if (!res.active || !res.promotion) {
+        setPromotion(null)
+        setMetrics(null)
+        setTargetSelected(false)
+        return
+      }
+      setPromotion(res.promotion)
+      setTargetSelected(Boolean(res.targetSelected))
+      setMetrics(res.metrics)
+      setRegions(Array.isArray(res.regions) && res.regions.length > 0 ? res.regions : DEFAULT_REGIONS)
+      setAudiences(Array.isArray(res.audiences) && res.audiences.length > 0 ? res.audiences : DEFAULT_AUDIENCES)
+      if (res.promotion.targetType) setTargetType(res.promotion.targetType)
+      if (res.promotion.targetListingId) setSelectedListingId(res.promotion.targetListingId)
+      if (res.promotion.targetRegion) setTargetRegion(res.promotion.targetRegion)
+      if (res.promotion.targetAudience) setTargetAudience(res.promotion.targetAudience)
+    } catch {
+      setPromotion(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const fetchProducts = useCallback(async () => {
+    const auth = readAuth()
+    if (!auth) return
+    try {
+      const res = await api.get<{ list: ListedProduct[] }>(
+        `/api/shop-products/by-shop/${encodeURIComponent(auth.shopId)}`,
+      )
+      setProducts((res.list ?? []).filter((item) => item.status === 'on'))
+    } catch {
+      setProducts([])
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchBoard()
+    fetchProducts()
+    void api
+      .get<{ regions?: OptionItem[]; audiences?: OptionItem[] }>('/api/paid-promotion/options')
+      .then((res) => {
+        if (Array.isArray(res.regions) && res.regions.length > 0) setRegions(res.regions)
+        if (Array.isArray(res.audiences) && res.audiences.length > 0) setAudiences(res.audiences)
+      })
+      .catch(() => {
+        /* use built-in defaults */
+      })
+    const timer = window.setInterval(fetchBoard, 8000)
+    return () => window.clearInterval(timer)
+  }, [fetchBoard, fetchProducts])
+
+  const saveTarget = async () => {
+    const auth = readAuth()
+    if (!auth || !promotion || formLocked) return
+    if (targetType === 'product' && !selectedListingId) {
+      showToast(lang === 'zh' ? '请选择要推广的商品' : 'Select a product to promote', 'error')
+      return
+    }
+    if (!targetRegion) {
+      showToast(lang === 'zh' ? '请选择推广地区' : 'Select a target region', 'error')
+      return
+    }
+    if (!targetAudience) {
+      showToast(lang === 'zh' ? '请选择受众群体' : 'Select a target audience', 'error')
+      return
+    }
+    setSaving(true)
+    try {
+      const res = await api.patch<{
+        success: boolean
+        promotion: PromotionInfo
+        targetSelected: boolean
+      }>(`/api/shops/${encodeURIComponent(auth.shopId)}/paid-promotion`, {
+        userId: auth.userId,
+        targetType,
+        targetListingId: targetType === 'product' ? selectedListingId : undefined,
+        targetRegion,
+        targetAudience,
+      })
+      setPromotion(res.promotion)
+      setTargetSelected(Boolean(res.targetSelected))
+      showToast(lang === 'zh' ? '推广方案已提交，等待管理员开启' : 'Promotion submitted — awaiting admin launch')
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : lang === 'zh' ? '提交失败' : 'Submit failed', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const visitSeries = useMemo(() => (metrics?.series ?? []).map((point) => point.visits), [metrics])
+
+  const clickRate = useMemo(() => {
+    const totals = metrics?.totals
+    if (!totals || totals.impressions <= 0) return 0
+    return Math.round((totals.clicks / totals.impressions) * 1000) / 10
+  }, [metrics])
+
+  const budgetProgressPct = Math.round((metrics?.budgetProgress ?? 0) * 100)
+
+  if (loading) return null
+  if (!promotion) return null
+
+  return (
+    <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广看板' : 'Paid promotion board'}>
+      <header className="merchant-dashboard-section-head">
+        <div className="merchant-paid-promo-board-head">
+          <span className="merchant-paid-promo-board-icon" aria-hidden="true">
+            {channelInfo?.icon ? <img src={channelInfo.icon} alt="" /> : <img src={liulianggaikuang} alt="" />}
+          </span>
+          <div>
+            <h3 className="merchant-dashboard-section-title">
+              {lang === 'zh' ? '付费推广看板' : 'Paid promotion board'}
+            </h3>
+            <p className="merchant-dashboard-section-desc">
+              {lang === 'zh'
+                ? `当前渠道：${channelInfo?.zh ?? promotion.channel} · 选择商品、地区与受众后提交，管理员配置并开启后开始智能投放`
+                : `Channel: ${channelInfo?.en ?? promotion.channel} · Submit target, region and audience, then admin launches the campaign`}
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <div className="merchant-paid-promo-board-body">
+        <div className="merchant-paid-promo-target-card">
+          <h4 className="merchant-paid-promo-card-title">{lang === 'zh' ? '推广设置' : 'Campaign setup'}</h4>
+          <div className="merchant-paid-promo-target-tabs">
+            <button
+              type="button"
+              className={`merchant-paid-promo-target-tab${targetType === 'shop' ? ' merchant-paid-promo-target-tab--active' : ''}`}
+              onClick={() => !formLocked && setTargetType('shop')}
+              disabled={formLocked}
+            >
+              {lang === 'zh' ? '推广整店' : 'Promote shop'}
+            </button>
+            <button
+              type="button"
+              className={`merchant-paid-promo-target-tab${targetType === 'product' ? ' merchant-paid-promo-target-tab--active' : ''}`}
+              onClick={() => !formLocked && setTargetType('product')}
+              disabled={formLocked}
+            >
+              {lang === 'zh' ? '推广单品' : 'Promote product'}
+            </button>
+          </div>
+
+          {targetType === 'product' ? (
+            <div className="merchant-paid-promo-product-grid">
+              {products.length === 0 ? (
+                <p className="merchant-paid-promo-empty">
+                  {lang === 'zh' ? '暂无在售商品，请先在仓库上架' : 'No on-sale products. List items in warehouse first.'}
+                </p>
+              ) : (
+                products.map((product) => {
+                  const id = String(product.listingId)
+                  const selected = selectedListingId === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`merchant-paid-promo-product-item${selected ? ' merchant-paid-promo-product-item--selected' : ''}`}
+                      onClick={() => !formLocked && setSelectedListingId(id)}
+                      disabled={formLocked}
+                    >
+                      {product.image ? (
+                        <img src={product.image} alt="" className="merchant-paid-promo-product-img" />
+                      ) : (
+                        <span className="merchant-paid-promo-product-img merchant-paid-promo-product-img--empty" />
+                      )}
+                      <span className="merchant-paid-promo-product-title">{product.title}</span>
+                      <span className="merchant-paid-promo-product-price">${product.price.toFixed(2)}</span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
+          ) : (
+            <div className="merchant-paid-promo-shop-grid">
+              <button
+                type="button"
+                className="merchant-paid-promo-shop-item merchant-paid-promo-shop-item--selected"
+                onClick={() => !formLocked && setTargetType('shop')}
+                disabled={formLocked}
+              >
+                <span className="merchant-paid-promo-shop-item-icon" aria-hidden="true">
+                  🏪
+                </span>
+                <span className="merchant-paid-promo-shop-item-title">
+                  {lang === 'zh' ? '推广整店' : 'Promote whole shop'}
+                </span>
+                <span className="merchant-paid-promo-shop-item-desc">
+                  {lang === 'zh' ? '将店铺首页作为付费推广落地页' : 'Use your shop homepage as the landing page'}
+                </span>
+              </button>
+            </div>
+          )}
+
+          <div className="merchant-paid-promo-select-row">
+            <label className="merchant-paid-promo-select-field">
+              <span>{lang === 'zh' ? '推广地区' : 'Target region'}</span>
+              <select value={targetRegion} onChange={(e) => setTargetRegion(e.target.value)} disabled={formLocked}>
+                <option value="">{lang === 'zh' ? '请选择地区' : 'Select region'}</option>
+                {regionOptions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {lang === 'zh' ? item.labelZh : item.labelEn}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="merchant-paid-promo-select-field">
+              <span>{lang === 'zh' ? '受众群体' : 'Audience'}</span>
+              <select value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} disabled={formLocked}>
+                <option value="">{lang === 'zh' ? '请选择受众' : 'Select audience'}</option>
+                {audienceOptions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {lang === 'zh' ? item.labelZh : item.labelEn}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {!formLocked ? (
+            <button
+              type="button"
+              className="merchant-paid-promo-save-btn"
+              onClick={saveTarget}
+              disabled={saving || (targetType === 'product' && !selectedListingId) || !targetRegion || !targetAudience}
+            >
+              {saving ? (lang === 'zh' ? '提交中…' : 'Submitting…') : lang === 'zh' ? '确认推广' : 'Confirm promotion'}
+            </button>
+          ) : null}
+
+          {promotion.status === 'awaiting_launch' ? (
+            <div className="merchant-paid-promo-status-banner merchant-paid-promo-status-banner--waiting">
+              {lang === 'zh'
+                ? '推广方案已提交，等待管理员配置投放参数并开启推广。'
+                : 'Promotion submitted. Waiting for admin to configure and launch.'}
+            </div>
+          ) : null}
+
+          {targetSelected && formLocked ? (
+            <div className="merchant-paid-promo-confirmed-meta">
+              <span>
+                {lang === 'zh' ? '地区：' : 'Region: '}
+                {labelForOption(regionOptions, promotion.targetRegion, lang)}
+              </span>
+              <span>
+                {lang === 'zh' ? '受众：' : 'Audience: '}
+                {labelForOption(audienceOptions, promotion.targetAudience, lang)}
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        {promotion.status === 'active' && metrics && promotion.merchantConfirmedAt ? (
+          <div className="merchant-paid-promo-metrics-card">
+            <div className="merchant-paid-promo-metrics-head">
+              <h4 className="merchant-paid-promo-card-title">
+                {lang === 'zh' ? '推广投放数据' : 'Campaign performance'}
+              </h4>
+              {promotion.targetType === 'product' && promotion.targetProductTitle ? (
+                <span className="merchant-paid-promo-metrics-target">
+                  {lang === 'zh' ? '主推：' : 'Focus: '}
+                  {promotion.targetProductTitle}
+                </span>
+              ) : (
+                <span className="merchant-paid-promo-metrics-target">
+                  {lang === 'zh' ? '主推：整店推广' : 'Focus: whole shop'}
+                </span>
+              )}
+            </div>
+
+            <div className="merchant-paid-promo-progress-row">
+              <div className="merchant-paid-promo-progress-copy">
+                <span>{lang === 'zh' ? '预算消耗进度' : 'Budget consumption'}</span>
+                <strong>{budgetProgressPct}%</strong>
+              </div>
+              <div className="merchant-paid-promo-progress-bar">
+                <span style={{ width: `${budgetProgressPct}%` }} />
+              </div>
+              {promotion.budgetTotal != null ? (
+                <span className="merchant-paid-promo-progress-sub">
+                  ${metrics.totals.spend.toFixed(2)} / ${promotion.budgetTotal.toFixed(2)}
+                </span>
+              ) : null}
+            </div>
+
+            <div className="merchant-paid-promo-metrics-grid">
+              <div className="merchant-paid-promo-metric">
+                <span className="merchant-paid-promo-metric-value">{metrics.totals.impressions.toLocaleString()}</span>
+                <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '曝光' : 'Impressions'}</span>
+              </div>
+              <div className="merchant-paid-promo-metric">
+                <span className="merchant-paid-promo-metric-value">{metrics.totals.clicks.toLocaleString()}</span>
+                <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '点击' : 'Clicks'}</span>
+              </div>
+              <div className="merchant-paid-promo-metric">
+                <span className="merchant-paid-promo-metric-value">{metrics.totals.visits.toLocaleString()}</span>
+                <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '进店' : 'Visits'}</span>
+              </div>
+              <div className="merchant-paid-promo-metric">
+                <span className="merchant-paid-promo-metric-value">{metrics.totals.orders.toLocaleString()}</span>
+                <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '成交' : 'Orders'}</span>
+              </div>
+              <div className="merchant-paid-promo-metric">
+                <span className="merchant-paid-promo-metric-value">${metrics.totals.spend.toFixed(2)}</span>
+                <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '消耗' : 'Spend'}</span>
+              </div>
+              <div className="merchant-paid-promo-metric">
+                <span className="merchant-paid-promo-metric-value">${metrics.totals.revenue.toFixed(2)}</span>
+                <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '成交额' : 'Revenue'}</span>
+              </div>
+            </div>
+
+            <div className="merchant-paid-promo-sparkline-row">
+              <div className="merchant-paid-promo-sparkline-copy">
+                <span className="merchant-paid-promo-sparkline-label">{lang === 'zh' ? '进店趋势' : 'Visit trend'}</span>
+                <span className="merchant-paid-promo-sparkline-sub">
+                  {lang === 'zh' ? `点击率 ${clickRate}%` : `CTR ${clickRate}%`}
+                </span>
+              </div>
+              <MiniSparkline data={visitSeries.length > 0 ? visitSeries : [0, 0, 0, 0, 0, 0, 0]} color="#5b6cff" />
+            </div>
+          </div>
+        ) : isPromotionSetupEditable(promotion) ? (
+          <div className="merchant-paid-promo-waiting-card">
+            <p>
+              {lang === 'zh'
+                ? '请选择推广目标、地区与受众，确认后提交给管理员开启投放。'
+                : 'Choose target, region and audience, then submit for admin launch.'}
+            </p>
+          </div>
+        ) : promotion.status === 'awaiting_launch' ? (
+          <div className="merchant-paid-promo-waiting-card">
+            <p>
+              {lang === 'zh'
+                ? '管理员正在配置投放时长、曝光量、点击率与预算，开启后将按设定智能消耗并展示数据。'
+                : 'Admin is configuring duration, impressions, CTR and budget. Data will release smartly after launch.'}
+            </p>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  )
+}
+
+export default MerchantPaidPromotionBoard

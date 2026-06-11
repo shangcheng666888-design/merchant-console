@@ -23142,13 +23142,8 @@ button {
 }
 
 .merchant-dashboard-fab--chat {
-  bottom: 6rem;
-  background: #374151;
-}
-
-.merchant-dashboard-fab--feedback {
   bottom: 1.5rem;
-  background: #111827;
+  background: #374151;
 }
 
 .merchant-dashboard-fab:hover {

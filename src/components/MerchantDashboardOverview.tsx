@@ -1,5 +1,11 @@
 import React from 'react'
 import AnimatedMetric, { type AnimatedMetricFormat } from './AnimatedMetric'
+import MerchantDashboardInsight from './MerchantDashboardInsight'
+import MiniSparkline from './MiniSparkline'
+import liulianggaikuang from '../assets/liulianggaikuang.png'
+import jinrufangke from '../assets/jinrufangke.png'
+import qirifangke from '../assets/qirifangke.png'
+import zhuanhuashuai from '../assets/zhuanhuashuai.png'
 
 export interface OverviewDashboardData {
   lang: 'zh' | 'en'
@@ -16,7 +22,8 @@ type OverviewVariant = 'traffic'
 type MetricTone = 'indigo' | 'blue' | 'gold' | 'emerald' | 'violet'
 
 interface OverviewMetric {
-  icon: React.ReactNode
+  icon?: React.ReactNode
+  iconSrc?: string
   value?: React.ReactNode
   numericValue?: number
   valueFormat?: AnimatedMetricFormat
@@ -42,6 +49,8 @@ interface OverviewCardConfig {
   sparkColor: string
   metrics: OverviewMetric[]
   insight: string
+  insightKicker: string
+  lang: 'zh' | 'en'
   progress?: { label: string; percent: number; tone: MetricTone }
 }
 
@@ -101,21 +110,21 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
     sparkColor: '#4f9cf9',
     metrics: [
       {
-        icon: <OverviewIcon name="visitors" />,
+        iconSrc: jinrufangke,
         numericValue: visitsToday,
         valueFormat: 'number',
         label: lang === 'zh' ? '今日访客' : "Today's visitors",
         tone: 'blue',
       },
       {
-        icon: <OverviewIcon name="trend" />,
+        iconSrc: qirifangke,
         numericValue: visits7d,
         valueFormat: 'number',
         label: lang === 'zh' ? '7日访客' : '7-day visitors',
         tone: 'indigo',
       },
       {
-        icon: <OverviewIcon name="conversion" />,
+        iconSrc: zhuanhuashuai,
         numericValue: conversionRate,
         valueFormat: 'percent',
         decimals: 2,
@@ -125,88 +134,9 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
       },
     ],
     insight: trafficInsight,
+    insightKicker: lang === 'zh' ? '智能摘要' : 'Smart insight',
+    lang,
   }
-}
-
-function OverviewIcon({
-  name,
-}: {
-  name: 'visitors' | 'trend' | 'conversion'
-}) {
-  const paths: Record<typeof name, React.ReactNode> = {
-    visitors: (
-      <>
-        <circle cx="9" cy="9.5" r="2.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <circle cx="15.5" cy="10.2" r="1.8" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <path d="M5.8 17.2c.8-2.2 2.6-3.4 4.2-3.4s3.4 1.2 4.2 3.4M13.1 17.2c.5-1.5 1.6-2.4 2.9-2.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      </>
-    ),
-    trend: (
-      <path d="M5 16.5 9.2 11.8 12.4 14.2 18.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    ),
-    conversion: (
-      <>
-        <path d="M5 18V8.5l4-2.2 4 2.2V18" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
-        <path d="M9.5 12.2h5M9.5 15h3.2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-      </>
-    ),
-  }
-
-  return (
-    <svg className="merchant-overview-metric-icon-svg" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-      {paths[name]}
-    </svg>
-  )
-}
-
-function MiniSparkline({ data, color, delay = 0 }: { data: number[]; color: string; delay?: number }) {
-  if (!data.length) return null
-
-  const width = 108
-  const height = 36
-  const max = Math.max(...data, 1)
-  const min = Math.min(...data, 0)
-  const range = max - min || 1
-  const gradId = `spark-${color.replace('#', '')}`
-
-  const points = data.map((value, index) => {
-    const x = data.length === 1 ? width / 2 : (index / (data.length - 1)) * width
-    const y = height - ((value - min) / range) * (height - 6) - 3
-    return { x, y }
-  })
-
-  const line = points.map((point) => `${point.x},${point.y}`).join(' ')
-  const area = `0,${height} ${line} ${width},${height}`
-  const last = points[points.length - 1]
-
-  return (
-    <svg
-      className="merchant-overview-sparkline"
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-      style={{ '--mc-spark-delay': `${delay}s` } as React.CSSProperties}
-    >
-      <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.32" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <polygon className="merchant-overview-sparkline-area" points={area} fill={`url(#${gradId})`} />
-      <polyline
-        className="merchant-overview-sparkline-line"
-        points={line}
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        pathLength={100}
-      />
-      {last ? <circle className="merchant-overview-sparkline-dot" cx={last.x} cy={last.y} r="2.8" fill={color} /> : null}
-    </svg>
-  )
 }
 
 function DeltaBadge({
@@ -255,8 +185,12 @@ function OverviewMetricCell({ metric, index = 0 }: { metric: OverviewMetric; ind
       className={`merchant-overview-metric merchant-overview-metric--${tone}`}
       style={{ '--mc-metric-delay': `${0.12 + index * 0.08}s` } as React.CSSProperties}
     >
-      <span className="merchant-overview-metric-icon" aria-hidden="true">
-        {metric.icon}
+      <span className={`merchant-overview-metric-icon${metric.iconSrc ? ' merchant-overview-metric-icon--img' : ''}`} aria-hidden="true">
+        {metric.iconSrc ? (
+          <img src={metric.iconSrc} alt="" className="merchant-overview-metric-icon-img" />
+        ) : (
+          metric.icon
+        )}
       </span>
       <div className="merchant-overview-metric-body">
         <MetricValue metric={metric} />
@@ -300,6 +234,8 @@ export function OverviewCard({
     sparkColor,
     metrics,
     insight,
+    insightKicker,
+    lang,
     progress,
   } = config
 
@@ -315,7 +251,13 @@ export function OverviewCard({
 
       <header className="merchant-dashboard-overview-head">
         <div className="merchant-dashboard-overview-head-left">
-          <span className="merchant-dashboard-overview-dot" aria-hidden="true" />
+          {variant === 'traffic' ? (
+            <span className="merchant-dashboard-overview-icon merchant-dashboard-overview-icon--img" aria-hidden="true">
+              <img src={liulianggaikuang} alt="" className="merchant-dashboard-overview-icon-img" />
+            </span>
+          ) : (
+            <span className="merchant-dashboard-overview-dot" aria-hidden="true" />
+          )}
           <div>
             <h3 className="merchant-dashboard-overview-title">{title}</h3>
             <span className="merchant-dashboard-overview-code">{code}</span>
@@ -359,21 +301,14 @@ export function OverviewCard({
         ))}
       </div>
 
-      <footer className="merchant-overview-insight">
-        <span className="merchant-overview-insight-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="14" height="14">
-            <path
-              d="M12 3a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.3A7 7 0 0 0 12 3z"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-            <path d="M10 20h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </span>
-        <p>{insight}</p>
-      </footer>
+      <MerchantDashboardInsight
+        storageKey="merchant-dashboard-traffic-insight-dismissed"
+        kicker={insightKicker}
+        text={insight}
+        lang={lang}
+        inCard
+        as="footer"
+      />
     </article>
   )
 }

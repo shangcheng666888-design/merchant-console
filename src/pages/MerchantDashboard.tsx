@@ -7,7 +7,9 @@ import { MerchantDashboardCharts } from './MerchantDashboardCharts'
 import MerchantDashboardCommandHero from '../components/MerchantDashboardCommandHero'
 import { MerchantDashboardOverview } from '../components/MerchantDashboardOverview'
 import { buildDashboardInsight } from '../utils/buildDashboardInsight'
+import MerchantDashboardInsight from '../components/MerchantDashboardInsight'
 import { openCrispChat } from '../utils/crispChat'
+import MerchantPaidPromotionBoard from '../components/MerchantPaidPromotionBoard'
 
 const EMPTY_CHART_DATA = [
   { name: 'Mon', 评分: 0, 访客: 0, 订单: 0 },
@@ -39,10 +41,16 @@ interface DashboardData {
     orders: number[]
     sales?: number[]
   }
+  followerTrend?: {
+    labels: string[]
+    daily: number[]
+  }
 }
 
 const EMPTY_ORDER_SERIES = [0, 0, 0, 0, 0, 0, 0]
 const EMPTY_SALES_SERIES = [0, 0, 0, 0, 0, 0, 0]
+
+const EMPTY_FOLLOWER_SERIES = [0, 0, 0, 0, 0, 0, 0]
 
 const MerchantDashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -63,6 +71,7 @@ const MerchantDashboard: React.FC = () => {
   const [todayProfit, setTodayProfit] = useState(0)
   const [shopLevel, setShopLevel] = useState(1)
   const [orderSeries, setOrderSeries] = useState(EMPTY_ORDER_SERIES)
+  const [followerSeries, setFollowerSeries] = useState(EMPTY_FOLLOWER_SERIES)
   const [salesSeries, setSalesSeries] = useState(EMPTY_SALES_SERIES)
   const [chartData, setChartData] = useState(EMPTY_CHART_DATA)
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
@@ -115,6 +124,7 @@ const MerchantDashboard: React.FC = () => {
           todayProfit?: number
           shopLevel?: number
           orderSeries?: number[]
+          followerSeries?: number[]
           salesSeries?: number[]
           chartData?: typeof EMPTY_CHART_DATA
         }
@@ -134,6 +144,9 @@ const MerchantDashboard: React.FC = () => {
         setShopLevel(Number(cached.shopLevel ?? 1))
         if (Array.isArray(cached.orderSeries) && cached.orderSeries.length === 7) {
           setOrderSeries(cached.orderSeries)
+        }
+        if (Array.isArray(cached.followerSeries) && cached.followerSeries.length === 7) {
+          setFollowerSeries(cached.followerSeries)
         }
         if (Array.isArray(cached.salesSeries) && cached.salesSeries.length === 7) {
           setSalesSeries(cached.salesSeries)
@@ -173,6 +186,11 @@ const MerchantDashboard: React.FC = () => {
           orders.length === 7 ? orders.map((value) => Number(value) || 0) : EMPTY_ORDER_SERIES
         const nextSalesSeries =
           sales.length === 7 ? sales.map((value) => Number(value) || 0) : nextOrderSeries.map(() => 0)
+        const followerDaily = res.followerTrend?.daily ?? []
+        const nextFollowerSeries =
+          followerDaily.length === 7
+            ? followerDaily.map((value) => Number(value) || 0)
+            : EMPTY_FOLLOWER_SERIES
 
         if (labels.length === 7 && orders.length === 7) {
           const visits30d = Math.max(0, Math.round(nextVisitsTotal))
@@ -201,6 +219,7 @@ const MerchantDashboard: React.FC = () => {
         setTodayProfit(nextTodayProfit)
         setShopLevel(nextShopLevel)
         setOrderSeries(nextOrderSeries)
+        setFollowerSeries(nextFollowerSeries)
         setSalesSeries(nextSalesSeries)
         setChartData(nextChart)
 
@@ -224,6 +243,7 @@ const MerchantDashboard: React.FC = () => {
                 todayProfit: nextTodayProfit,
                 shopLevel: nextShopLevel,
                 orderSeries: nextOrderSeries,
+                followerSeries: nextFollowerSeries,
                 salesSeries: nextSalesSeries,
                 chartData: nextChart,
               }),
@@ -315,6 +335,7 @@ const MerchantDashboard: React.FC = () => {
         goodRate={goodRate}
         creditScore={creditScore}
         followers={followers}
+        followerSeries={followerSeries}
         totalSales={totalSales}
         orderCount={orderCount}
         totalProfit={totalProfit}
@@ -327,26 +348,14 @@ const MerchantDashboard: React.FC = () => {
         onNavigate={navigate}
       />
 
-      <section className="merchant-dashboard-insight" aria-live="polite">
-        <span className="merchant-dashboard-insight-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="16" height="16">
-            <path
-              d="M12 3a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.3A7 7 0 0 0 12 3z"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-            <path d="M10 20h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </span>
-        <div className="merchant-dashboard-insight-body">
-          <span className="merchant-dashboard-insight-kicker">
-            {lang === 'zh' ? '智能摘要' : 'Smart insight'}
-          </span>
-          <p className="merchant-dashboard-insight-text">{insightText}</p>
-        </div>
-      </section>
+      <MerchantDashboardInsight
+        storageKey="merchant-dashboard-insight-dismissed"
+        kicker={lang === 'zh' ? '智能摘要' : 'Smart insight'}
+        text={insightText}
+        lang={lang}
+      />
+
+      <MerchantPaidPromotionBoard lang={lang} />
 
       <section className="merchant-dashboard-segments" aria-label={lang === 'zh' ? '流量概况' : 'Traffic overview'}>
         <header className="merchant-dashboard-section-head merchant-dashboard-section-head--inset">
@@ -397,16 +406,6 @@ const MerchantDashboard: React.FC = () => {
       >
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
           <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
-        </svg>
-      </button>
-      <button
-        type="button"
-        className="merchant-dashboard-fab merchant-dashboard-fab--feedback"
-        aria-label={lang === 'zh' ? '反馈' : 'Feedback'}
-        onClick={() => openCrispChat({ shopName: shop?.name, shopId: shop?.id })}
-      >
-        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
         </svg>
       </button>
     </div>
