@@ -326,12 +326,18 @@ const MerchantDashboard: React.FC = () => {
       <MerchantDashboardCommandHero
         lang={lang}
         shopName={shop?.name ?? ''}
+        shopLogo={shop?.logo ?? null}
         shopLevel={shopLevel}
         healthIndex={healthIndex}
+        goodRate={goodRate}
+        creditScore={creditScore}
+        followers={followers}
+        totalSales={totalSales}
         todaySales={todaySales}
         todayOrders={todayOrders}
         todayProfit={todayProfit}
         pendingOrders={pendingOrdersCount}
+        salesSeries={salesSeries}
         onNavigate={navigate}
       />
 
