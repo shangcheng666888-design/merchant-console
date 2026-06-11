@@ -582,7 +582,17 @@
 }
 
 .merchant-dashboard-stat-icon--sales {
-  background: linear-gradient(155deg, #f3f9ff 0%, #e3f2ff 100%);
+  background: linear-gradient(155deg, #eef6ff 0%, #d8ebff 100%);
+  border-color: rgba(29, 111, 216, 0.18);
+  box-shadow:
+    0 10px 24px rgba(29, 111, 216, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.merchant-dashboard-stat-icon--sales .merchant-dashboard-stat-icon-svg {
+  width: 30px;
+  height: 30px;
+  filter: drop-shadow(0 2px 5px rgba(29, 111, 216, 0.22));
 }
 
 .merchant-dashboard-stat-icon--orders {
@@ -590,7 +600,17 @@
 }
 
 .merchant-dashboard-stat-icon--profit {
-  background: linear-gradient(155deg, #fbf8f1 0%, #f3ead4 100%);
+  background: linear-gradient(155deg, #fff9e8 0%, #ffefc2 100%);
+  border-color: rgba(201, 146, 10, 0.2);
+  box-shadow:
+    0 10px 24px rgba(201, 146, 10, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.merchant-dashboard-stat-icon--profit .merchant-dashboard-stat-icon-svg {
+  width: 30px;
+  height: 30px;
+  filter: drop-shadow(0 2px 5px rgba(201, 146, 10, 0.22));
 }
 
 .merchant-dashboard-stat-icon--pending {
