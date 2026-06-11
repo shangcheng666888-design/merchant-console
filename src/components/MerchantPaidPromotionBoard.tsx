@@ -772,10 +772,6 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                 <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '进店' : 'Visits'}</span>
               </div>
               <div className="merchant-paid-promo-metric">
-                <span className="merchant-paid-promo-metric-value">{metrics.totals.orders.toLocaleString()}</span>
-                <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '成交' : 'Orders'}</span>
-              </div>
-              <div className="merchant-paid-promo-metric">
                 <span className="merchant-paid-promo-metric-value">${metrics.totals.spend.toFixed(2)}</span>
                 <span className="merchant-paid-promo-metric-label">{lang === 'zh' ? '消耗' : 'Spend'}</span>
               </div>
@@ -951,8 +947,8 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             </ul>
             <p className="merchant-paid-promo-preview-footnote">
               {lang === 'zh'
-                ? '开启后将展示曝光、点击、进店、成交等实时数据。'
-                : 'Live impressions, clicks, visits and orders will appear after launch.'}
+                ? '开启后将展示曝光、点击、进店等实时数据。'
+                : 'Live impressions, clicks and visits will appear after launch.'}
             </p>
           </div>
         ) : null}
