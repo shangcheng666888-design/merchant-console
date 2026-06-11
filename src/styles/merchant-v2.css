@@ -4173,6 +4173,10 @@
     animation: mc-dash-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
 
+  .merchant-dashboard--v2.merchant-dashboard--mounted > section.merchant-paid-promo-board {
+    animation: mc-fade-in 0.35s ease backwards;
+  }
+
   .merchant-dashboard--mounted > section:nth-of-type(1) { animation-delay: 0.04s; }
   .merchant-dashboard--mounted > section:nth-of-type(2) { animation-delay: 0.12s; }
   .merchant-dashboard--mounted > section:nth-of-type(3) { animation-delay: 0.18s; }
@@ -6732,8 +6736,18 @@
 
 /* ========== Paid promotion board (dashboard) ========== */
 .merchant-paid-promo-board {
-  border: 1px solid #e8ecff;
+  position: relative;
+  overflow: visible;
+  margin-bottom: 1.25rem;
+  padding: 1.15rem 1.2rem 1.2rem;
+  border-radius: var(--mc-radius);
+  border: 1px solid var(--mc-border);
   background: linear-gradient(165deg, #ffffff 0%, #f7f8ff 100%);
+  box-shadow: var(--mc-shadow);
+}
+
+.merchant-paid-promo-board .merchant-dashboard-section-head {
+  margin-bottom: 0.9rem;
 }
 
 .merchant-paid-promo-board-head {
@@ -6772,16 +6786,21 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   gap: 0.85rem;
+  align-items: start;
+  min-width: 0;
 }
 
 .merchant-paid-promo-target-card,
 .merchant-paid-promo-metrics-card,
 .merchant-paid-promo-waiting-card,
 .merchant-paid-promo-preview-card {
+  min-width: 0;
+  overflow: visible;
   border-radius: 14px;
   border: 1px solid #eef1f8;
   background: #ffffff;
   padding: 1rem;
+  box-shadow: 0 4px 14px rgba(26, 31, 54, 0.04);
 }
 
 .merchant-paid-promo-card-title {
@@ -6974,9 +6993,15 @@
 
 .merchant-paid-promo-select {
   position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-width: 0;
+}
+
+.merchant-paid-promo-select--open {
+  z-index: 8;
 }
 
 .merchant-paid-promo-select-label {
@@ -7523,10 +7548,14 @@
   color: #1d4ed8;
 }
 
-.merchant-paid-promo-history {
+.merchant-paid-promo-board .merchant-paid-promo-history {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #eef2f7;
+}
+
+.merchant-paid-promo-history {
+  min-width: 0;
 }
 
 .merchant-paid-promo-history-head {
@@ -7615,6 +7644,10 @@
 }
 
 @media (max-width: 900px) {
+  .merchant-paid-promo-board {
+    padding: 1rem 0.95rem 1.05rem;
+  }
+
   .merchant-paid-promo-board-body {
     grid-template-columns: 1fr;
   }
