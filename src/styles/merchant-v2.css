@@ -1751,7 +1751,7 @@
   gap: 0.75rem;
 }
 
-.merchant-cmd-kpi-board,
+.merchant-cmd-metrics-panel,
 .merchant-cmd-side-board {
   padding: 0.9rem 1rem;
   border-radius: 14px;
@@ -1760,26 +1760,41 @@
   backdrop-filter: blur(8px);
 }
 
-.merchant-cmd-kpi-primary {
+.merchant-cmd-metrics-panel {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.merchant-cmd-kpi-primary-head {
+.merchant-cmd-metrics-row {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.merchant-cmd-metrics-row--total {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.merchant-cmd-metrics-row--today {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.merchant-cmd-metric-cell {
   display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
+  flex-direction: column;
+  gap: 0.22rem;
+  padding: 0.58rem 0.65rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 0;
 }
 
-.merchant-cmd-kpi-icon {
+.merchant-cmd-metric-icon {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1788,67 +1803,34 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.merchant-cmd-kpi-icon--sales {
+.merchant-cmd-metric-icon--sales {
   color: #f0d080;
   background: rgba(240, 208, 128, 0.12);
   border-color: rgba(240, 208, 128, 0.28);
 }
 
-.merchant-cmd-kpi-icon--orders {
+.merchant-cmd-metric-icon--orders {
   color: #a5b4fc;
   background: rgba(91, 108, 255, 0.14);
   border-color: rgba(91, 108, 255, 0.28);
 }
 
-.merchant-cmd-kpi-icon--profit {
+.merchant-cmd-metric-icon--profit {
   color: #6ee7b7;
   background: rgba(110, 231, 183, 0.12);
   border-color: rgba(110, 231, 183, 0.28);
 }
 
-.merchant-cmd-kpi-spark-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.merchant-cmd-metric-icon--products {
+  color: #c4b5fd;
+  background: rgba(139, 124, 246, 0.14);
+  border-color: rgba(139, 124, 246, 0.28);
 }
 
-.merchant-cmd-kpi-spark-label {
-  font-size: 0.62rem;
-  color: rgba(216, 222, 255, 0.58);
-  letter-spacing: 0.04em;
-}
-
-.merchant-cmd-sparkline {
-  display: block;
-  width: 100%;
-  height: 44px;
-}
-
-.merchant-cmd-sparkline-line {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-}
-
-.merchant-cmd-kpi-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
-}
-
-.merchant-cmd-kpi-tile {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.55rem 0.65rem;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.merchant-cmd-kpi-tile .merchant-cmd-kpi-icon {
-  width: 30px;
-  height: 30px;
-  margin-bottom: 0.1rem;
+.merchant-cmd-metric-icon--unsettled {
+  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.14);
+  border-color: rgba(148, 163, 184, 0.28);
 }
 
 .merchant-cmd-metric-label {
@@ -1985,7 +1967,7 @@
 
 .merchant-cmd-actions {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
 }
 
@@ -2224,13 +2206,32 @@
   color: #475569;
 }
 
-@media (min-width: 640px) {
-  .merchant-bento-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 768px) {
+  .merchant-cmd-metrics-row--total,
+  .merchant-cmd-metrics-row--today {
+    gap: 0.4rem;
   }
 
-  .merchant-bento-card--sales {
-    grid-column: span 2;
+  .merchant-cmd-metric-cell {
+    padding: 0.48rem 0.45rem;
+  }
+
+  .merchant-cmd-metric-label {
+    font-size: 0.62rem;
+    line-height: 1.25;
+  }
+
+  .merchant-cmd-metric-value {
+    font-size: 0.88rem;
+  }
+
+  .merchant-cmd-metric-value--hero {
+    font-size: 0.92rem;
+  }
+
+  .merchant-cmd-metric-icon {
+    width: 24px;
+    height: 24px;
   }
 }
 
@@ -2249,25 +2250,12 @@
     align-items: stretch;
   }
 
-  .merchant-cmd-kpi-board {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  .merchant-cmd-metrics-row--total {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .merchant-cmd-kpi-primary {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 0.85rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .merchant-cmd-kpi-spark-wrap {
-    flex: 0 0 160px;
-    align-self: stretch;
-    justify-content: flex-end;
+  .merchant-cmd-metrics-row--today {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .merchant-cmd-side-board {
@@ -2275,7 +2263,7 @@
   }
 
   .merchant-cmd-actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .merchant-cmd-level-progress {
@@ -3527,11 +3515,6 @@
     stroke-dashoffset: 100;
     animation: mc-spark-draw 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     animation-delay: 0.25s;
-  }
-
-  .merchant-cmd-sparkline-line {
-    animation: mc-spark-draw 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: 0.35s;
   }
 
   .merchant-dashboard-overview-grid--animated .merchant-dashboard-overview-card {

@@ -5,7 +5,6 @@ import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
 import MerchantDashboardCommandHero from '../components/MerchantDashboardCommandHero'
-import MerchantDashboardBentoStats from '../components/MerchantDashboardBentoStats'
 import { MerchantDashboardOverview, type OverviewVariant } from '../components/MerchantDashboardOverview'
 import { buildDashboardInsight } from '../utils/buildDashboardInsight'
 import { openCrispChat } from '../utils/crispChat'
@@ -333,35 +332,16 @@ const MerchantDashboard: React.FC = () => {
         creditScore={creditScore}
         followers={followers}
         totalSales={totalSales}
+        orderCount={orderCount}
+        totalProfit={totalProfit}
+        productCount={productCount}
         todaySales={todaySales}
         todayOrders={todayOrders}
         todayProfit={todayProfit}
+        unsettledAmount={unsettledAmount}
         pendingOrders={pendingOrdersCount}
-        salesSeries={salesSeries}
         onNavigate={navigate}
       />
-
-      <section className="merchant-dashboard-section">
-        <header className="merchant-dashboard-section-head">
-          <h3 className="merchant-dashboard-section-title">
-            {lang === 'zh' ? '核心指标' : 'Key metrics'}
-          </h3>
-          <p className="merchant-dashboard-section-desc">
-            {lang === 'zh' ? '累计经营数据 · Bento 视图' : 'Cumulative metrics · Bento view'}
-          </p>
-        </header>
-        <MerchantDashboardBentoStats
-          lang={lang}
-          totalSales={totalSales}
-          orderCount={orderCount}
-          totalProfit={totalProfit}
-          productCount={productCount}
-          pendingOrders={pendingOrdersCount}
-          unsettledAmount={unsettledAmount}
-          salesSeries={salesSeries}
-          onNavigateOrders={() => navigate('/orders')}
-        />
-      </section>
 
       <section className="merchant-dashboard-insight" aria-live="polite">
         <span className="merchant-dashboard-insight-icon" aria-hidden="true">

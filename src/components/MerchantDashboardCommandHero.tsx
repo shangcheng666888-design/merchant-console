@@ -1,41 +1,10 @@
 import React from 'react'
-import AnimatedMetric from './AnimatedMetric'
+import AnimatedMetric, { type AnimatedMetricFormat } from './AnimatedMetric'
 import {
   getMerchantShopLevel,
   getNextMerchantShopLevel,
   type MerchantShopLevel,
 } from '../constants/merchantShopLevels'
-
-function CmdSparkline({ data }: { data: number[] }) {
-  if (!data.length) return null
-
-  const width = 160
-  const height = 44
-  const max = Math.max(...data, 1)
-  const min = Math.min(...data, 0)
-  const range = max - min || 1
-  const points = data
-    .map((value, index) => {
-      const x = data.length === 1 ? width / 2 : (index / (data.length - 1)) * width
-      const y = height - ((value - min) / range) * (height - 8) - 4
-      return `${x},${y}`
-    })
-    .join(' ')
-  const area = `0,${height} ${points} ${width},${height}`
-
-  return (
-    <svg className="merchant-cmd-sparkline" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="mc-cmd-spark" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f0d080" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#f0d080" stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <polygon points={area} fill="url(#mc-cmd-spark)" />
-      <polyline className="merchant-cmd-sparkline-line" points={points} fill="none" stroke="#f0d080" strokeWidth="2" pathLength={100} />
-    </svg>
-  )
-}
 
 function HealthRing({ value, label }: { value: number; label: string }) {
   const radius = 34
@@ -70,8 +39,10 @@ function HealthRing({ value, label }: { value: number; label: string }) {
   )
 }
 
-function CmdActionIcon({ name }: { name: 'orders' | 'plan' | 'finance' }) {
-  const icons = {
+type CmdActionKey = 'orders' | 'plan' | 'finance' | 'wallet'
+
+function CmdActionIcon({ name }: { name: CmdActionKey }) {
+  const icons: Record<CmdActionKey, React.ReactNode> = {
     orders: (
       <path d="M8 5.2h8l1.4 2v10.4c0 .6-.5 1-1 1H7.6c-.5 0-1-.4-1-1V7.2L8 5.2zM9.2 12h5.6" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" />
     ),
@@ -84,6 +55,12 @@ function CmdActionIcon({ name }: { name: 'orders' | 'plan' | 'finance' }) {
         <path d="M8 11h8M8 14h5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
       </>
     ),
+    wallet: (
+      <>
+        <rect x="4" y="7" width="16" height="11" rx="2.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <path d="M4 10.5h16M16 13.5h2.5v2H16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    ),
   }
   return (
     <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -92,8 +69,10 @@ function CmdActionIcon({ name }: { name: 'orders' | 'plan' | 'finance' }) {
   )
 }
 
-function KpiIcon({ name }: { name: 'sales' | 'orders' | 'profit' }) {
-  const icons = {
+type MetricIconName = 'sales' | 'orders' | 'profit' | 'products' | 'unsettled'
+
+function MetricIcon({ name }: { name: MetricIconName }) {
+  const icons: Record<MetricIconName, React.ReactNode> = {
     sales: (
       <>
         <rect x="5" y="7" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.4" fill="none" />
@@ -106,11 +85,41 @@ function KpiIcon({ name }: { name: 'sales' | 'orders' | 'profit' }) {
     profit: (
       <path d="M6 16.2V9.8l3-2.2 3 1.8 4-3.4v7.2H6z" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinejoin="round" />
     ),
+    products: (
+      <>
+        <rect x="6" y="8" width="12" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <path d="M9 8V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V8" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      </>
+    ),
+    unsettled: (
+      <>
+        <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1.4" fill="none" />
+        <path d="M12 9v4l2.5 1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      </>
+    ),
   }
   return (
-    <span className={`merchant-cmd-kpi-icon merchant-cmd-kpi-icon--${name}`} aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="18" height="18">{icons[name]}</svg>
+    <span className={`merchant-cmd-metric-icon merchant-cmd-metric-icon--${name}`} aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16">{icons[name]}</svg>
     </span>
+  )
+}
+
+interface MetricCellProps {
+  icon: MetricIconName
+  label: string
+  value: number
+  format: AnimatedMetricFormat
+  valueClassName?: string
+}
+
+function MetricCell({ icon, label, value, format, valueClassName = 'merchant-cmd-metric-value' }: MetricCellProps) {
+  return (
+    <div className="merchant-cmd-metric-cell">
+      <MetricIcon name={icon} />
+      <span className="merchant-cmd-metric-label">{label}</span>
+      <AnimatedMetric value={value} format={format} className={valueClassName} />
+    </div>
   )
 }
 
@@ -124,11 +133,14 @@ interface CommandHeroProps {
   creditScore: number
   followers: number
   totalSales: number
+  orderCount: number
+  totalProfit: number
+  productCount: number
   todaySales: number
   todayOrders: number
   todayProfit: number
+  unsettledAmount: number
   pendingOrders: number
-  salesSeries: number[]
   onNavigate: (path: string) => void
 }
 
@@ -166,11 +178,14 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   creditScore,
   followers,
   totalSales,
+  orderCount,
+  totalProfit,
+  productCount,
   todaySales,
   todayOrders,
   todayProfit,
+  unsettledAmount,
   pendingOrders,
-  salesSeries,
   onNavigate,
 }) => {
   const levelInfo = getMerchantShopLevel(shopLevel)
@@ -184,10 +199,11 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
     weekday: 'short',
   })
 
-  const quickActions = [
-    { key: 'orders' as const, path: '/orders', zh: '待发货', en: 'Fulfillment', badge: pendingOrders, primary: pendingOrders > 0 },
-    { key: 'plan' as const, path: '/plan', zh: '运营计划', en: 'Growth plan', badge: 0, primary: false },
-    { key: 'finance' as const, path: '/finance', zh: '财务报告', en: 'Finance', badge: 0, primary: false },
+  const quickActions: { key: CmdActionKey; path: string; zh: string; en: string; badge: number; primary: boolean }[] = [
+    { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', badge: pendingOrders, primary: pendingOrders > 0 },
+    { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', badge: 0, primary: false },
+    { key: 'finance', path: '/finance', zh: '财务报告', en: 'Finance', badge: 0, primary: false },
+    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', badge: 0, primary: false },
   ]
 
   const vitals = [
@@ -281,36 +297,54 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
         </header>
 
         <div className="merchant-cmd-body">
-          <div className="merchant-cmd-kpi-board">
-            <div className="merchant-cmd-kpi-primary">
-              <div className="merchant-cmd-kpi-primary-head">
-                <KpiIcon name="sales" />
-                <div>
-                  <span className="merchant-cmd-metric-label">{lang === 'zh' ? '今日销售额' : "Today's sales"}</span>
-                  <AnimatedMetric
-                    value={todaySales}
-                    format="currency"
-                    className="merchant-cmd-metric-value merchant-cmd-metric-value--hero"
-                  />
-                </div>
-              </div>
-              <div className="merchant-cmd-kpi-spark-wrap">
-                <span className="merchant-cmd-kpi-spark-label">{lang === 'zh' ? '近7日销售' : '7-day sales'}</span>
-                <CmdSparkline data={salesSeries} />
-              </div>
+          <div className="merchant-cmd-metrics-panel">
+            <div className="merchant-cmd-metrics-row merchant-cmd-metrics-row--total">
+              <MetricCell
+                icon="orders"
+                label={lang === 'zh' ? '总订单' : 'Total orders'}
+                value={orderCount}
+                format="number"
+              />
+              <MetricCell
+                icon="profit"
+                label={lang === 'zh' ? '总利润' : 'Total profit'}
+                value={totalProfit}
+                format="currency"
+              />
+              <MetricCell
+                icon="products"
+                label={lang === 'zh' ? '商品总数' : 'Total products'}
+                value={productCount}
+                format="number"
+              />
             </div>
-
-            <div className="merchant-cmd-kpi-grid">
-              <div className="merchant-cmd-kpi-tile">
-                <KpiIcon name="orders" />
-                <span className="merchant-cmd-metric-label">{lang === 'zh' ? '今日订单' : "Today's orders"}</span>
-                <AnimatedMetric value={todayOrders} format="number" className="merchant-cmd-metric-value" />
-              </div>
-              <div className="merchant-cmd-kpi-tile">
-                <KpiIcon name="profit" />
-                <span className="merchant-cmd-metric-label">{lang === 'zh' ? '预计利润' : 'Expected profit'}</span>
-                <AnimatedMetric value={todayProfit} format="currency" className="merchant-cmd-metric-value merchant-cmd-metric-value--gold" />
-              </div>
+            <div className="merchant-cmd-metrics-row merchant-cmd-metrics-row--today">
+              <MetricCell
+                icon="sales"
+                label={lang === 'zh' ? '今日销售额' : "Today's sales"}
+                value={todaySales}
+                format="currency"
+                valueClassName="merchant-cmd-metric-value merchant-cmd-metric-value--hero"
+              />
+              <MetricCell
+                icon="orders"
+                label={lang === 'zh' ? '今日订单' : "Today's orders"}
+                value={todayOrders}
+                format="number"
+              />
+              <MetricCell
+                icon="profit"
+                label={lang === 'zh' ? '预计利润' : 'Expected profit'}
+                value={todayProfit}
+                format="currency"
+                valueClassName="merchant-cmd-metric-value merchant-cmd-metric-value--gold"
+              />
+              <MetricCell
+                icon="unsettled"
+                label={lang === 'zh' ? '待结算金额' : 'Unsettled amount'}
+                value={unsettledAmount}
+                format="currency"
+              />
             </div>
           </div>
 
