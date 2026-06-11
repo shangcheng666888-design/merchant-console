@@ -46,6 +46,8 @@ interface OverviewCardConfig {
   primaryDecimals?: number
   primaryLabel: string
   primaryDelta?: number | null
+  /** When yesterday is 0, show absolute visitor change instead of %. */
+  primaryDeltaMode?: 'percent' | 'absolute'
   primaryDeltaLabel?: string
   sparkData: number[]
   sparkColor: string
@@ -56,13 +58,22 @@ interface OverviewCardConfig {
   progress?: { label: string; percent: number; tone: MetricTone }
 }
 
-function pctDelta(current: number, previous: number): number | null {
-  if (!Number.isFinite(current) || !Number.isFinite(previous)) return null
-  if (previous === 0) {
-    if (current === 0) return 0
-    return 100
+function visitDayDelta(
+  today: number,
+  yesterday: number,
+): { value: number | null; mode: 'percent' | 'absolute' } {
+  if (!Number.isFinite(today) || !Number.isFinite(yesterday)) {
+    return { value: null, mode: 'percent' }
   }
-  return ((current - previous) / Math.abs(previous)) * 100
+  if (yesterday === 0) {
+    if (today === 0) return { value: 0, mode: 'percent' }
+    // 昨日为 0 时环比百分比无定义，展示绝对增量（如今日 110 → ↑110）
+    return { value: today - yesterday, mode: 'absolute' }
+  }
+  return {
+    value: ((today - yesterday) / Math.abs(yesterday)) * 100,
+    mode: 'percent',
+  }
 }
 
 function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConfig {
@@ -79,7 +90,7 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
   const conversionRate = visitsTotal > 0 ? (orderCount / visitsTotal) * 100 : 0
   const visitsYesterday =
     visitSeries.length >= 2 ? Number(visitSeries[visitSeries.length - 2] ?? 0) || 0 : 0
-  const visitDelta = pctDelta(visitsToday, visitsYesterday)
+  const { value: visitDelta, mode: visitDeltaMode } = visitDayDelta(visitsToday, visitsYesterday)
   const sparkVisits = visitSeries.length === 7 ? visitSeries : [0, 0, 0, 0, 0, 0, 0]
 
   const trafficInsight =
@@ -99,6 +110,7 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
     primaryFormat: 'compact',
     primaryLabel: lang === 'zh' ? '30日访客' : '30-day visitors',
     primaryDelta: visitDelta,
+    primaryDeltaMode: visitDeltaMode,
     primaryDeltaLabel: lang === 'zh' ? '今日较昨日' : 'today vs yesterday',
     sparkData: sparkVisits,
     sparkColor: '#4f9cf9',
@@ -136,19 +148,27 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
 function DeltaBadge({
   value,
   label,
+  mode = 'percent',
 }: {
   value: number | null | undefined
   label: string
+  mode?: 'percent' | 'absolute'
 }) {
   if (value === null || value === undefined || !Number.isFinite(value)) return null
 
   const up = value >= 0
-  const flat = Math.abs(value) < 0.05
+  const flat = mode === 'percent' ? Math.abs(value) < 0.05 : value === 0
 
   return (
     <span className={`merchant-overview-delta${flat ? ' merchant-overview-delta--flat' : up ? ' merchant-overview-delta--up' : ' merchant-overview-delta--down'}`}>
       {flat ? '—' : up ? '↑' : '↓'}
-      {!flat ? `${Math.abs(value).toFixed(1)}%` : '0%'}
+      {!flat
+        ? mode === 'absolute'
+          ? Math.abs(Math.round(value)).toLocaleString()
+          : `${Math.abs(value).toFixed(1)}%`
+        : mode === 'absolute'
+          ? '0'
+          : '0%'}
       <span className="merchant-overview-delta-label">{label}</span>
     </span>
   )
@@ -223,6 +243,7 @@ export function OverviewCard({
     primaryDecimals,
     primaryLabel,
     primaryDelta,
+    primaryDeltaMode = 'percent',
     primaryDeltaLabel,
     sparkData,
     sparkColor,
@@ -270,7 +291,7 @@ export function OverviewCard({
           />
           <span className="merchant-overview-primary-label">{primaryLabel}</span>
           {primaryDelta !== undefined ? (
-            <DeltaBadge value={primaryDelta} label={primaryDeltaLabel ?? ''} />
+            <DeltaBadge value={primaryDelta} label={primaryDeltaLabel ?? ''} mode={primaryDeltaMode} />
           ) : null}
         </div>
         {progress ? (
