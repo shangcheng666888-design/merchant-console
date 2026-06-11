@@ -5,6 +5,7 @@ import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
 import MerchantDashboardStatIcon from '../components/MerchantDashboardStatIcon'
+import { MerchantDashboardOverview, type OverviewVariant } from '../components/MerchantDashboardOverview'
 import { openCrispChat } from '../utils/crispChat'
 
 const EMPTY_CHART_DATA = [
@@ -31,20 +32,16 @@ interface DashboardData {
   todayOrders: number
   todaySales: number
   todayProfit: number
+  shopLevel?: number
   orderTrend: {
     labels: string[]
     orders: number[]
+    sales?: number[]
   }
 }
 
-function MetricTile({ value, label }: { value: React.ReactNode; label: string }) {
-  return (
-    <div className="merchant-dashboard-metric-tile">
-      <span className="merchant-dashboard-metric-value">{value}</span>
-      <span className="merchant-dashboard-metric-label">{label}</span>
-    </div>
-  )
-}
+const EMPTY_ORDER_SERIES = [0, 0, 0, 0, 0, 0, 0]
+const EMPTY_SALES_SERIES = [0, 0, 0, 0, 0, 0, 0]
 
 function HeroIcon({ name }: { name: 'rating' | 'credit' | 'followers' | 'sales' | 'orders' | 'profit' }) {
   const paths: Record<'rating' | 'credit' | 'followers' | 'sales' | 'orders' | 'profit', React.ReactNode> = {
@@ -105,9 +102,12 @@ const MerchantDashboard: React.FC = () => {
   const [todayOrders, setTodayOrders] = useState(0)
   const [todaySales, setTodaySales] = useState(0)
   const [todayProfit, setTodayProfit] = useState(0)
+  const [shopLevel, setShopLevel] = useState(1)
+  const [orderSeries, setOrderSeries] = useState(EMPTY_ORDER_SERIES)
+  const [salesSeries, setSalesSeries] = useState(EMPTY_SALES_SERIES)
   const [chartData, setChartData] = useState(EMPTY_CHART_DATA)
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
-  const [overviewTab, setOverviewTab] = useState<'shop' | 'traffic' | 'today'>('shop')
+  const [overviewTab, setOverviewTab] = useState<OverviewVariant>('shop')
 
   useEffect(() => {
     const readAuth = (): { shopId: string } | null => {
@@ -147,6 +147,9 @@ const MerchantDashboard: React.FC = () => {
           todayOrders?: number
           todaySales?: number
           todayProfit?: number
+          shopLevel?: number
+          orderSeries?: number[]
+          salesSeries?: number[]
           chartData?: typeof EMPTY_CHART_DATA
         }
         setProductCount(cached.productCount ?? 0)
@@ -162,6 +165,13 @@ const MerchantDashboard: React.FC = () => {
         setTodayOrders(cached.todayOrders ?? 0)
         setTodaySales(Number(cached.todaySales ?? 0))
         setTodayProfit(Number(cached.todayProfit ?? 0))
+        setShopLevel(Number(cached.shopLevel ?? 1))
+        if (Array.isArray(cached.orderSeries) && cached.orderSeries.length === 7) {
+          setOrderSeries(cached.orderSeries)
+        }
+        if (Array.isArray(cached.salesSeries) && cached.salesSeries.length === 7) {
+          setSalesSeries(cached.salesSeries)
+        }
         if (Array.isArray(cached.chartData) && cached.chartData.length === 7) {
           setChartData(cached.chartData)
         }
@@ -187,10 +197,17 @@ const MerchantDashboard: React.FC = () => {
         const nextTodayOrders = res.todayOrders ?? 0
         const nextTodaySales = Number(res.todaySales ?? 0)
         const nextTodayProfit = Number(res.todayProfit ?? 0)
+        const nextShopLevel = Number(res.shopLevel ?? 1)
 
         let nextChart = EMPTY_CHART_DATA
         const labels = res.orderTrend?.labels ?? []
         const orders = res.orderTrend?.orders ?? []
+        const sales = res.orderTrend?.sales ?? []
+        const nextOrderSeries =
+          orders.length === 7 ? orders.map((value) => Number(value) || 0) : EMPTY_ORDER_SERIES
+        const nextSalesSeries =
+          sales.length === 7 ? sales.map((value) => Number(value) || 0) : nextOrderSeries.map(() => 0)
+
         if (labels.length === 7 && orders.length === 7) {
           const visits30d = Math.max(0, Math.round(nextVisitsTotal))
           const visits7d = Math.max(0, Math.round((visits30d / 30) * 7))
@@ -216,6 +233,9 @@ const MerchantDashboard: React.FC = () => {
         setTodayOrders(nextTodayOrders)
         setTodaySales(nextTodaySales)
         setTodayProfit(nextTodayProfit)
+        setShopLevel(nextShopLevel)
+        setOrderSeries(nextOrderSeries)
+        setSalesSeries(nextSalesSeries)
         setChartData(nextChart)
 
         try {
@@ -236,6 +256,9 @@ const MerchantDashboard: React.FC = () => {
                 todayOrders: nextTodayOrders,
                 todaySales: nextTodaySales,
                 todayProfit: nextTodayProfit,
+                shopLevel: nextShopLevel,
+                orderSeries: nextOrderSeries,
+                salesSeries: nextSalesSeries,
                 chartData: nextChart,
               }),
             )
@@ -299,6 +322,25 @@ const MerchantDashboard: React.FC = () => {
     { id: 'traffic' as const, zh: '流量概况', en: 'Traffic', icon: '↗' },
     { id: 'today' as const, zh: '今日概况', en: 'Today', icon: '◎' },
   ]
+
+  const overviewData = {
+    lang,
+    goodRate,
+    creditScore,
+    followers,
+    shopLevel,
+    visitsToday,
+    visits7d,
+    visits30d,
+    visitsTotal,
+    orderCount,
+    todayOrders,
+    todaySales,
+    todayProfit,
+    pendingOrders: pendingOrdersCount,
+    orderSeries,
+    salesSeries,
+  }
 
   return (
     <div className="merchant-dashboard merchant-dashboard--v2">
@@ -551,29 +593,7 @@ const MerchantDashboard: React.FC = () => {
           ))}
         </div>
         <div className="merchant-dashboard-segments-panel" role="tabpanel">
-          <div className="merchant-dashboard-metric-grid">
-            {overviewTab === 'shop' && (
-              <>
-                <MetricTile value={`${goodRate.toFixed(1)}%`} label={lang === 'zh' ? '好评率' : 'Good rating'} />
-                <MetricTile value={creditScore} label={lang === 'zh' ? '卖家信用分' : 'Credit score'} />
-                <MetricTile value={followers} label={lang === 'zh' ? '店铺关注' : 'Followers'} />
-              </>
-            )}
-            {overviewTab === 'traffic' && (
-              <>
-                <MetricTile value={visitsToday} label={lang === 'zh' ? '今日访客' : "Today's visitors"} />
-                <MetricTile value={visits7d} label={lang === 'zh' ? '7日访客' : '7-day visitors'} />
-                <MetricTile value={visits30d} label={lang === 'zh' ? '30日访客' : '30-day visitors'} />
-              </>
-            )}
-            {overviewTab === 'today' && (
-              <>
-                <MetricTile value={todayOrders} label={lang === 'zh' ? '今日订单' : "Today's orders"} />
-                <MetricTile value={`$${todaySales.toFixed(2)}`} label={lang === 'zh' ? '今日销售额' : "Today's sales"} />
-                <MetricTile value={`$${todayProfit.toFixed(2)}`} label={lang === 'zh' ? '预计利润' : 'Expected profit'} />
-              </>
-            )}
-          </div>
+          <MerchantDashboardOverview data={overviewData} mode="single" activeVariant={overviewTab} />
         </div>
       </section>
 
@@ -582,48 +602,11 @@ const MerchantDashboard: React.FC = () => {
           <h3 className="merchant-dashboard-section-title">
             {lang === 'zh' ? '多维分析' : 'Multi-dimensional analysis'}
           </h3>
+          <p className="merchant-dashboard-section-desc">
+            {lang === 'zh' ? '核心维度趋势、环比与智能洞察' : 'Trends, deltas, and actionable insights'}
+          </p>
         </header>
-        <div className="merchant-dashboard-overview-grid">
-          <div className="merchant-dashboard-overview-card merchant-dashboard-overview-card--shop">
-            <div className="merchant-dashboard-overview-head">
-              <span className="merchant-dashboard-overview-dot" aria-hidden="true" />
-              <h3 className="merchant-dashboard-overview-title">
-                {lang === 'zh' ? '店铺概况' : 'Shop overview'}
-              </h3>
-            </div>
-            <div className="merchant-dashboard-metric-grid merchant-dashboard-metric-grid--compact">
-              <MetricTile value={`${goodRate.toFixed(1)}%`} label={lang === 'zh' ? '好评率' : 'Good rating'} />
-              <MetricTile value={creditScore} label={lang === 'zh' ? '卖家信用分' : 'Credit score'} />
-              <MetricTile value={followers} label={lang === 'zh' ? '店铺关注' : 'Followers'} />
-            </div>
-          </div>
-          <div className="merchant-dashboard-overview-card merchant-dashboard-overview-card--traffic">
-            <div className="merchant-dashboard-overview-head">
-              <span className="merchant-dashboard-overview-dot" aria-hidden="true" />
-              <h3 className="merchant-dashboard-overview-title">
-                {lang === 'zh' ? '流量概况' : 'Traffic overview'}
-              </h3>
-            </div>
-            <div className="merchant-dashboard-metric-grid merchant-dashboard-metric-grid--compact">
-              <MetricTile value={visitsToday} label={lang === 'zh' ? '今日访客' : "Today's visitors"} />
-              <MetricTile value={visits7d} label={lang === 'zh' ? '7日访客' : '7-day visitors'} />
-              <MetricTile value={visits30d} label={lang === 'zh' ? '30日访客' : '30-day visitors'} />
-            </div>
-          </div>
-          <div className="merchant-dashboard-overview-card merchant-dashboard-overview-card--today">
-            <div className="merchant-dashboard-overview-head">
-              <span className="merchant-dashboard-overview-dot" aria-hidden="true" />
-              <h3 className="merchant-dashboard-overview-title">
-                {lang === 'zh' ? '今日概况' : "Today's overview"}
-              </h3>
-            </div>
-            <div className="merchant-dashboard-metric-grid merchant-dashboard-metric-grid--compact">
-              <MetricTile value={todayOrders} label={lang === 'zh' ? '今日订单' : "Today's orders"} />
-              <MetricTile value={`$${todaySales.toFixed(2)}`} label={lang === 'zh' ? '今日销售额' : "Today's sales"} />
-              <MetricTile value={`$${todayProfit.toFixed(2)}`} label={lang === 'zh' ? '预计利润' : 'Expected profit'} />
-            </div>
-          </div>
-        </div>
+        <MerchantDashboardOverview data={overviewData} mode="grid" />
       </section>
 
       <section className="merchant-dashboard-section merchant-dashboard-section--charts">
