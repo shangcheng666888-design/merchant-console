@@ -112,18 +112,25 @@ function MetricIcon({ name }: { name: MetricIconName }) {
   )
 }
 
+type MetricTone = 'indigo' | 'blue' | 'violet' | 'orange' | 'green' | 'lime' | 'teal'
+
 interface MetricCellProps {
   icon: MetricIconName
   iconSrc?: string
+  tone: MetricTone
   label: string
   value: number
   format: AnimatedMetricFormat
-  valueClassName?: string
+  emphasis?: boolean
 }
 
-function MetricCell({ icon, iconSrc, label, value, format, valueClassName = 'merchant-cmd-metric-value' }: MetricCellProps) {
+function MetricCell({ icon, iconSrc, tone, label, value, format, emphasis = false }: MetricCellProps) {
+  const valueClassName = emphasis
+    ? 'merchant-cmd-metric-value merchant-cmd-metric-value--emphasis'
+    : 'merchant-cmd-metric-value'
+
   return (
-    <div className="merchant-cmd-metric-cell">
+    <div className={`merchant-cmd-metric-cell merchant-cmd-metric-cell--${tone}`}>
       {iconSrc ? (
         <span className="merchant-cmd-metric-icon merchant-cmd-metric-icon--img" aria-hidden="true">
           <img src={iconSrc} alt="" className="merchant-cmd-metric-icon-img" />
@@ -316,6 +323,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
               <MetricCell
                 icon="orders"
                 iconSrc={zongdingdan}
+                tone="indigo"
                 label={lang === 'zh' ? '总订单' : 'Total orders'}
                 value={orderCount}
                 format="number"
@@ -323,6 +331,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
               <MetricCell
                 icon="profit"
                 iconSrc={zonglirun}
+                tone="blue"
                 label={lang === 'zh' ? '总利润' : 'Total profit'}
                 value={totalProfit}
                 format="currency"
@@ -330,6 +339,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
               <MetricCell
                 icon="products"
                 iconSrc={shangpinzongshu}
+                tone="violet"
                 label={lang === 'zh' ? '商品总数' : 'Total products'}
                 value={productCount}
                 format="number"
@@ -339,14 +349,16 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
               <MetricCell
                 icon="sales"
                 iconSrc={jinrixiaoshoue}
+                tone="orange"
+                emphasis
                 label={lang === 'zh' ? '今日销售额' : "Today's sales"}
                 value={todaySales}
                 format="currency"
-                valueClassName="merchant-cmd-metric-value merchant-cmd-metric-value--hero"
               />
               <MetricCell
                 icon="orders"
                 iconSrc={jinridingdan}
+                tone="green"
                 label={lang === 'zh' ? '今日订单' : "Today's orders"}
                 value={todayOrders}
                 format="number"
@@ -354,14 +366,15 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
               <MetricCell
                 icon="profit"
                 iconSrc={yujilirun}
+                tone="lime"
                 label={lang === 'zh' ? '预计利润' : 'Expected profit'}
                 value={todayProfit}
                 format="currency"
-                valueClassName="merchant-cmd-metric-value merchant-cmd-metric-value--gold"
               />
               <MetricCell
                 icon="unsettled"
                 iconSrc={daijiesuan}
+                tone="teal"
                 label={lang === 'zh' ? '待结算金额' : 'Unsettled amount'}
                 value={unsettledAmount}
                 format="currency"
