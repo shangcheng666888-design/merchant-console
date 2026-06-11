@@ -5,7 +5,7 @@ import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
 import MerchantDashboardCommandHero from '../components/MerchantDashboardCommandHero'
-import { MerchantDashboardOverview, type OverviewVariant } from '../components/MerchantDashboardOverview'
+import { MerchantDashboardOverview } from '../components/MerchantDashboardOverview'
 import { buildDashboardInsight } from '../utils/buildDashboardInsight'
 import { openCrispChat } from '../utils/crispChat'
 
@@ -66,7 +66,6 @@ const MerchantDashboard: React.FC = () => {
   const [salesSeries, setSalesSeries] = useState(EMPTY_SALES_SERIES)
   const [chartData, setChartData] = useState(EMPTY_CHART_DATA)
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
-  const [overviewTab, setOverviewTab] = useState<OverviewVariant>('shop')
   const [dashboardMounted, setDashboardMounted] = useState(false)
 
   useEffect(() => {
@@ -284,29 +283,14 @@ const MerchantDashboard: React.FC = () => {
     return enFromZh[v] ?? v
   }
 
-  const overviewTabs = [
-    { id: 'shop' as const, zh: '店铺概况', en: 'Shop', icon: '★' },
-    { id: 'traffic' as const, zh: '流量概况', en: 'Traffic', icon: '↗' },
-    { id: 'today' as const, zh: '今日概况', en: 'Today', icon: '◎' },
-  ]
-
   const overviewData = {
     lang,
-    goodRate,
-    creditScore,
-    followers,
-    shopLevel,
     visitsToday,
     visits7d,
     visits30d,
     visitsTotal,
     orderCount,
-    todayOrders,
-    todaySales,
-    todayProfit,
-    pendingOrders: pendingOrdersCount,
     orderSeries,
-    salesSeries,
   }
 
   const yesterdaySales = salesSeries.length >= 2 ? salesSeries[salesSeries.length - 2] : 0
@@ -364,43 +348,24 @@ const MerchantDashboard: React.FC = () => {
         </div>
       </section>
 
-      <section className="merchant-dashboard-segments" aria-label={lang === 'zh' ? '数据概况' : 'Overview'}>
+      <section className="merchant-dashboard-segments" aria-label={lang === 'zh' ? '流量概况' : 'Traffic overview'}>
         <header className="merchant-dashboard-section-head merchant-dashboard-section-head--inset">
           <h3 className="merchant-dashboard-section-title">
-            {lang === 'zh' ? '数据概况' : 'Overview'}
+            {lang === 'zh' ? '流量概况' : 'Traffic overview'}
           </h3>
         </header>
-        <div className="merchant-dashboard-segments-tabs" role="tablist">
-          {overviewTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={overviewTab === tab.id}
-              className={`merchant-dashboard-segments-tab${
-                overviewTab === tab.id ? ' merchant-dashboard-segments-tab--active' : ''
-              }`}
-              onClick={() => setOverviewTab(tab.id)}
-            >
-              <span className="merchant-dashboard-segments-tab-icon" aria-hidden="true">
-                {tab.icon}
-              </span>
-              {lang === 'zh' ? tab.zh : tab.en}
-            </button>
-          ))}
-        </div>
-        <div className="merchant-dashboard-segments-panel" role="tabpanel">
-          <MerchantDashboardOverview data={overviewData} mode="single" activeVariant={overviewTab} />
+        <div className="merchant-dashboard-segments-panel" role="region">
+          <MerchantDashboardOverview data={overviewData} mode="single" />
         </div>
       </section>
 
       <section className="merchant-dashboard-section merchant-dashboard-overviews merchant-dashboard-overviews--desktop">
         <header className="merchant-dashboard-section-head">
           <h3 className="merchant-dashboard-section-title">
-            {lang === 'zh' ? '多维分析' : 'Multi-dimensional analysis'}
+            {lang === 'zh' ? '流量概况' : 'Traffic overview'}
           </h3>
           <p className="merchant-dashboard-section-desc">
-            {lang === 'zh' ? '核心维度趋势、环比与智能洞察' : 'Trends, deltas, and actionable insights'}
+            {lang === 'zh' ? '访客趋势、转化率与智能洞察' : 'Visitor trends, conversion, and insights'}
           </p>
         </header>
         <MerchantDashboardOverview data={overviewData} mode="grid" />

@@ -823,7 +823,7 @@
 
   .merchant-dashboard-overview-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .merchant-dashboard-pending-bar {
@@ -1833,6 +1833,22 @@
   border-color: rgba(148, 163, 184, 0.28);
 }
 
+.merchant-cmd-metric-icon--img {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.merchant-cmd-metric-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .merchant-cmd-metric-label {
   font-size: 0.72rem;
   color: rgba(216, 222, 255, 0.68);
@@ -2232,6 +2248,11 @@
   .merchant-cmd-metric-icon {
     width: 24px;
     height: 24px;
+  }
+
+  .merchant-cmd-metric-icon--img {
+    width: 28px;
+    height: 28px;
   }
 }
 
