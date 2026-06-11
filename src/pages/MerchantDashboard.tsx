@@ -4,9 +4,10 @@ import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
-import MerchantDashboardStatIcon from '../components/MerchantDashboardStatIcon'
+import MerchantDashboardCommandHero from '../components/MerchantDashboardCommandHero'
+import MerchantDashboardBentoStats from '../components/MerchantDashboardBentoStats'
 import { MerchantDashboardOverview, type OverviewVariant } from '../components/MerchantDashboardOverview'
-import AnimatedMetric from '../components/AnimatedMetric'
+import { buildDashboardInsight } from '../utils/buildDashboardInsight'
 import { openCrispChat } from '../utils/crispChat'
 
 const EMPTY_CHART_DATA = [
@@ -43,48 +44,6 @@ interface DashboardData {
 
 const EMPTY_ORDER_SERIES = [0, 0, 0, 0, 0, 0, 0]
 const EMPTY_SALES_SERIES = [0, 0, 0, 0, 0, 0, 0]
-
-function HeroIcon({ name }: { name: 'rating' | 'credit' | 'followers' | 'sales' | 'orders' | 'profit' }) {
-  const paths: Record<'rating' | 'credit' | 'followers' | 'sales' | 'orders' | 'profit', React.ReactNode> = {
-    rating: <path d="M12 3.2l2.2 4.5 4.9.7-3.5 3.4.8 4.9L12 14.8 7.6 16.7l.8-4.9-3.5-3.4 4.9-.7L12 3.2z" fill="currentColor" />,
-    credit: (
-      <>
-        <path d="M12 4.2 5.8 7.2v5.6c0 3.2 2.7 6.2 6.2 7.2 3.5-1 6.2-4 6.2-7.2V7.2L12 4.2z" stroke="currentColor" strokeWidth="1.5" fill="none" />
-        <path d="M9.2 12.2 11 14l3.8-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </>
-    ),
-    followers: (
-      <>
-        <circle cx="9" cy="9.5" r="2.2" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <circle cx="15.5" cy="10.2" r="1.8" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <path d="M5.8 17.2c.8-2.2 2.6-3.4 4.2-3.4s3.4 1.2 4.2 3.4M13.1 17.2c.5-1.5 1.6-2.4 2.9-2.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      </>
-    ),
-    sales: (
-      <>
-        <circle cx="12" cy="12" r="7.2" stroke="currentColor" strokeWidth="1.5" fill="none" />
-        <path d="M12 8v4l2.8 1.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </>
-    ),
-    orders: (
-      <>
-        <path d="M8 5.2h8l1.4 2v10.4c0 .6-.5 1-1 1H7.6c-.5 0-1-.4-1-1V7.2L8 5.2z" stroke="currentColor" strokeWidth="1.4" fill="none" />
-        <path d="M9 5.2v2h6V5.2M9.2 12h5.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-      </>
-    ),
-    profit: (
-      <>
-        <path d="M6 16.2V9.8l3-2.2 3 1.8 4-3.4v7.2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none" />
-        <path d="M6 16.2h12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      </>
-    ),
-  }
-  return (
-    <svg className="merchant-dashboard-hero-metric-icon-svg" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-      {paths[name]}
-    </svg>
-  )
-}
 
 const MerchantDashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -351,186 +310,30 @@ const MerchantDashboard: React.FC = () => {
     salesSeries,
   }
 
+  const yesterdaySales = salesSeries.length >= 2 ? salesSeries[salesSeries.length - 2] : 0
+  const insightText = buildDashboardInsight({
+    lang,
+    healthIndex,
+    todayOrders,
+    todaySales,
+    yesterdaySales,
+    pendingOrders: pendingOrdersCount,
+    goodRate,
+  })
+
   return (
     <div className={`merchant-dashboard merchant-dashboard--v2${dashboardMounted ? ' merchant-dashboard--mounted' : ''}`}>
-      <section className="merchant-dashboard-hero merchant-dashboard-hero--v2 merchant-dashboard-hero--animated">
-        <div className="merchant-dashboard-hero-bg" aria-hidden="true" />
-        <div className="merchant-dashboard-hero-shine" aria-hidden="true" />
-        <div className="merchant-dashboard-hero-grid" aria-hidden="true" />
-        <div className="merchant-dashboard-hero-orb" aria-hidden="true" />
-        <span className="merchant-dashboard-hero-corner merchant-dashboard-hero-corner--tl" aria-hidden="true" />
-        <span className="merchant-dashboard-hero-corner merchant-dashboard-hero-corner--br" aria-hidden="true" />
-
-        <div className="merchant-dashboard-hero-inner">
-          <div className="merchant-dashboard-hero-head">
-            <div className="merchant-dashboard-hero-head-bar">
-              <span className="merchant-dashboard-hero-eyebrow">
-                {lang === 'zh' ? '数据仪表盘' : 'Dashboard'}
-              </span>
-              <span className="merchant-dashboard-hero-live">
-                <span className="merchant-dashboard-hero-live-dot" aria-hidden="true" />
-                {lang === 'zh' ? '实时同步' : 'Live sync'}
-              </span>
-            </div>
-            <h2 className="merchant-dashboard-hero-title">
-              {lang === 'zh' ? '今日店铺概况' : 'Today at a glance'}
-            </h2>
-            <p className="merchant-dashboard-hero-subtitle">
-              {lang === 'zh'
-                ? '实时掌握店铺经营健康度与今日表现'
-                : 'Real-time view of shop health and today\'s performance'}
-            </p>
-            <div className="merchant-dashboard-hero-tags-row">
-              <span className="merchant-dashboard-hero-tag-pill">
-                {lang === 'zh' ? '健康指数' : 'Health index'}
-                <strong>
-                  <AnimatedMetric value={healthIndex} format="number" duration={900} />
-                </strong>
-              </span>
-              <span className="merchant-dashboard-hero-tag-pill merchant-dashboard-hero-tag-pill--muted">
-                {lang === 'zh' ? '7日趋势' : '7-day trend'}
-                <strong>{lang === 'zh' ? '稳定' : 'Stable'}</strong>
-              </span>
-            </div>
-          </div>
-
-          <div className="merchant-dashboard-hero-data">
-            <div className="merchant-dashboard-hero-block">
-              <div className="merchant-dashboard-hero-block-head">
-                <span className="merchant-dashboard-hero-block-title">
-                  {lang === 'zh' ? '店铺健康度' : 'Shop health'}
-                </span>
-                <span className="merchant-dashboard-hero-block-code">SHOP · METRICS</span>
-              </div>
-              <div className="merchant-dashboard-hero-shop-row">
-                <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--rating">
-                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--rating">
-                    <HeroIcon name="rating" />
-                  </span>
-                  <div className="merchant-dashboard-hero-shop-text">
-                    <span className="merchant-dashboard-hero-shop-label">
-                      {lang === 'zh' ? '好评率' : 'Rating'}
-                    </span>
-                    <span className="merchant-dashboard-hero-shop-value">
-                      <AnimatedMetric value={goodRate} format="percent" decimals={1} />
-                    </span>
-                  </div>
-                  <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
-                    <span
-                      className="merchant-dashboard-hero-microbar-fill"
-                      style={{ '--mc-bar-scale': String(Math.min(1, goodRate / 100)) } as React.CSSProperties}
-                    />
-                  </span>
-                </div>
-                <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
-                <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--credit">
-                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--credit">
-                    <HeroIcon name="credit" />
-                  </span>
-                  <div className="merchant-dashboard-hero-shop-text">
-                    <span className="merchant-dashboard-hero-shop-label">
-                      {lang === 'zh' ? '信用分' : 'Credit'}
-                    </span>
-                    <span className="merchant-dashboard-hero-shop-value">
-                      <AnimatedMetric value={creditScore} format="number" />
-                    </span>
-                  </div>
-                  <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
-                    <span
-                      className="merchant-dashboard-hero-microbar-fill"
-                      style={{ '--mc-bar-scale': String(Math.min(1, creditScore / 100)) } as React.CSSProperties}
-                    />
-                  </span>
-                </div>
-                <div className="merchant-dashboard-hero-shop-divider" aria-hidden="true" />
-                <div className="merchant-dashboard-hero-shop-item merchant-dashboard-hero-shop-item--followers">
-                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--followers">
-                    <HeroIcon name="followers" />
-                  </span>
-                  <div className="merchant-dashboard-hero-shop-text">
-                    <span className="merchant-dashboard-hero-shop-label">
-                      {lang === 'zh' ? '关注' : 'Followers'}
-                    </span>
-                    <span className="merchant-dashboard-hero-shop-value">
-                      <AnimatedMetric value={followers} format="compact" />
-                    </span>
-                  </div>
-                  <span className="merchant-dashboard-hero-microbar" aria-hidden="true">
-                    <span
-                      className="merchant-dashboard-hero-microbar-fill merchant-dashboard-hero-microbar-fill--violet"
-                      style={{ '--mc-bar-scale': String(Math.min(1, (followers * 5) / 100)) } as React.CSSProperties}
-                    />
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="merchant-dashboard-hero-block">
-              <div className="merchant-dashboard-hero-block-head">
-                <span className="merchant-dashboard-hero-block-title">
-                  {lang === 'zh' ? '今日交易' : 'Today\'s trading'}
-                </span>
-                <span className="merchant-dashboard-hero-block-code merchant-dashboard-hero-block-code--gold">
-                  {lang === 'zh' ? '实时' : 'LIVE'} · {new Date().toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })}
-                </span>
-              </div>
-              <div className="merchant-dashboard-hero-today-row">
-                <div className="merchant-dashboard-hero-today-item merchant-dashboard-hero-today-item--sales">
-                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--sales">
-                    <HeroIcon name="sales" />
-                  </span>
-                  <span className="merchant-dashboard-hero-today-label">
-                    {lang === 'zh' ? '今日销售额' : "Today's sales"}
-                  </span>
-                  <span className="merchant-dashboard-hero-today-value">
-                    <AnimatedMetric value={todaySales} format="currency" />
-                  </span>
-                </div>
-                <div className="merchant-dashboard-hero-today-item">
-                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--orders">
-                    <HeroIcon name="orders" />
-                  </span>
-                  <span className="merchant-dashboard-hero-today-label">
-                    {lang === 'zh' ? '今日订单' : 'Orders'}
-                  </span>
-                  <span className="merchant-dashboard-hero-today-value">
-                    <AnimatedMetric value={todayOrders} format="number" />
-                  </span>
-                </div>
-                <div className="merchant-dashboard-hero-today-item">
-                  <span className="merchant-dashboard-hero-metric-icon merchant-dashboard-hero-metric-icon--profit">
-                    <HeroIcon name="profit" />
-                  </span>
-                  <span className="merchant-dashboard-hero-today-label">
-                    {lang === 'zh' ? '预计利润' : 'Profit'}
-                  </span>
-                  <span className="merchant-dashboard-hero-today-value">
-                    <AnimatedMetric value={todayProfit} format="currency" />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {pendingOrdersCount > 0 && (
-        <button
-          type="button"
-          className="merchant-dashboard-pending-bar"
-          onClick={() => navigate('/orders')}
-        >
-          <span className="merchant-dashboard-pending-bar-icon" aria-hidden="true">!</span>
-          <span className="merchant-dashboard-pending-bar-text">
-            {lang === 'zh'
-              ? `您有 ${pendingOrdersCount} 笔待处理订单`
-              : `${pendingOrdersCount} pending order(s) need attention`}
-          </span>
-          <span className="merchant-dashboard-pending-bar-action">
-            {lang === 'zh' ? '去处理 →' : 'View →'}
-          </span>
-        </button>
-      )}
+      <MerchantDashboardCommandHero
+        lang={lang}
+        shopName={shop?.name ?? ''}
+        shopLevel={shopLevel}
+        healthIndex={healthIndex}
+        todaySales={todaySales}
+        todayOrders={todayOrders}
+        todayProfit={todayProfit}
+        pendingOrders={pendingOrdersCount}
+        onNavigate={navigate}
+      />
 
       <section className="merchant-dashboard-section">
         <header className="merchant-dashboard-section-head">
@@ -538,76 +341,40 @@ const MerchantDashboard: React.FC = () => {
             {lang === 'zh' ? '核心指标' : 'Key metrics'}
           </h3>
           <p className="merchant-dashboard-section-desc">
-            {lang === 'zh' ? '累计经营数据一览' : 'Cumulative business overview'}
+            {lang === 'zh' ? '累计经营数据 · Bento 视图' : 'Cumulative metrics · Bento view'}
           </p>
         </header>
-        <div className="merchant-dashboard-stats merchant-dashboard-stats--v2 merchant-dashboard-stats--animated">
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--products" style={{ '--mc-stagger': '0.05s' } as React.CSSProperties}>
-            <MerchantDashboardStatIcon variant="products" />
-            <span className="merchant-dashboard-stat-value">
-              <AnimatedMetric value={productCount} format="number" />
-            </span>
-            <span className="merchant-dashboard-stat-label">
-              {lang === 'zh' ? '商品总数' : 'Total products'}
-            </span>
-          </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--sales" style={{ '--mc-stagger': '0.1s' } as React.CSSProperties}>
-            <MerchantDashboardStatIcon variant="sales" />
-            <span className="merchant-dashboard-stat-value">
-              <AnimatedMetric value={totalSales} format="currency" />
-            </span>
-            <span className="merchant-dashboard-stat-label">
-              {lang === 'zh' ? '销售总额' : 'Total sales'}
-            </span>
-          </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--orders" style={{ '--mc-stagger': '0.15s' } as React.CSSProperties}>
-            <MerchantDashboardStatIcon variant="orders" />
-            <span className="merchant-dashboard-stat-value">
-              <AnimatedMetric value={orderCount} format="number" />
-            </span>
-            <span className="merchant-dashboard-stat-label">
-              {lang === 'zh' ? '总订单' : 'Total orders'}
-            </span>
-          </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--profit" style={{ '--mc-stagger': '0.2s' } as React.CSSProperties}>
-            <MerchantDashboardStatIcon variant="profit" />
-            <span className="merchant-dashboard-stat-value">
-              <AnimatedMetric value={totalProfit} format="currency" />
-            </span>
-            <span className="merchant-dashboard-stat-label">
-              {lang === 'zh' ? '总利润' : 'Total profit'}
-            </span>
-          </div>
-          <div
-            className="merchant-dashboard-stat merchant-dashboard-stat--pending merchant-dashboard-stat--highlight"
-            style={{ '--mc-stagger': '0.25s' } as React.CSSProperties}
-          >
-            <MerchantDashboardStatIcon variant="pending" />
-            <span className="merchant-dashboard-stat-value">
-              <AnimatedMetric value={pendingOrdersCount} format="number" />
-            </span>
-            <span className="merchant-dashboard-stat-label">
-              {lang === 'zh' ? '待处理订单' : 'Pending orders'}
-            </span>
-            {pendingOrdersCount > 0 && (
-              <button
-                type="button"
-                className="merchant-dashboard-stat-btn"
-                onClick={() => navigate('/orders')}
-              >
-                {lang === 'zh' ? '立即处理' : 'View orders'}
-              </button>
-            )}
-          </div>
-          <div className="merchant-dashboard-stat merchant-dashboard-stat--unsettled" style={{ '--mc-stagger': '0.3s' } as React.CSSProperties}>
-            <MerchantDashboardStatIcon variant="unsettled" />
-            <span className="merchant-dashboard-stat-value">
-              <AnimatedMetric value={unsettledAmount} format="currency" />
-            </span>
-            <span className="merchant-dashboard-stat-label">
-              {lang === 'zh' ? '待结算金额' : 'Unsettled amount'}
-            </span>
-          </div>
+        <MerchantDashboardBentoStats
+          lang={lang}
+          totalSales={totalSales}
+          orderCount={orderCount}
+          totalProfit={totalProfit}
+          productCount={productCount}
+          pendingOrders={pendingOrdersCount}
+          unsettledAmount={unsettledAmount}
+          salesSeries={salesSeries}
+          onNavigateOrders={() => navigate('/orders')}
+        />
+      </section>
+
+      <section className="merchant-dashboard-insight" aria-live="polite">
+        <span className="merchant-dashboard-insight-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path
+              d="M12 3a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1.3A7 7 0 0 0 12 3z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+            <path d="M10 20h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </span>
+        <div className="merchant-dashboard-insight-body">
+          <span className="merchant-dashboard-insight-kicker">
+            {lang === 'zh' ? '智能摘要' : 'Smart insight'}
+          </span>
+          <p className="merchant-dashboard-insight-text">{insightText}</p>
         </div>
       </section>
 
