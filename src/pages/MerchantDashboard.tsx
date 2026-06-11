@@ -58,6 +58,7 @@ const EMPTY_ORDER_SERIES = [0, 0, 0, 0, 0, 0, 0]
 const EMPTY_SALES_SERIES = [0, 0, 0, 0, 0, 0, 0]
 
 const EMPTY_FOLLOWER_SERIES = [0, 0, 0, 0, 0, 0, 0]
+const EMPTY_VISIT_SERIES = [0, 0, 0, 0, 0, 0, 0]
 
 const MerchantDashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -82,6 +83,7 @@ const MerchantDashboard: React.FC = () => {
   const [shopLevel, setShopLevel] = useState(1)
   const [orderSeries, setOrderSeries] = useState(EMPTY_ORDER_SERIES)
   const [followerSeries, setFollowerSeries] = useState(EMPTY_FOLLOWER_SERIES)
+  const [visitSeries, setVisitSeries] = useState(EMPTY_VISIT_SERIES)
   const [salesSeries, setSalesSeries] = useState(EMPTY_SALES_SERIES)
   const [chartData, setChartData] = useState(EMPTY_CHART_DATA)
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
@@ -138,6 +140,7 @@ const MerchantDashboard: React.FC = () => {
           shopLevel?: number
           orderSeries?: number[]
           followerSeries?: number[]
+          visitSeries?: number[]
           salesSeries?: number[]
           chartData?: typeof EMPTY_CHART_DATA
         }
@@ -163,6 +166,9 @@ const MerchantDashboard: React.FC = () => {
         }
         if (Array.isArray(cached.followerSeries) && cached.followerSeries.length === 7) {
           setFollowerSeries(cached.followerSeries)
+        }
+        if (Array.isArray(cached.visitSeries) && cached.visitSeries.length === 7) {
+          setVisitSeries(cached.visitSeries)
         }
         if (Array.isArray(cached.salesSeries) && cached.salesSeries.length === 7) {
           setSalesSeries(cached.salesSeries)
@@ -212,11 +218,15 @@ const MerchantDashboard: React.FC = () => {
             : EMPTY_FOLLOWER_SERIES
 
         const visitDaily = res.visitTrend?.daily ?? []
+        const nextVisitSeries =
+          visitDaily.length === 7
+            ? visitDaily.map((value) => Number(value) || 0)
+            : EMPTY_VISIT_SERIES
         if (labels.length === 7 && orders.length === 7) {
           nextChart = labels.map((name, idx) => ({
             name,
             评分: nextGoodRate / 20,
-            访客: visitDaily.length === 7 ? Number(visitDaily[idx] ?? 0) || 0 : 0,
+            访客: nextVisitSeries[idx] ?? 0,
             订单: orders[idx] ?? 0,
           }))
         }
@@ -240,6 +250,7 @@ const MerchantDashboard: React.FC = () => {
         setShopLevel(nextShopLevel)
         setOrderSeries(nextOrderSeries)
         setFollowerSeries(nextFollowerSeries)
+        setVisitSeries(nextVisitSeries)
         setSalesSeries(nextSalesSeries)
         setChartData(nextChart)
 
@@ -267,6 +278,7 @@ const MerchantDashboard: React.FC = () => {
                 shopLevel: nextShopLevel,
                 orderSeries: nextOrderSeries,
                 followerSeries: nextFollowerSeries,
+                visitSeries: nextVisitSeries,
                 salesSeries: nextSalesSeries,
                 chartData: nextChart,
               }),
@@ -334,6 +346,7 @@ const MerchantDashboard: React.FC = () => {
     visitsTotal,
     orderCount,
     orderSeries,
+    visitSeries,
   }
 
   const yesterdaySales = salesSeries.length >= 2 ? salesSeries[salesSeries.length - 2] : 0

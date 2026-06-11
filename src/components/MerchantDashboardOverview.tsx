@@ -15,6 +15,8 @@ export interface OverviewDashboardData {
   visitsTotal: number
   orderCount: number
   orderSeries: number[]
+  /** Last 7 days daily visitors from shop_daily_visits (index 6 = today). */
+  visitSeries: number[]
 }
 
 type OverviewVariant = 'traffic'
@@ -63,16 +65,6 @@ function pctDelta(current: number, previous: number): number | null {
   return ((current - previous) / Math.abs(previous)) * 100
 }
 
-function buildVisitSeries(visitsTotal: number, orderSeries: number[]): number[] {
-  const visits30d = Math.max(0, Math.round(visitsTotal))
-  const visitsPerDay = visits30d > 0 ? visits30d / 30 : 0
-  const maxOrders = Math.max(...orderSeries, 1)
-  return orderSeries.map((orders) => {
-    const weight = 0.65 + (orders / maxOrders) * 0.35
-    return Math.max(0, Math.round(visitsPerDay * weight))
-  })
-}
-
 function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConfig {
   const {
     lang,
@@ -81,12 +73,14 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
     visits30d,
     visitsTotal,
     orderCount,
-    orderSeries,
+    visitSeries,
   } = data
 
   const conversionRate = visitsTotal > 0 ? (orderCount / visitsTotal) * 100 : 0
-  const visitSeries = buildVisitSeries(visitsTotal, orderSeries)
-  const visitDelta = pctDelta(visitsToday, visitSeries.length >= 2 ? visitSeries[visitSeries.length - 2] : 0)
+  const visitsYesterday =
+    visitSeries.length >= 2 ? Number(visitSeries[visitSeries.length - 2] ?? 0) || 0 : 0
+  const visitDelta = pctDelta(visitsToday, visitsYesterday)
+  const sparkVisits = visitSeries.length === 7 ? visitSeries : [0, 0, 0, 0, 0, 0, 0]
 
   const trafficInsight =
     conversionRate >= 2
@@ -105,8 +99,8 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
     primaryFormat: 'compact',
     primaryLabel: lang === 'zh' ? '30日访客' : '30-day visitors',
     primaryDelta: visitDelta,
-    primaryDeltaLabel: lang === 'zh' ? '较昨日' : 'vs yesterday',
-    sparkData: visitSeries,
+    primaryDeltaLabel: lang === 'zh' ? '今日较昨日' : 'today vs yesterday',
+    sparkData: sparkVisits,
     sparkColor: '#4f9cf9',
     metrics: [
       {
