@@ -146,6 +146,26 @@ function formatHistoryStatus(status: PromoStatus, lang: 'zh' | 'en') {
   return status
 }
 
+function formatHistoryDate(value: string | null | undefined, lang: 'zh' | 'en') {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+function HistoryChannelLogo({ channel }: { channel: PaidChannel }) {
+  const icon = CHANNEL_META[channel]?.icon ?? liulianggaikuang
+  return (
+    <span className="merchant-paid-promo-history-channel" aria-hidden="true">
+      <img src={icon} alt="" className="merchant-paid-promo-history-channel-img" />
+    </span>
+  )
+}
+
 function labelForOption(options: OptionItem[], value: string | null, lang: 'zh' | 'en') {
   if (!value) return '—'
   const item = options.find((opt) => opt.value === value)
@@ -348,12 +368,19 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const historySection = (
     <div className="merchant-paid-promo-history">
       <div className="merchant-paid-promo-history-head">
-        <h4 className="merchant-paid-promo-card-title">
-          {lang === 'zh' ? '历史投放记录' : 'Campaign history'}
-        </h4>
-        <span className="merchant-paid-promo-history-sub">
-          {lang === 'zh' ? '查看已结束推广的完整数据' : 'Review completed campaign performance'}
-        </span>
+        <div className="merchant-paid-promo-history-head-copy">
+          <h4 className="merchant-paid-promo-history-title">
+            {lang === 'zh' ? '历史投放记录' : 'Campaign history'}
+          </h4>
+          <p className="merchant-paid-promo-history-sub">
+            {lang === 'zh' ? '已结束推广的完整投放表现' : 'Completed campaign performance archive'}
+          </p>
+        </div>
+        {history.length > 0 ? (
+          <span className="merchant-paid-promo-history-count">
+            {history.length} {lang === 'zh' ? '条' : 'records'}
+          </span>
+        ) : null}
       </div>
       {historyLoading && history.length === 0 ? (
         <p className="merchant-paid-promo-empty">{lang === 'zh' ? '加载中…' : 'Loading…'}</p>
@@ -367,65 +394,68 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             const promo = item.promotion
             const totals = item.metrics?.totals
             const channel = CHANNEL_META[promo.channel]
+            const channelLabel = channel?.[lang === 'zh' ? 'zh' : 'en'] ?? promo.channel
             const clickRateHistory =
               totals && totals.impressions > 0
                 ? Math.round((totals.clicks / totals.impressions) * 1000) / 10
                 : 0
+            const targetLabel =
+              promo.targetType === 'product'
+                ? promo.targetProductTitle ?? (lang === 'zh' ? '单品推广' : 'Product')
+                : lang === 'zh'
+                  ? '整店推广'
+                  : 'Whole shop'
             return (
               <article key={promo.id} className="merchant-paid-promo-history-card">
-                <header className="merchant-paid-promo-history-card-head">
-                  <div>
-                    <strong>{channel?.[lang === 'zh' ? 'zh' : 'en'] ?? promo.channel}</strong>
-                    <span>
-                      {promo.campaignStartAt
-                        ? new Date(promo.campaignStartAt).toLocaleDateString()
-                        : '—'}
-                      {' — '}
-                      {promo.campaignEndAt
-                        ? new Date(promo.campaignEndAt).toLocaleDateString()
-                        : '—'}
-                    </span>
+                <div className="merchant-paid-promo-history-card-top">
+                  <HistoryChannelLogo channel={promo.channel} />
+                  <div className="merchant-paid-promo-history-card-main">
+                    <div className="merchant-paid-promo-history-card-title-row">
+                      <strong className="merchant-paid-promo-history-channel-name">{channelLabel}</strong>
+                      <span
+                        className={`merchant-paid-promo-history-status merchant-paid-promo-history-status--${promo.status}`}
+                      >
+                        {formatHistoryStatus(promo.status, lang)}
+                      </span>
+                    </div>
+                    <p className="merchant-paid-promo-history-dates">
+                      {formatHistoryDate(promo.campaignStartAt, lang)}
+                      <span aria-hidden="true"> → </span>
+                      {formatHistoryDate(promo.campaignEndAt, lang)}
+                    </p>
+                    <div className="merchant-paid-promo-history-chips">
+                      <span className="merchant-paid-promo-history-chip">
+                        {formatDurationLabel(promo.campaignDurationValue, promo.campaignDurationUnit, lang)}
+                      </span>
+                      <span className="merchant-paid-promo-history-chip">
+                        ${(promo.budgetTotal ?? totals?.spend ?? 0).toFixed(2)}
+                      </span>
+                      <span className="merchant-paid-promo-history-chip merchant-paid-promo-history-chip--target" title={targetLabel}>
+                        {targetLabel}
+                      </span>
+                    </div>
                   </div>
-                  <span className="merchant-paid-promo-history-status">
-                    {formatHistoryStatus(promo.status, lang)}
-                  </span>
-                </header>
-                <div className="merchant-paid-promo-history-meta">
-                  <span>
-                    {lang === 'zh' ? '时长' : 'Duration'}:{' '}
-                    {formatDurationLabel(promo.campaignDurationValue, promo.campaignDurationUnit, lang)}
-                  </span>
-                  <span>
-                    {lang === 'zh' ? '预算' : 'Budget'}: ${(promo.budgetTotal ?? totals?.spend ?? 0).toFixed(2)}
-                  </span>
-                  <span>
-                    {promo.targetType === 'product'
-                      ? promo.targetProductTitle ?? (lang === 'zh' ? '单品' : 'Product')
-                      : lang === 'zh'
-                        ? '整店'
-                        : 'Shop'}
-                  </span>
                 </div>
-                <div className="merchant-paid-promo-history-metrics">
-                  <div>
+                <div className="merchant-paid-promo-history-metrics" role="list">
+                  <div className="merchant-paid-promo-history-metric" role="listitem">
+                    <small>{lang === 'zh' ? '曝光' : 'Impr.'}</small>
                     <strong>{(totals?.impressions ?? 0).toLocaleString()}</strong>
-                    <small>{lang === 'zh' ? '曝光' : 'Impressions'}</small>
                   </div>
-                  <div>
-                    <strong>{(totals?.clicks ?? 0).toLocaleString()}</strong>
+                  <div className="merchant-paid-promo-history-metric" role="listitem">
                     <small>{lang === 'zh' ? '点击' : 'Clicks'}</small>
+                    <strong>{(totals?.clicks ?? 0).toLocaleString()}</strong>
                   </div>
-                  <div>
-                    <strong>{(totals?.visits ?? 0).toLocaleString()}</strong>
+                  <div className="merchant-paid-promo-history-metric" role="listitem">
                     <small>{lang === 'zh' ? '进店' : 'Visits'}</small>
+                    <strong>{(totals?.visits ?? 0).toLocaleString()}</strong>
                   </div>
-                  <div>
-                    <strong>{clickRateHistory}%</strong>
+                  <div className="merchant-paid-promo-history-metric" role="listitem">
                     <small>{lang === 'zh' ? '点击率' : 'CTR'}</small>
+                    <strong>{clickRateHistory}%</strong>
                   </div>
-                  <div>
-                    <strong>${(totals?.spend ?? 0).toFixed(2)}</strong>
+                  <div className="merchant-paid-promo-history-metric merchant-paid-promo-history-metric--spend" role="listitem">
                     <small>{lang === 'zh' ? '消耗' : 'Spend'}</small>
+                    <strong>${(totals?.spend ?? 0).toFixed(2)}</strong>
                   </div>
                 </div>
               </article>
