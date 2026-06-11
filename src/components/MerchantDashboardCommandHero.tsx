@@ -224,27 +224,18 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
               <img
                 src={shopLogo || levelInfo.icon}
                 alt=""
-                className="merchant-cmd-shop-emblem-img"
+                className={`merchant-cmd-shop-emblem-img${shopLogo ? '' : ' merchant-cmd-shop-emblem-img--icon'}`}
               />
             </div>
             <div className="merchant-cmd-identity-body">
-              <div className="merchant-cmd-head-bar">
-                <span className="merchant-cmd-eyebrow">{lang === 'zh' ? '经营指挥台' : 'Command center'}</span>
-                <span className="merchant-dashboard-hero-live">
-                  <span className="merchant-dashboard-hero-live-dot" aria-hidden="true" />
-                  {lang === 'zh' ? '实时同步' : 'Live sync'}
-                </span>
-              </div>
               <h2 className="merchant-cmd-shop-name">{shopName || (lang === 'zh' ? '我的店铺' : 'My shop')}</h2>
-              <div className="merchant-cmd-level-row">
-                <span className={`merchant-cmd-level-badge merchant-cmd-level-badge--${levelInfo.key}`}>
-                  <img src={levelInfo.icon} alt="" className="merchant-cmd-level-badge-icon" />
-                  {lang === 'zh' ? levelInfo.sellerZh : levelInfo.sellerEn}
-                </span>
-                <button type="button" className="merchant-cmd-level-link" onClick={() => onNavigate('/plan')}>
-                  {lang === 'zh' ? '查看等级权益' : 'View level benefits'}
-                </button>
-              </div>
+              <span className={`merchant-cmd-level-badge merchant-cmd-level-badge--${levelInfo.key}`}>
+                <img src={levelInfo.icon} alt="" className="merchant-cmd-level-badge-icon" />
+                {lang === 'zh' ? levelInfo.sellerZh : levelInfo.sellerEn}
+              </span>
+              <button type="button" className="merchant-cmd-level-link" onClick={() => onNavigate('/plan')}>
+                {lang === 'zh' ? '查看等级权益' : 'View level benefits'}
+              </button>
               <div className="merchant-cmd-level-progress">
                 <div className="merchant-cmd-level-progress-meta">
                   <span>{levelProgressLabel}</span>
