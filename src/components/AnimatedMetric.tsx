@@ -16,6 +16,9 @@ function formatValue(value: number, format: AnimatedMetricFormat, decimals: numb
 
   switch (format) {
     case 'currency':
+      if (decimals === 0) {
+        return `$${Math.round(value).toLocaleString()}`
+      }
       return `$${value.toFixed(decimals)}`
     case 'percent':
       return `${value.toFixed(decimals)}%`

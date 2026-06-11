@@ -252,16 +252,31 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
           </div>
           <div className="merchant-cmd-header-meta">
             <span className="merchant-cmd-date">{dateLabel}</span>
-            <span className="merchant-dashboard-hero-live merchant-cmd-header-live">
-              <span className="merchant-dashboard-hero-live-dot" aria-hidden="true" />
-              {lang === 'zh' ? '实时同步' : 'Live sync'}
-            </span>
-            <span className="merchant-cmd-meta-pill">
-              {lang === 'zh' ? '累计销售' : 'Total sales'}
-              <strong>
-                $<AnimatedMetric value={totalSales} format="decimal" decimals={2} />
-              </strong>
-            </span>
+            <div className="merchant-cmd-total-sales">
+              <span className="merchant-cmd-total-sales-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                  <path
+                    d="M6 16.2V9.8l3-2.2 3 1.8 4-3.4v7.2H6z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    fill="none"
+                    strokeLinejoin="round"
+                  />
+                  <path d="M8 13.5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </span>
+              <div className="merchant-cmd-total-sales-body">
+                <span className="merchant-cmd-total-sales-label">
+                  {lang === 'zh' ? '累计销售额' : 'Total sales'}
+                </span>
+                <AnimatedMetric
+                  value={totalSales}
+                  format="currency"
+                  decimals={0}
+                  className="merchant-cmd-total-sales-value"
+                />
+              </div>
+            </div>
           </div>
         </header>
 
