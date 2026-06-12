@@ -4,6 +4,7 @@ import { useToast } from '../components/ToastProvider'
 import { api } from '../api/client'
 import WalletPaymentBadges from '../components/WalletPaymentBadges'
 import { useLang } from '../context/LangContext'
+import { MerchantWithdrawFlowIcon } from '../components/MerchantWalletFlowIcons'
 
 type WithdrawNetwork = 'TRC20' | 'ERC20'
 
@@ -104,20 +105,32 @@ const MerchantWalletWithdraw: React.FC = () => {
   }
 
   return (
-    <div className="merchant-wallet-form-page merchant-wallet-form-page--withdraw">
+    <div className="merchant-wallet-form-page merchant-wallet-form-page--withdraw merchant-wallet-form-page--v2">
       <section className="wallet-withdraw merchant-wallet-withdraw-inner">
-        <header className="wallet-recharge-header merchant-wallet-withdraw-header">
+        <header className="wallet-recharge-header merchant-wallet-withdraw-header merchant-wallet-form-header--v2">
           <button
             type="button"
-            className="wallet-recharge-back"
+            className="merchant-wallet-form-back"
             aria-label={lang === 'zh' ? '返回' : 'Back'}
             onClick={goBack}
           >
-            &lt;
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
-          <h1 className="wallet-recharge-title">
-            {lang === 'zh' ? '我的钱包/提现' : 'My wallet / Withdraw'}
-          </h1>
+          <div className="merchant-wallet-form-header-main">
+            <span className="merchant-wallet-form-header-icon" aria-hidden="true">
+              <MerchantWithdrawFlowIcon size={32} />
+            </span>
+            <div>
+              <h1 className="wallet-recharge-title merchant-wallet-form-title">
+                {lang === 'zh' ? '提现' : 'Withdraw'}
+              </h1>
+              <p className="merchant-wallet-form-subtitle">
+                {lang === 'zh' ? '从店铺钱包转出 USDT' : 'Withdraw USDT from your shop wallet'}
+              </p>
+            </div>
+          </div>
         </header>
 
         <div className="wallet-recharge-form merchant-wallet-withdraw-form">

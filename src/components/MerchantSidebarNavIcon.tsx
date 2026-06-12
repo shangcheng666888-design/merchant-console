@@ -11,10 +11,6 @@ export type MerchantSidebarIconName =
 
 const STROKE = 1.65
 
-/** Classic 8-tooth gear — reads clearly as settings/cog */
-const GEAR_PATH =
-  'M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.22-.07.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94 0 .31.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.03-1.58zM12 15.6c1.98 0 3.6-1.62 3.6-3.6s-1.62-3.6-3.6-3.6-3.6 1.62-3.6 3.6 1.62 3.6 3.6 3.6z'
-
 function SidebarIconDefs({ uid, variant }: { uid: string; variant: 'sidebar' | 'light' }) {
   if (variant === 'light') {
     return (
@@ -186,7 +182,30 @@ function buildIcons(uid: string): Record<MerchantSidebarIconName, React.ReactNod
       </>
     ),
     settings: (
-      <path fillRule="evenodd" clipRule="evenodd" d={GEAR_PATH} fill={face} />
+      <>
+        <rect x="4.2" y="4.8" width="15.6" height="14.4" rx="2.6" fill={soft} />
+        <rect
+          x="4.2"
+          y="4.8"
+          width="15.6"
+          height="14.4"
+          rx="2.6"
+          stroke={face}
+          strokeWidth={STROKE}
+          fill="none"
+        />
+        <rect x="6.1" y="6.6" width="6.8" height="10.8" rx="1.6" fill={face} opacity="0.88" />
+        <rect x="14.2" y="6.6" width="4.1" height="4.8" rx="1.1" fill={face} opacity="0.58" />
+        <rect x="14.2" y="12.4" width="4.1" height="5" rx="1.1" fill={accent} />
+        <path
+          d="M7.6 9.2h3.8M7.6 11.4h2.6"
+          stroke="#ffffff"
+          strokeWidth="1.15"
+          strokeLinecap="round"
+          opacity="0.72"
+        />
+        <circle cx="16.25" cy="14.9" r="0.85" fill="#4f46e5" />
+      </>
     ),
   }
 }

@@ -76,3 +76,30 @@ export function getNextMerchantShopLevel(level: number): MerchantShopLevel | nul
   if (index < 0 || index >= MERCHANT_SHOP_LEVELS.length - 1) return null
   return MERCHANT_SHOP_LEVELS[index + 1] ?? null
 }
+
+/** 当前等级区间内，按累计销售额计算距下一等级的进度（0–100）与剩余金额 */
+export function getMerchantShopLevelProgress(level: number, totalSales: number): {
+  current: MerchantShopLevel
+  next: MerchantShopLevel | null
+  progress: number
+  remain: number
+} {
+  const current = getMerchantShopLevel(level)
+  const next = getNextMerchantShopLevel(level)
+  const sales = Math.max(0, Number(totalSales) || 0)
+
+  if (!next) {
+    return { current, next: null, progress: 100, remain: 0 }
+  }
+
+  const span = next.minSales - current.minSales
+  const progress =
+    span > 0
+      ? Math.min(100, Math.max(0, ((sales - current.minSales) / span) * 100))
+      : sales >= next.minSales
+        ? 100
+        : 0
+  const remain = Math.max(0, next.minSales - sales)
+
+  return { current, next, progress, remain }
+}

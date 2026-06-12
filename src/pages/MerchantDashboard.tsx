@@ -39,6 +39,7 @@ interface DashboardData {
   todaySales: number
   expectedProfit: number
   shopLevel?: number
+  shopSalesTotal?: number
   orderTrend: {
     labels: string[]
     orders: number[]
@@ -66,7 +67,6 @@ const MerchantDashboard: React.FC = () => {
   const { shop } = useMerchantShop()
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0)
   const [productCount, setProductCount] = useState(0)
-  const [totalSales, setTotalSales] = useState(0)
   const [orderCount, setOrderCount] = useState(0)
   const [totalProfit, setTotalProfit] = useState(0)
   const [unsettledAmount, setUnsettledAmount] = useState(0)
@@ -81,6 +81,7 @@ const MerchantDashboard: React.FC = () => {
   const [todaySales, setTodaySales] = useState(0)
   const [expectedProfit, setExpectedProfit] = useState(0)
   const [shopLevel, setShopLevel] = useState(1)
+  const [levelSales, setLevelSales] = useState(0)
   const [orderSeries, setOrderSeries] = useState(EMPTY_ORDER_SERIES)
   const [followerSeries, setFollowerSeries] = useState(EMPTY_FOLLOWER_SERIES)
   const [visitSeries, setVisitSeries] = useState(EMPTY_VISIT_SERIES)
@@ -139,6 +140,7 @@ const MerchantDashboard: React.FC = () => {
           expectedProfit?: number
           todayProfit?: number
           shopLevel?: number
+          levelSales?: number
           orderSeries?: number[]
           followerSeries?: number[]
           visitSeries?: number[]
@@ -146,7 +148,6 @@ const MerchantDashboard: React.FC = () => {
           chartData?: typeof EMPTY_CHART_DATA
         }
         setProductCount(cached.productCount ?? 0)
-        setTotalSales(Number(cached.totalSales ?? 0))
         setOrderCount(cached.orderCount ?? 0)
         setTotalProfit(Number(cached.totalProfit ?? 0))
         setPendingOrdersCount(cached.pendingOrders ?? 0)
@@ -162,6 +163,7 @@ const MerchantDashboard: React.FC = () => {
         setTodaySales(Number(cached.todaySales ?? 0))
         setExpectedProfit(Number(cached.expectedProfit ?? cached.todayProfit ?? 0))
         setShopLevel(Number(cached.shopLevel ?? 1))
+        setLevelSales(Number(cached.levelSales ?? cached.totalSales ?? 0))
         if (Array.isArray(cached.orderSeries) && cached.orderSeries.length === 7) {
           setOrderSeries(cached.orderSeries)
         }
@@ -186,7 +188,6 @@ const MerchantDashboard: React.FC = () => {
       try {
         const res = await api.get<DashboardData>(`/api/shops/${encodeURIComponent(auth.shopId)}/dashboard`)
         const nextProductCount = res.productCount ?? 0
-        const nextTotalSales = Number(res.totalSales ?? 0)
         const nextOrderCount = res.orderCount ?? 0
         const nextTotalProfit = Number(res.totalProfit ?? 0)
         const nextPendingOrders = res.pendingOrders ?? 0
@@ -203,6 +204,7 @@ const MerchantDashboard: React.FC = () => {
         const nextTodaySales = Number(res.todaySales ?? 0)
         const nextExpectedProfit = Number(res.expectedProfit ?? 0)
         const nextShopLevel = Number(res.shopLevel ?? 1)
+        const nextLevelSales = Number(res.shopSalesTotal ?? res.totalSales ?? 0)
 
         let nextChart = EMPTY_CHART_DATA
         const labels = res.orderTrend?.labels ?? []
@@ -233,7 +235,6 @@ const MerchantDashboard: React.FC = () => {
         }
 
         setProductCount(nextProductCount)
-        setTotalSales(nextTotalSales)
         setOrderCount(nextOrderCount)
         setTotalProfit(nextTotalProfit)
         setPendingOrdersCount(nextPendingOrders)
@@ -249,6 +250,7 @@ const MerchantDashboard: React.FC = () => {
         setTodaySales(nextTodaySales)
         setExpectedProfit(nextExpectedProfit)
         setShopLevel(nextShopLevel)
+        setLevelSales(Number.isFinite(nextLevelSales) ? nextLevelSales : 0)
         setOrderSeries(nextOrderSeries)
         setFollowerSeries(nextFollowerSeries)
         setVisitSeries(nextVisitSeries)
@@ -261,7 +263,6 @@ const MerchantDashboard: React.FC = () => {
               cacheKey,
               JSON.stringify({
                 productCount: nextProductCount,
-                totalSales: nextTotalSales,
                 orderCount: nextOrderCount,
                 totalProfit: nextTotalProfit,
                 pendingOrders: nextPendingOrders,
@@ -277,6 +278,7 @@ const MerchantDashboard: React.FC = () => {
                 todaySales: nextTodaySales,
                 expectedProfit: nextExpectedProfit,
                 shopLevel: nextShopLevel,
+                levelSales: Number.isFinite(nextLevelSales) ? nextLevelSales : 0,
                 orderSeries: nextOrderSeries,
                 followerSeries: nextFollowerSeries,
                 visitSeries: nextVisitSeries,
@@ -373,7 +375,7 @@ const MerchantDashboard: React.FC = () => {
         creditScore={creditScore}
         followers={followers}
         followerSeries={followerSeries}
-        totalSales={totalSales}
+        levelSales={levelSales}
         orderCount={orderCount}
         totalProfit={totalProfit}
         productCount={productCount}

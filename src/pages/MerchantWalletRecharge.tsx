@@ -4,6 +4,7 @@ import { useToast } from '../components/ToastProvider'
 import { api } from '../api/client'
 import WalletPaymentBadges from '../components/WalletPaymentBadges'
 import { useLang } from '../context/LangContext'
+import { MerchantRechargeFlowIcon } from '../components/MerchantWalletFlowIcons'
 
 const MerchantWalletRecharge: React.FC = () => {
   const { lang } = useLang()
@@ -241,20 +242,32 @@ const MerchantWalletRecharge: React.FC = () => {
   }
 
   return (
-    <div className="merchant-wallet-form-page merchant-wallet-form-page--recharge">
+    <div className="merchant-wallet-form-page merchant-wallet-form-page--recharge merchant-wallet-form-page--v2">
       <section className="wallet-recharge merchant-wallet-recharge-inner">
-        <header className="wallet-recharge-header merchant-wallet-recharge-header">
+        <header className="wallet-recharge-header merchant-wallet-recharge-header merchant-wallet-form-header--v2">
           <button
             type="button"
-            className="wallet-recharge-back"
+            className="merchant-wallet-form-back"
             aria-label={lang === 'zh' ? '返回' : 'Back'}
             onClick={goBack}
           >
-            &lt;
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
-          <h1 className="wallet-recharge-title">
-            {lang === 'zh' ? '我的钱包/充值' : 'My wallet / Recharge'}
-          </h1>
+          <div className="merchant-wallet-form-header-main">
+            <span className="merchant-wallet-form-header-icon" aria-hidden="true">
+              <MerchantRechargeFlowIcon size={32} />
+            </span>
+            <div>
+              <h1 className="wallet-recharge-title merchant-wallet-form-title">
+                {lang === 'zh' ? '充值' : 'Recharge'}
+              </h1>
+              <p className="merchant-wallet-form-subtitle">
+                {lang === 'zh' ? '向店铺钱包转入 USDT' : 'Add USDT to your shop wallet'}
+              </p>
+            </div>
+          </div>
         </header>
 
         <div className="wallet-recharge-form merchant-wallet-recharge-form">

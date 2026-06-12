@@ -11,14 +11,13 @@ import daijiesuan from '../assets/daijiesuan.png'
 import daifahuo from '../assets/daifahuo.png'
 import yunyingjihua from '../assets/yunyingjihua.png'
 import caiwubaogao from '../assets/caiwubaogao.png'
-import wodeqianbao from '../assets/wodeqianbao.png'
+import { MerchantSidebarNavIcon } from './MerchantSidebarNavIcon'
 import haopinglv from '../assets/haopinglv.png'
 import xinyongfen from '../assets/xinyongfen.png'
 import guanzhu from '../assets/guanzhu.png'
 import {
   getMerchantShopLevel,
-  getNextMerchantShopLevel,
-  type MerchantShopLevel,
+  getMerchantShopLevelProgress,
 } from '../constants/merchantShopLevels'
 import MiniSparkline from './MiniSparkline'
 
@@ -91,6 +90,9 @@ function HealthFactor({
 type CmdActionKey = 'orders' | 'plan' | 'finance' | 'wallet'
 
 function CmdActionIcon({ name, iconSrc }: { name: CmdActionKey; iconSrc?: string }) {
+  if (name === 'wallet') {
+    return <MerchantSidebarNavIcon name="wallet" variant="light" className="merchant-cmd-action-icon-img" />
+  }
   if (iconSrc) {
     return <img src={iconSrc} alt="" className="merchant-cmd-action-icon-img" />
   }
@@ -200,7 +202,8 @@ interface CommandHeroProps {
   creditScore: number
   followers: number
   followerSeries: number[]
-  totalSales: number
+  /** 店铺累计销售额 shops.sales，用于等级进度与展示 */
+  levelSales: number
   orderCount: number
   totalProfit: number
   productCount: number
@@ -212,28 +215,19 @@ interface CommandHeroProps {
   onNavigate: (path: string) => void
 }
 
-function levelProgressCopy(
+function formatLevelProgressLabel(
   lang: 'zh' | 'en',
-  _current: MerchantShopLevel,
-  next: MerchantShopLevel | null,
-  totalSales: number,
-): { progress: number; label: string } {
+  next: ReturnType<typeof getMerchantShopLevelProgress>['next'],
+  remain: number,
+): string {
   if (!next) {
-    return {
-      progress: 100,
-      label: lang === 'zh' ? '已达最高等级' : 'Max level reached',
-    }
+    return lang === 'zh' ? '已达最高等级' : 'Max level reached'
   }
-  const progress = next.minSales > 0 ? Math.min(100, (totalSales / next.minSales) * 100) : 100
-  const remain = Math.max(0, next.minSales - totalSales)
   const nextName = lang === 'zh' ? next.nameZh : next.nameEn
-  return {
-    progress,
-    label:
-      lang === 'zh'
-        ? `距${nextName}还差 $${remain.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
-        : `$${remain.toLocaleString(undefined, { maximumFractionDigits: 0 })} to ${next.nameEn}`,
-  }
+  const remainText = remain.toLocaleString(undefined, { maximumFractionDigits: 0 })
+  return lang === 'zh'
+    ? `距${nextName}还差 $${remainText}`
+    : `$${remainText} to ${next.nameEn}`
 }
 
 const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
@@ -246,7 +240,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   creditScore,
   followers,
   followerSeries,
-  totalSales,
+  levelSales,
   orderCount,
   totalProfit,
   productCount,
@@ -258,8 +252,12 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   onNavigate,
 }) => {
   const levelInfo = getMerchantShopLevel(shopLevel)
-  const nextLevel = getNextMerchantShopLevel(shopLevel)
-  const { progress: levelProgress, label: levelProgressLabel } = levelProgressCopy(lang, levelInfo, nextLevel, totalSales)
+  const {
+    next: nextLevel,
+    progress: levelProgress,
+    remain: levelRemain,
+  } = getMerchantShopLevelProgress(shopLevel, levelSales)
+  const levelProgressLabel = formatLevelProgressLabel(lang, nextLevel, levelRemain)
   const followerWeekGain = followerSeries.reduce((sum, value) => sum + value, 0)
 
   const dateLabel = new Date().toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', {
@@ -273,7 +271,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
     { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', badge: pendingOrders, primary: pendingOrders > 0, iconSrc: daifahuo },
     { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', badge: 0, primary: false, iconSrc: yunyingjihua },
     { key: 'finance', path: '/finance', zh: '财务报告', en: 'Finance', badge: 0, primary: false, iconSrc: caiwubaogao },
-    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', badge: 0, primary: false, iconSrc: wodeqianbao },
+    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', badge: 0, primary: false },
   ]
 
   return (
@@ -313,10 +311,17 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                   <span>{levelProgressLabel}</span>
                   <strong>{Math.round(levelProgress)}%</strong>
                 </div>
-                <span className="merchant-cmd-level-progress-track" aria-hidden="true">
+                <span
+                  className="merchant-cmd-level-progress-track"
+                  role="progressbar"
+                  aria-valuenow={Math.round(levelProgress)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={levelProgressLabel}
+                >
                   <span
                     className="merchant-cmd-level-progress-fill"
-                    style={{ '--mc-bar-scale': String(Math.min(1, levelProgress / 100)) } as React.CSSProperties}
+                    style={{ width: `${Math.min(100, Math.max(0, levelProgress))}%` }}
                   />
                 </span>
               </div>
@@ -333,7 +338,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                   {lang === 'zh' ? '累计销售额' : 'Total sales'}
                 </span>
                 <AnimatedMetric
-                  value={totalSales}
+                  value={levelSales}
                   format="currency"
                   decimals={0}
                   className="merchant-cmd-total-sales-value"

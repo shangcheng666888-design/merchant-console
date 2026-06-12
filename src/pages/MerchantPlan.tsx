@@ -13,6 +13,7 @@ import paidGoogle from '../assets/paid-google.png'
 import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { openCrispChat } from '../utils/crispChat'
+import { getMerchantShopLevelProgress } from '../constants/merchantShopLevels'
 
 type ShopLevel = 'normal' | 'silver' | 'gold' | 'diamond'
 
@@ -181,6 +182,7 @@ const MerchantPlan: React.FC = () => {
   const { showToast } = useToast()
   const { shop } = useMerchantShop()
   const [currentLevel, setCurrentLevel] = useState<ShopLevel>('normal')
+  const [shopLevelNum, setShopLevelNum] = useState(1)
   const [totalSales, setTotalSales] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -222,7 +224,9 @@ const MerchantPlan: React.FC = () => {
         const res = await api.get<{ id: string; level: number; sales: number }>(
           `/api/shops/${encodeURIComponent(auth.shopId)}`,
         )
-        setCurrentLevel(mapLevel(res.level ?? 1))
+        const levelVal = Number(res.level ?? 1)
+        setShopLevelNum(Number.isFinite(levelVal) ? levelVal : 1)
+        setCurrentLevel(mapLevel(levelVal))
         const salesVal = Number(res.sales ?? 0)
         setTotalSales(Number.isFinite(salesVal) ? salesVal : 0)
       } catch {
@@ -243,10 +247,7 @@ const MerchantPlan: React.FC = () => {
   const nextLevel = LEVELS[currentIndex + 1]
   const currentLevelInfo = LEVELS[currentIndex]!
 
-  const progress = nextLevel
-    ? Math.min(100, nextLevel.minSales === 0 ? 100 : (totalSales / nextLevel.minSales) * 100)
-    : 100
-  const remain = nextLevel ? Math.max(0, nextLevel.minSales - totalSales) : 0
+  const { progress, remain } = getMerchantShopLevelProgress(shopLevelNum, totalSales)
 
   const copyShopLink = async () => {
     if (!shopPublicUrl) {
