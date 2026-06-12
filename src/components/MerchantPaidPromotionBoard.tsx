@@ -50,10 +50,14 @@ interface PromotionInfo {
 interface HistoryItem {
   promotion: PromotionInfo
   metrics: {
+    series?: MetricPoint[]
     totals: MetricTotals
     presets?: MetricTotals
+    campaignProgress?: number
+    budgetProgress?: number
     isCompleted?: boolean
-  }
+    isForceEnded?: boolean
+  } | null
 }
 
 interface MetricPoint {
@@ -176,6 +180,221 @@ function HistoryChannelLogo({ channel }: { channel: PaidChannel }) {
   )
 }
 
+function MerchantPaidPromoHistoryDetailModal({
+  item,
+  lang,
+  regionOptions,
+  audienceOptions,
+  onClose,
+}: {
+  item: HistoryItem
+  lang: 'zh' | 'en'
+  regionOptions: OptionItem[]
+  audienceOptions: OptionItem[]
+  onClose: () => void
+}) {
+  const promo = item.promotion
+  const metrics = item.metrics
+  const totals = metrics?.totals
+  const series = metrics?.series ?? []
+  const channel = CHANNEL_META[promo.channel]
+  const channelLabel = channel?.[lang === 'zh' ? 'zh' : 'en'] ?? promo.channel
+  const budgetTotal = promo.budgetTotal ?? metrics?.presets?.spend ?? 0
+  const spend = totals?.spend ?? 0
+  const budgetProgressPct = Math.min(
+    100,
+    Math.round((metrics?.budgetProgress ?? (budgetTotal > 0 ? spend / budgetTotal : 0)) * 100),
+  )
+  const campaignProgressPct = Math.min(100, Math.round((metrics?.campaignProgress ?? 0) * 100))
+  const clickRate =
+    totals && totals.impressions > 0 ? Math.round((totals.clicks / totals.impressions) * 1000) / 10 : 0
+  const visitSeries = series.map((point) => point.visits)
+  const targetIsProduct = promo.targetType === 'product'
+  const targetLabel = targetIsProduct
+    ? lang === 'zh'
+      ? '单品推广'
+      : 'Product promotion'
+    : lang === 'zh'
+      ? '整店推广'
+      : 'Whole shop'
+
+  return (
+    <div
+      className="merchant-paid-promo-history-modal-overlay"
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        className="merchant-paid-promo-history-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="merchant-paid-promo-history-modal-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="merchant-paid-promo-history-modal-head">
+          <div className="merchant-paid-promo-history-modal-head-main">
+            <HistoryChannelLogo channel={promo.channel} />
+            <div>
+              <h3 id="merchant-paid-promo-history-modal-title" className="merchant-paid-promo-history-modal-title">
+                {lang === 'zh' ? '投放详情' : 'Campaign details'}
+              </h3>
+              <p className="merchant-paid-promo-history-modal-subtitle">
+                {channelLabel}
+                <span aria-hidden="true"> · </span>
+                {formatHistoryStatus(promo.status, lang)}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="merchant-paid-promo-history-modal-close"
+            onClick={onClose}
+            aria-label={lang === 'zh' ? '关闭' : 'Close'}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="merchant-paid-promo-history-modal-body">
+          <div className="merchant-paid-promo-history-modal-meta">
+            <span>
+              {formatHistoryDate(promo.campaignStartAt, lang)}
+              <span aria-hidden="true"> → </span>
+              {formatHistoryDate(promo.campaignEndAt, lang)}
+            </span>
+            <span>{formatDurationLabel(promo.campaignDurationValue, promo.campaignDurationUnit, lang)}</span>
+          </div>
+
+          <div className="merchant-paid-promo-history-modal-config">
+            <div className="merchant-paid-promo-history-modal-config-row">
+              <span>{lang === 'zh' ? '推广目标' : 'Target'}</span>
+              <strong>{targetLabel}</strong>
+            </div>
+            {targetIsProduct ? (
+              <div className="merchant-paid-promo-history-modal-product">
+                {promo.targetProductImage ? (
+                  <img src={promo.targetProductImage} alt="" className="merchant-paid-promo-history-modal-product-img" />
+                ) : (
+                  <span className="merchant-paid-promo-history-modal-product-img merchant-paid-promo-history-modal-product-img--empty">
+                    SKU
+                  </span>
+                )}
+                <div>
+                  <strong title={promo.targetProductTitle ?? undefined}>
+                    {promo.targetProductTitle ?? (lang === 'zh' ? '推广商品' : 'Product')}
+                  </strong>
+                  <code>ID · {warehouseProductId(promo)}</code>
+                </div>
+              </div>
+            ) : null}
+            <div className="merchant-paid-promo-history-modal-config-row">
+              <span>{lang === 'zh' ? '地区' : 'Region'}</span>
+              <strong>{labelForOption(regionOptions, promo.targetRegion, lang)}</strong>
+            </div>
+            <div className="merchant-paid-promo-history-modal-config-row">
+              <span>{lang === 'zh' ? '受众' : 'Audience'}</span>
+              <strong>{labelsForAudiences(audienceOptions, promo.targetAudience, lang)}</strong>
+            </div>
+          </div>
+
+          <div className="merchant-paid-promo-history-modal-progress">
+            <div className="merchant-paid-promo-history-modal-progress-item">
+              <div className="merchant-paid-promo-history-modal-progress-copy">
+                <span>{lang === 'zh' ? '预算消耗' : 'Budget spent'}</span>
+                <strong>{budgetProgressPct}%</strong>
+              </div>
+              <div className="merchant-paid-promo-progress-bar">
+                <span style={{ width: `${budgetProgressPct}%` }} />
+              </div>
+              <small>
+                ${spend.toFixed(2)} / ${budgetTotal.toFixed(2)}
+              </small>
+            </div>
+            {campaignProgressPct > 0 && campaignProgressPct < 100 ? (
+              <div className="merchant-paid-promo-history-modal-progress-item">
+                <div className="merchant-paid-promo-history-modal-progress-copy">
+                  <span>{lang === 'zh' ? '投放进度' : 'Campaign progress'}</span>
+                  <strong>{campaignProgressPct}%</strong>
+                </div>
+                <div className="merchant-paid-promo-progress-bar merchant-paid-promo-progress-bar--muted">
+                  <span style={{ width: `${campaignProgressPct}%` }} />
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="merchant-paid-promo-history-modal-metrics" role="list">
+            <div className="merchant-paid-promo-history-modal-metric" role="listitem">
+              <small>{lang === 'zh' ? '曝光' : 'Impressions'}</small>
+              <strong>{(totals?.impressions ?? 0).toLocaleString()}</strong>
+            </div>
+            <div className="merchant-paid-promo-history-modal-metric" role="listitem">
+              <small>{lang === 'zh' ? '点击' : 'Clicks'}</small>
+              <strong>{(totals?.clicks ?? 0).toLocaleString()}</strong>
+            </div>
+            <div className="merchant-paid-promo-history-modal-metric" role="listitem">
+              <small>{lang === 'zh' ? '进店' : 'Visits'}</small>
+              <strong>{(totals?.visits ?? 0).toLocaleString()}</strong>
+            </div>
+            <div className="merchant-paid-promo-history-modal-metric" role="listitem">
+              <small>{lang === 'zh' ? '点击率' : 'CTR'}</small>
+              <strong>{clickRate}%</strong>
+            </div>
+            <div className="merchant-paid-promo-history-modal-metric" role="listitem">
+              <small>{lang === 'zh' ? '消耗' : 'Spend'}</small>
+              <strong>${spend.toFixed(2)}</strong>
+            </div>
+            <div className="merchant-paid-promo-history-modal-metric" role="listitem">
+              <small>{lang === 'zh' ? '成交额' : 'Revenue'}</small>
+              <strong>${(totals?.revenue ?? 0).toFixed(2)}</strong>
+            </div>
+          </div>
+
+          <div className="merchant-paid-promo-history-modal-sparkline">
+            <div className="merchant-paid-promo-sparkline-copy">
+              <span className="merchant-paid-promo-sparkline-label">{lang === 'zh' ? '进店趋势' : 'Visit trend'}</span>
+              <span className="merchant-paid-promo-sparkline-sub">
+                {lang === 'zh' ? `共 ${series.length} 个统计日` : `${series.length} tracked day(s)`}
+              </span>
+            </div>
+            <MiniSparkline data={visitSeries.length > 0 ? visitSeries : [0, 0, 0, 0, 0, 0, 0]} color="#5b6cff" />
+          </div>
+
+          {series.length > 1 ? (
+            <div className="merchant-paid-promo-history-modal-series">
+              <h4>{lang === 'zh' ? '分日数据' : 'Daily breakdown'}</h4>
+              <div className="merchant-paid-promo-history-modal-series-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{lang === 'zh' ? '日期' : 'Date'}</th>
+                      <th>{lang === 'zh' ? '曝光' : 'Impr.'}</th>
+                      <th>{lang === 'zh' ? '点击' : 'Clicks'}</th>
+                      <th>{lang === 'zh' ? '进店' : 'Visits'}</th>
+                      <th>{lang === 'zh' ? '消耗' : 'Spend'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {series.map((row) => (
+                      <tr key={row.date}>
+                        <td>{row.date}</td>
+                        <td>{row.impressions.toLocaleString()}</td>
+                        <td>{row.clicks.toLocaleString()}</td>
+                        <td>{row.visits.toLocaleString()}</td>
+                        <td>${row.spend.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function labelForOption(options: OptionItem[], value: string | null, lang: 'zh' | 'en') {
   if (!value) return '—'
   const item = options.find((opt) => opt.value === value)
@@ -226,6 +445,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyExpanded, setHistoryExpanded] = useState(false)
+  const [historyDetailItem, setHistoryDetailItem] = useState<HistoryItem | null>(null)
   const historyPreviewLimit = 3
   const formDirtyRef = useRef(false)
   const lastPromotionIdRef = useRef<number | null>(null)
@@ -318,6 +538,15 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       setProducts([])
     }
   }, [])
+
+  useEffect(() => {
+    if (!historyDetailItem) return undefined
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setHistoryDetailItem(null)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [historyDetailItem])
 
   useEffect(() => {
     let cancelled = false
@@ -427,6 +656,16 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const regionOptions = regions.length > 0 ? regions : DEFAULT_REGIONS
   const audienceOptions = audiences.length > 0 ? audiences : DEFAULT_AUDIENCES
 
+  const historyDetailModal = historyDetailItem ? (
+    <MerchantPaidPromoHistoryDetailModal
+      item={historyDetailItem}
+      lang={lang}
+      regionOptions={regionOptions}
+      audienceOptions={audienceOptions}
+      onClose={() => setHistoryDetailItem(null)}
+    />
+  ) : null
+
   if (loading) return null
   if (!activePromotion && history.length === 0 && !historyLoading) return null
 
@@ -443,7 +682,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             {lang === 'zh' ? '历史投放记录' : 'Campaign history'}
           </h4>
           <p className="merchant-paid-promo-history-sub">
-            {lang === 'zh' ? '已结束推广的完整投放表现' : 'Completed campaign performance archive'}
+            {lang === 'zh' ? '点击每条记录查看详细投放数据' : 'Tap a record to view full campaign details'}
           </p>
         </div>
         {history.length > 0 ? (
@@ -476,7 +715,19 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                   ? '整店推广'
                   : 'Whole shop'
             return (
-              <article key={promo.id} className="merchant-paid-promo-history-card">
+              <article
+                key={promo.id}
+                className="merchant-paid-promo-history-card merchant-paid-promo-history-card--clickable"
+                role="button"
+                tabIndex={0}
+                onClick={() => setHistoryDetailItem(item)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    setHistoryDetailItem(item)
+                  }
+                }}
+              >
                 <div className="merchant-paid-promo-history-card-top">
                   <HistoryChannelLogo channel={promo.channel} />
                   <div className="merchant-paid-promo-history-card-main">
@@ -528,6 +779,9 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                     <strong>${(totals?.spend ?? 0).toFixed(2)}</strong>
                   </div>
                 </div>
+                <p className="merchant-paid-promo-history-card-hint">
+                  {lang === 'zh' ? '点击查看详情' : 'Tap for details'}
+                </p>
               </article>
             )
           })}
@@ -554,6 +808,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
 
   if (!activePromotion) {
     return (
+      <>
       <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广历史' : 'Paid promotion history'}>
         <header className="merchant-dashboard-section-head">
           <div className="merchant-paid-promo-board-head">
@@ -572,12 +827,15 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
         </header>
         {historySection}
       </section>
+      {historyDetailModal}
+      </>
     )
   }
 
   const promo = activePromotion
 
   return (
+    <>
     <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广看板' : 'Paid promotion board'}>
       <header className="merchant-dashboard-section-head">
         <div className="merchant-paid-promo-board-head">
@@ -1095,6 +1353,8 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
 
       {historySection}
     </section>
+    {historyDetailModal}
+    </>
   )
 }
 

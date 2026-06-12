@@ -7961,6 +7961,301 @@
   color: #4f46e5;
 }
 
+.merchant-paid-promo-history-card--clickable {
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.merchant-paid-promo-history-card--clickable:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.1);
+  transform: translateY(-1px);
+}
+
+.merchant-paid-promo-history-card--clickable:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+
+.merchant-paid-promo-history-card-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #6366f1;
+  text-align: right;
+}
+
+.merchant-paid-promo-history-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+  animation: mc-fade-in 0.2s ease;
+}
+
+.merchant-paid-promo-history-modal {
+  width: min(100%, 540px);
+  max-height: min(90vh, 760px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid #e8ecff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+  box-shadow: 0 24px 48px rgba(26, 31, 54, 0.18);
+  overflow: hidden;
+  animation: mc-insight-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.merchant-paid-promo-history-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.85rem;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.merchant-paid-promo-history-modal-head-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.merchant-paid-promo-history-modal-title {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--mc-ink);
+}
+
+.merchant-paid-promo-history-modal-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--mc-ink-muted);
+}
+
+.merchant-paid-promo-history-modal-close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #64748b;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.merchant-paid-promo-history-modal-close:hover {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.merchant-paid-promo-history-modal-body {
+  padding: 0.9rem 1rem 1.1rem;
+  overflow: auto;
+}
+
+.merchant-paid-promo-history-modal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+.merchant-paid-promo-history-modal-config {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 0.9rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid #eef2f7;
+  background: #fbfcff;
+}
+
+.merchant-paid-promo-history-modal-config-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+}
+
+.merchant-paid-promo-history-modal-config-row span {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.merchant-paid-promo-history-modal-config-row strong {
+  text-align: right;
+  color: var(--mc-ink);
+  font-weight: 650;
+}
+
+.merchant-paid-promo-history-modal-product {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #eef2f7;
+}
+
+.merchant-paid-promo-history-modal-product-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.merchant-paid-promo-history-modal-product-img--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.merchant-paid-promo-history-modal-product strong {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--mc-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.merchant-paid-promo-history-modal-product code {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.merchant-paid-promo-history-modal-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
+}
+
+.merchant-paid-promo-history-modal-progress-item small {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.merchant-paid-promo-history-modal-progress-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+.merchant-paid-promo-history-modal-progress-copy strong {
+  color: #4f46e5;
+  font-size: 0.82rem;
+}
+
+.merchant-paid-promo-progress-bar--muted span {
+  background: linear-gradient(90deg, #94a3b8 0%, #cbd5e1 100%);
+}
+
+.merchant-paid-promo-history-modal-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.merchant-paid-promo-history-modal-metric {
+  padding: 0.55rem 0.45rem;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #eef2f7;
+  text-align: center;
+}
+
+.merchant-paid-promo-history-modal-metric small {
+  display: block;
+  margin-bottom: 0.12rem;
+  font-size: 0.66rem;
+  color: #94a3b8;
+}
+
+.merchant-paid-promo-history-modal-metric strong {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--mc-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.merchant-paid-promo-history-modal-sparkline {
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #eef2f7;
+  background: #fff;
+}
+
+.merchant-paid-promo-history-modal-series h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--mc-ink);
+}
+
+.merchant-paid-promo-history-modal-series-scroll {
+  overflow: auto;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+}
+
+.merchant-paid-promo-history-modal-series table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+}
+
+.merchant-paid-promo-history-modal-series th,
+.merchant-paid-promo-history-modal-series td {
+  padding: 0.45rem 0.55rem;
+  text-align: right;
+  border-bottom: 1px solid #f1f5f9;
+  white-space: nowrap;
+}
+
+.merchant-paid-promo-history-modal-series th:first-child,
+.merchant-paid-promo-history-modal-series td:first-child {
+  text-align: left;
+}
+
+.merchant-paid-promo-history-modal-series th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 650;
+}
+
 @media (max-width: 900px) {
   .merchant-paid-promo-board {
     padding: 1rem 0.95rem 1.05rem;
@@ -7992,6 +8287,16 @@
 
   .merchant-paid-promo-history-chip--target {
     max-width: 120px;
+  }
+
+  .merchant-paid-promo-history-modal-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .merchant-paid-promo-history-modal {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 16px;
   }
 
   .merchant-paid-promo-shop-item {
