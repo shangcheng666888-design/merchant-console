@@ -221,6 +221,8 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const [targetAudiences, setTargetAudiences] = useState<string[]>([])
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyExpanded, setHistoryExpanded] = useState(false)
+  const historyPreviewLimit = 3
   const formDirtyRef = useRef(false)
   const lastPromotionIdRef = useRef<number | null>(null)
 
@@ -416,6 +418,11 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   if (loading) return null
   if (!activePromotion && history.length === 0 && !historyLoading) return null
 
+  const historyOverflow = history.length > historyPreviewLimit
+  const visibleHistory = historyExpanded || !historyOverflow
+    ? history
+    : history.slice(0, historyPreviewLimit)
+
   const historySection = (
     <div className="merchant-paid-promo-history">
       <div className="merchant-paid-promo-history-head">
@@ -441,7 +448,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
         </p>
       ) : (
         <div className="merchant-paid-promo-history-list">
-          {history.map((item) => {
+          {visibleHistory.map((item) => {
             const promo = item.promotion
             const totals = item.metrics?.totals
             const channel = CHANNEL_META[promo.channel]
@@ -514,6 +521,22 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
           })}
         </div>
       )}
+      {historyOverflow ? (
+        <button
+          type="button"
+          className="merchant-paid-promo-history-toggle"
+          onClick={() => setHistoryExpanded((prev) => !prev)}
+          aria-expanded={historyExpanded}
+        >
+          {historyExpanded
+            ? lang === 'zh'
+              ? '收起历史记录'
+              : 'Show fewer records'
+            : lang === 'zh'
+              ? `展开更多（还有 ${history.length - historyPreviewLimit} 条）`
+              : `Show more (${history.length - historyPreviewLimit} more)`}
+        </button>
+      ) : null}
     </div>
   )
 
