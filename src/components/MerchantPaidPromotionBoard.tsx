@@ -31,6 +31,7 @@ interface PromotionInfo {
   status: PromoStatus
   targetType: TargetType | null
   targetListingId: string | null
+  targetProductId: string | number | null
   targetProductTitle: string | null
   targetProductImage: string | null
   targetRegion: string | null
@@ -183,6 +184,13 @@ function labelsForAudiences(options: OptionItem[], value: string | null, lang: '
   if (parts.length === 0) return '—'
   const separator = lang === 'zh' ? '、' : ', '
   return parts.map((part) => labelForOption(options, part, lang)).join(separator)
+}
+
+function warehouseProductId(promo: Pick<PromotionInfo, 'targetProductId' | 'targetListingId'>): string {
+  if (promo.targetProductId != null && String(promo.targetProductId).trim()) {
+    return String(promo.targetProductId)
+  }
+  return promo.targetListingId?.trim() || '—'
 }
 
 interface MerchantPaidPromotionBoardProps {
@@ -399,6 +407,9 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const activePromotion = isActiveMerchantPromotion(promotion) ? promotion : null
   const channelInfo = activePromotion ? CHANNEL_META[activePromotion.channel] : null
   const formLocked = !isPromotionSetupEditable(activePromotion)
+  const showActiveSummary = Boolean(
+    activePromotion?.status === 'active' && activePromotion.merchantConfirmedAt && formLocked,
+  )
   const regionOptions = regions.length > 0 ? regions : DEFAULT_REGIONS
   const audienceOptions = audiences.length > 0 ? audiences : DEFAULT_AUDIENCES
 
@@ -529,6 +540,8 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
     )
   }
 
+  const promo = activePromotion
+
   return (
     <section className="merchant-dashboard-section merchant-paid-promo-board" aria-label={lang === 'zh' ? '付费推广看板' : 'Paid promotion board'}>
       <header className="merchant-dashboard-section-head">
@@ -549,16 +562,80 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             </h3>
             <p className="merchant-dashboard-section-desc">
               {lang === 'zh'
-                ? `当前渠道：${channelInfo?.zh ?? promotion.channel} · 选择商品、地区与受众后提交，管理员配置并开启后开始智能投放`
-                : `Channel: ${channelInfo?.en ?? promotion.channel} · Submit target, region and audience, then admin launches the campaign`}
+                ? `当前渠道：${channelInfo?.zh ?? promo.channel} · 选择商品、地区与受众后提交，管理员配置并开启后开始智能投放`
+                : `Channel: ${channelInfo?.en ?? promo.channel} · Submit target, region and audience, then admin launches the campaign`}
             </p>
           </div>
         </div>
       </header>
 
-      <div className="merchant-paid-promo-board-body">
-        <div className="merchant-paid-promo-target-card">
-          <h4 className="merchant-paid-promo-card-title">{lang === 'zh' ? '推广设置' : 'Campaign setup'}</h4>
+      <div
+        className={`merchant-paid-promo-board-body${showActiveSummary ? ' merchant-paid-promo-board-body--active' : ''}`}
+      >
+        <div
+          className={`merchant-paid-promo-target-card${showActiveSummary ? ' merchant-paid-promo-target-card--locked' : ''}`}
+        >
+          <h4 className="merchant-paid-promo-card-title">
+            {showActiveSummary
+              ? lang === 'zh'
+                ? '推广方案'
+                : 'Campaign plan'
+              : lang === 'zh'
+                ? '推广设置'
+                : 'Campaign setup'}
+          </h4>
+
+          {showActiveSummary ? (
+            <div className="merchant-paid-promo-active-summary">
+              {promo.targetType === 'product' ? (
+                <div className="merchant-paid-promo-active-summary-product">
+                  {promo.targetProductImage ? (
+                    <img
+                      src={promo.targetProductImage}
+                      alt=""
+                      className="merchant-paid-promo-active-summary-img"
+                    />
+                  ) : (
+                    <span className="merchant-paid-promo-active-summary-img merchant-paid-promo-active-summary-img--empty">
+                      SKU
+                    </span>
+                  )}
+                  <div className="merchant-paid-promo-active-summary-copy">
+                    <span className="merchant-paid-promo-active-summary-label">
+                      {lang === 'zh' ? '推广单品' : 'Promoted SKU'}
+                    </span>
+                    <code
+                      className="merchant-paid-promo-active-summary-id"
+                      title={promo.targetProductTitle ?? undefined}
+                    >
+                      ID · {warehouseProductId(promo)}
+                    </code>
+                  </div>
+                </div>
+              ) : (
+                <div className="merchant-paid-promo-active-summary-copy merchant-paid-promo-active-summary-copy--shop">
+                  <span className="merchant-paid-promo-active-summary-label">
+                    {lang === 'zh' ? '推广目标' : 'Target'}
+                  </span>
+                  <strong>{lang === 'zh' ? '整店推广' : 'Whole shop'}</strong>
+                  <span className="merchant-paid-promo-active-summary-sub">
+                    {shop?.name || promo.shopId}
+                  </span>
+                </div>
+              )}
+              <div className="merchant-paid-promo-confirmed-meta merchant-paid-promo-confirmed-meta--summary">
+                <span>
+                  {lang === 'zh' ? '地区：' : 'Region: '}
+                  {labelForOption(regionOptions, promo.targetRegion, lang)}
+                </span>
+                <span>
+                  {lang === 'zh' ? '受众：' : 'Audience: '}
+                  {labelsForAudiences(audienceOptions, promo.targetAudience, lang)}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <>
           <div className="merchant-paid-promo-target-tabs">
             <button
               type="button"
@@ -642,7 +719,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                   <div className="merchant-paid-promo-shop-item-copy">
                     <span className="merchant-paid-promo-shop-item-title">{shop?.name || (lang === 'zh' ? '我的店铺' : 'My shop')}</span>
                     <span className="merchant-paid-promo-shop-item-id">
-                      ID · {shop?.id || promotion.shopId}
+                      ID · {shop?.id || promo.shopId}
                     </span>
                     <span className="merchant-paid-promo-shop-item-desc">
                       {lang === 'zh' ? '将店铺首页作为付费推广落地页' : 'Use your shop homepage as the landing page'}
@@ -703,7 +780,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             </button>
           ) : null}
 
-          {promotion.status === 'awaiting_launch' ? (
+          {promo.status === 'awaiting_launch' ? (
             <div className="merchant-paid-promo-status-banner merchant-paid-promo-status-banner--waiting">
               {lang === 'zh'
                 ? '推广方案已提交，等待管理员配置投放参数并开启推广。'
@@ -711,30 +788,35 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             </div>
           ) : null}
 
-          {targetSelected && formLocked ? (
+          {targetSelected && formLocked && !showActiveSummary ? (
             <div className="merchant-paid-promo-confirmed-meta">
               <span>
                 {lang === 'zh' ? '地区：' : 'Region: '}
-                {labelForOption(regionOptions, promotion.targetRegion, lang)}
+                {labelForOption(regionOptions, promo.targetRegion, lang)}
               </span>
               <span>
                 {lang === 'zh' ? '受众：' : 'Audience: '}
-                {labelsForAudiences(audienceOptions, promotion.targetAudience, lang)}
+                {labelsForAudiences(audienceOptions, promo.targetAudience, lang)}
               </span>
             </div>
           ) : null}
+            </>
+          )}
         </div>
 
-        {promotion.status === 'active' && metrics && promotion.merchantConfirmedAt ? (
+        {promo.status === 'active' && metrics && promo.merchantConfirmedAt ? (
           <div className="merchant-paid-promo-metrics-card">
             <div className="merchant-paid-promo-metrics-head">
               <h4 className="merchant-paid-promo-card-title">
                 {lang === 'zh' ? '推广投放数据' : 'Campaign performance'}
               </h4>
-              {promotion.targetType === 'product' && promotion.targetProductTitle ? (
-                <span className="merchant-paid-promo-metrics-target">
-                  {lang === 'zh' ? '主推：' : 'Focus: '}
-                  {promotion.targetProductTitle}
+              {promo.targetType === 'product' ? (
+                <span
+                  className="merchant-paid-promo-metrics-target"
+                  title={promo.targetProductTitle ?? undefined}
+                >
+                  {lang === 'zh' ? '主推：单品 · ID ' : 'Focus: SKU · '}
+                  {warehouseProductId(promo)}
                 </span>
               ) : (
                 <span className="merchant-paid-promo-metrics-target">
@@ -751,9 +833,9 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
               <div className="merchant-paid-promo-progress-bar">
                 <span style={{ width: `${budgetProgressPct}%` }} />
               </div>
-              {promotion.budgetTotal != null ? (
+              {promo.budgetTotal != null ? (
                 <span className="merchant-paid-promo-progress-sub">
-                  ${metrics.totals.spend.toFixed(2)} / ${promotion.budgetTotal.toFixed(2)}
+                  ${metrics.totals.spend.toFixed(2)} / ${promo.budgetTotal.toFixed(2)}
                 </span>
               ) : null}
             </div>
@@ -796,7 +878,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                 : 'Promoted store visits are added to shop visitor totals over time and reflected on your dashboard.'}
             </p>
           </div>
-        ) : isPromotionSetupEditable(promotion) ? (
+        ) : isPromotionSetupEditable(promo) ? (
           <div className="merchant-paid-promo-preview-card">
             <div className="merchant-paid-promo-preview-head">
               <div className="merchant-paid-promo-preview-channel">
@@ -808,7 +890,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                     {lang === 'zh' ? '投放预览' : 'Campaign preview'}
                   </p>
                   <h4 className="merchant-paid-promo-preview-title">
-                    {channelInfo?.[lang === 'zh' ? 'zh' : 'en'] ?? promotion.channel}
+                    {channelInfo?.[lang === 'zh' ? 'zh' : 'en'] ?? promo.channel}
                     {lang === 'zh' ? ' 付费推广' : ' paid ads'}
                   </h4>
                 </div>
@@ -833,8 +915,8 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                   >
                     {targetType === 'shop'
                       ? lang === 'zh'
-                        ? `整店 · ${shop?.name || promotion.shopId}`
-                        : `Shop · ${shop?.name || promotion.shopId}`
+                        ? `整店 · ${shop?.name || promo.shopId}`
+                        : `Shop · ${shop?.name || promo.shopId}`
                       : selectedProduct
                         ? selectedProduct.title
                         : lang === 'zh'
@@ -882,7 +964,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                   <div>
                     <span className="merchant-paid-promo-preview-target-label">{lang === 'zh' ? '落地页' : 'Landing'}</span>
                     <strong>{shop?.name || (lang === 'zh' ? '店铺首页' : 'Shop homepage')}</strong>
-                    <span className="merchant-paid-promo-preview-target-sub">ID · {shop?.id || promotion.shopId}</span>
+                    <span className="merchant-paid-promo-preview-target-sub">ID · {shop?.id || promo.shopId}</span>
                   </div>
                 </>
               ) : selectedProduct ? (
@@ -922,7 +1004,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
               </div>
             </div>
           </div>
-        ) : promotion.status === 'awaiting_launch' ? (
+        ) : promo.status === 'awaiting_launch' ? (
           <div className="merchant-paid-promo-preview-card merchant-paid-promo-preview-card--waiting">
             <div className="merchant-paid-promo-preview-head">
               <div className="merchant-paid-promo-preview-channel">
