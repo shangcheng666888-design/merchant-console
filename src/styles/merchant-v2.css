@@ -6906,14 +6906,15 @@
 
 .merchant-plan-paid-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
 }
 
 .merchant-plan-paid-card {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
+  min-width: 0;
   padding: 1rem;
   border-radius: 14px;
   border: 1px solid #e8ecff;
@@ -6966,6 +6967,10 @@
   font-size: 0.78rem;
   line-height: 1.5;
   color: var(--mc-ink-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .merchant-plan-paid-card-btn {
@@ -7036,9 +7041,48 @@
 }
 
 @media (max-width: 900px) {
-  .merchant-plan-traffic-overview,
-  .merchant-plan-paid-grid {
+  .merchant-plan-traffic-overview {
     grid-template-columns: 1fr;
+  }
+
+  .merchant-plan-paid-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .merchant-plan-paid-card {
+    padding: 0.75rem 0.65rem;
+    gap: 0.35rem;
+  }
+
+  .merchant-plan-paid-card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+  }
+
+  .merchant-plan-paid-card-title {
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+
+  .merchant-plan-paid-card-desc {
+    font-size: 0.7rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .merchant-plan-paid-card-btn {
+    align-self: stretch;
+    width: 100%;
+    margin-top: 0.15rem;
+    padding: 0.42rem 0.5rem;
+    font-size: 0.72rem;
+    text-align: center;
   }
 
   .merchant-plan-levels-list--v2 {
