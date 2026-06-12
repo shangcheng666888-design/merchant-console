@@ -151,7 +151,7 @@ function formatDurationLabel(
 
 function formatHistoryStatus(status: PromoStatus, lang: 'zh' | 'en') {
   if (status === 'completed') return lang === 'zh' ? '已结算' : 'Completed'
-  if (status === 'ended') return lang === 'zh' ? '已结束' : 'Ended'
+  if (status === 'ended') return lang === 'zh' ? '已强制结束' : 'Force ended'
   if (status === 'paused') return lang === 'zh' ? '已暂停' : 'Paused'
   return status
 }
