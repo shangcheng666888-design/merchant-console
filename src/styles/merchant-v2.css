@@ -1754,6 +1754,10 @@
   color: #0f172a;
 }
 
+.merchant-dashboard-hero--cmd .merchant-cmd-shop-id {
+  color: #64748b;
+}
+
 .merchant-dashboard-hero--cmd .merchant-cmd-shop-emblem {
   background: #ffffff;
   border-color: rgba(226, 232, 240, 0.95);
@@ -2076,6 +2080,23 @@
   gap: 0.32rem;
 }
 
+.merchant-cmd-shop-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.14rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.merchant-cmd-shop-head--beside-emblem {
+  display: none;
+}
+
+.merchant-cmd-shop-head--under-emblem {
+  align-items: center;
+  text-align: center;
+}
+
 .merchant-cmd-shop-name {
   margin: 0;
   font-size: 0.78rem;
@@ -2086,7 +2107,36 @@
   text-align: center;
   width: 100%;
   max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-cmd-shop-head--under-emblem .merchant-cmd-shop-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
   word-break: break-word;
+}
+
+.merchant-cmd-shop-id {
+  display: block;
+  max-width: 96px;
+  width: 100%;
+  font-size: 0.64rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.72);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-cmd-shop-head--under-emblem .merchant-cmd-shop-id {
+  display: none;
 }
 
 .merchant-cmd-level-row {
@@ -3078,6 +3128,40 @@
 
   .merchant-cmd-actions {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .merchant-cmd-identity-emblem-col {
+    width: auto;
+    gap: 0;
+  }
+
+  .merchant-cmd-shop-head--under-emblem {
+    display: none;
+  }
+
+  .merchant-cmd-shop-head--beside-emblem {
+    display: flex;
+    gap: 0.18rem;
+  }
+
+  .merchant-cmd-shop-head--beside-emblem .merchant-cmd-shop-name {
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    text-align: left;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .merchant-cmd-shop-head--beside-emblem .merchant-cmd-shop-id {
+    max-width: 100%;
+    font-size: 0.72rem;
+    text-align: left;
   }
 
   .merchant-cmd-level-progress {

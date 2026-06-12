@@ -11,7 +11,7 @@ import daijiesuan from '../assets/daijiesuan.png'
 import daifahuo from '../assets/daifahuo.png'
 import yunyingjihua from '../assets/yunyingjihua.png'
 import caiwubaogao from '../assets/caiwubaogao.png'
-import { MerchantSidebarNavIcon } from './MerchantSidebarNavIcon'
+import walletMain from '../assets/wallet-main.png'
 import haopinglv from '../assets/haopinglv.png'
 import xinyongfen from '../assets/xinyongfen.png'
 import guanzhu from '../assets/guanzhu.png'
@@ -90,9 +90,6 @@ function HealthFactor({
 type CmdActionKey = 'orders' | 'plan' | 'finance' | 'wallet'
 
 function CmdActionIcon({ name, iconSrc }: { name: CmdActionKey; iconSrc?: string }) {
-  if (name === 'wallet') {
-    return <MerchantSidebarNavIcon name="wallet" variant="light" className="merchant-cmd-action-icon-img" />
-  }
   if (iconSrc) {
     return <img src={iconSrc} alt="" className="merchant-cmd-action-icon-img" />
   }
@@ -195,6 +192,7 @@ function MetricCell({ icon, iconSrc, tone, label, value, format, emphasis = fals
 interface CommandHeroProps {
   lang: 'zh' | 'en'
   shopName: string
+  shopId?: string
   shopLogo: string | null
   shopLevel: number
   healthIndex: number
@@ -235,6 +233,7 @@ function formatLevelProgressLabel(
 const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   lang,
   shopName,
+  shopId = '',
   shopLogo,
   shopLevel,
   healthIndex,
@@ -274,11 +273,29 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
     weekday: 'short',
   })
 
+  const displayShopName = shopName || (lang === 'zh' ? '我的店铺' : 'My shop')
+  const shopIdLabel = shopId
+    ? `${lang === 'zh' ? '店铺 ID' : 'Shop ID'} · ${shopId}`
+    : ''
+
+  const renderShopHead = (variant: 'under-emblem' | 'beside-emblem') => (
+    <div className={`merchant-cmd-shop-head merchant-cmd-shop-head--${variant}`}>
+      <h2 className="merchant-cmd-shop-name" title={displayShopName}>
+        {displayShopName}
+      </h2>
+      {shopId ? (
+        <span className="merchant-cmd-shop-id" title={shopId}>
+          {shopIdLabel}
+        </span>
+      ) : null}
+    </div>
+  )
+
   const quickActions: { key: CmdActionKey; path: string; zh: string; en: string; badge: number; primary: boolean; iconSrc?: string }[] = [
     { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', badge: pendingOrders, primary: pendingOrders > 0, iconSrc: daifahuo },
     { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', badge: 0, primary: false, iconSrc: yunyingjihua },
     { key: 'finance', path: '/finance', zh: '财务报告', en: 'Finance', badge: 0, primary: false, iconSrc: caiwubaogao },
-    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', badge: 0, primary: false },
+    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', badge: 0, primary: false, iconSrc: walletMain },
   ]
 
   return (
@@ -301,9 +318,10 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                   className={`merchant-cmd-shop-emblem-img${shopLogo ? '' : ' merchant-cmd-shop-emblem-img--icon'}`}
                 />
               </div>
-              <h2 className="merchant-cmd-shop-name">{shopName || (lang === 'zh' ? '我的店铺' : 'My shop')}</h2>
+              {renderShopHead('under-emblem')}
             </div>
             <div className="merchant-cmd-identity-body">
+              {renderShopHead('beside-emblem')}
               <div className="merchant-cmd-level-row">
                 <span className={`merchant-cmd-level-badge merchant-cmd-level-badge--${levelInfo.key}`}>
                   <img src={levelInfo.icon} alt="" className="merchant-cmd-level-badge-icon" />

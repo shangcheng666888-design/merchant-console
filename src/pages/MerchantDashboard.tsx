@@ -392,6 +392,7 @@ const MerchantDashboard: React.FC = () => {
       <MerchantDashboardCommandHero
         lang={lang}
         shopName={shop?.name ?? ''}
+        shopId={shop?.id ?? ''}
         shopLogo={shop?.logo ?? null}
         shopLevel={shopLevel}
         healthIndex={healthIndex}
