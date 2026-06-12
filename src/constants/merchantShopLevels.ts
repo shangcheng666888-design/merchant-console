@@ -77,16 +77,60 @@ export function getNextMerchantShopLevel(level: number): MerchantShopLevel | nul
   return MERCHANT_SHOP_LEVELS[index + 1] ?? null
 }
 
+export interface MerchantShopLevelProgressOptions {
+  levelLocked?: boolean
+  levelSalesBaseline?: number | null
+}
+
+/** 锁定态：跳过已达门槛，找第一个尚未达到的下一档 */
+export function findNextUnmetShopLevel(level: number, totalSales: number): MerchantShopLevel | null {
+  const sales = Math.max(0, Number(totalSales) || 0)
+  const currentIndex = MERCHANT_SHOP_LEVELS.findIndex((item) => item.key === mapShopLevelNumber(level))
+  const startIndex = currentIndex < 0 ? 1 : currentIndex + 1
+  for (let i = startIndex; i < MERCHANT_SHOP_LEVELS.length; i += 1) {
+    const tier = MERCHANT_SHOP_LEVELS[i]
+    if (sales < tier.minSales) {
+      return tier
+    }
+  }
+  return null
+}
+
 /** 当前等级区间内，按累计销售额计算距下一等级的进度（0–100）与剩余金额 */
-export function getMerchantShopLevelProgress(level: number, totalSales: number): {
+export function getMerchantShopLevelProgress(
+  level: number,
+  totalSales: number,
+  opts?: MerchantShopLevelProgressOptions,
+): {
   current: MerchantShopLevel
   next: MerchantShopLevel | null
   progress: number
   remain: number
 } {
   const current = getMerchantShopLevel(level)
-  const next = getNextMerchantShopLevel(level)
   const sales = Math.max(0, Number(totalSales) || 0)
+
+  if (opts?.levelLocked) {
+    const baseline = Math.max(
+      0,
+      Number(opts.levelSalesBaseline ?? sales) || 0,
+    )
+    const next = findNextUnmetShopLevel(level, sales)
+    if (!next) {
+      return { current, next: null, progress: 100, remain: 0 }
+    }
+    const span = next.minSales - baseline
+    const progress =
+      span > 0
+        ? Math.min(100, Math.max(0, ((sales - baseline) / span) * 100))
+        : sales >= next.minSales
+          ? 100
+          : 0
+    const remain = Math.max(0, next.minSales - sales)
+    return { current, next, progress, remain }
+  }
+
+  const next = getNextMerchantShopLevel(level)
 
   if (!next) {
     return { current, next: null, progress: 100, remain: 0 }

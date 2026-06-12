@@ -184,6 +184,8 @@ const MerchantPlan: React.FC = () => {
   const [currentLevel, setCurrentLevel] = useState<ShopLevel>('normal')
   const [shopLevelNum, setShopLevelNum] = useState(1)
   const [totalSales, setTotalSales] = useState(0)
+  const [levelLocked, setLevelLocked] = useState(false)
+  const [levelSalesBaseline, setLevelSalesBaseline] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -221,14 +223,24 @@ const MerchantPlan: React.FC = () => {
       try {
         setLoading(true)
         setError(null)
-        const res = await api.get<{ id: string; level: number; sales: number }>(
-          `/api/shops/${encodeURIComponent(auth.shopId)}`,
-        )
+        const res = await api.get<{
+          id: string
+          level: number
+          sales: number
+          levelLocked?: boolean
+          levelSalesBaseline?: number | null
+        }>(`/api/shops/${encodeURIComponent(auth.shopId)}`)
         const levelVal = Number(res.level ?? 1)
         setShopLevelNum(Number.isFinite(levelVal) ? levelVal : 1)
         setCurrentLevel(mapLevel(levelVal))
         const salesVal = Number(res.sales ?? 0)
         setTotalSales(Number.isFinite(salesVal) ? salesVal : 0)
+        setLevelLocked(Boolean(res.levelLocked))
+        const baselineVal =
+          res.levelSalesBaseline != null ? Number(res.levelSalesBaseline) : null
+        setLevelSalesBaseline(
+          baselineVal != null && Number.isFinite(baselineVal) ? baselineVal : null,
+        )
       } catch {
         setError(
           lang === 'zh'
@@ -244,10 +256,12 @@ const MerchantPlan: React.FC = () => {
   }, [lang])
 
   const currentIndex = LEVELS.findIndex((l) => l.key === currentLevel)
-  const nextLevel = LEVELS[currentIndex + 1]
   const currentLevelInfo = LEVELS[currentIndex]!
 
-  const { progress, remain } = getMerchantShopLevelProgress(shopLevelNum, totalSales)
+  const { progress, remain, next: nextTier } = getMerchantShopLevelProgress(shopLevelNum, totalSales, {
+    levelLocked,
+    levelSalesBaseline,
+  })
 
   const copyShopLink = async () => {
     if (!shopPublicUrl) {
@@ -478,12 +492,12 @@ const MerchantPlan: React.FC = () => {
                 </p>
               </div>
             </div>
-            {nextLevel ? (
+            {nextTier ? (
               <div className="merchant-plan-current-progress-wrap">
                 <div className="merchant-plan-current-progress-head">
                   <span className="merchant-plan-current-progress-text">
                     {lang === 'zh' ? '升级至 ' : 'Upgrade to '}
-                    {lang === 'zh' ? nextLevel.nameZh : nextLevel.nameEn}
+                    {lang === 'zh' ? nextTier.nameZh : nextTier.nameEn}
                     {lang === 'zh' ? '：还需 ' : ': need '}
                     <strong>${remain.toLocaleString()}</strong>
                   </span>

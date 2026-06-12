@@ -40,6 +40,8 @@ interface DashboardData {
   expectedProfit: number
   shopLevel?: number
   shopSalesTotal?: number
+  levelLocked?: boolean
+  levelSalesBaseline?: number | null
   orderTrend: {
     labels: string[]
     orders: number[]
@@ -82,6 +84,8 @@ const MerchantDashboard: React.FC = () => {
   const [expectedProfit, setExpectedProfit] = useState(0)
   const [shopLevel, setShopLevel] = useState(1)
   const [levelSales, setLevelSales] = useState(0)
+  const [levelLocked, setLevelLocked] = useState(false)
+  const [levelSalesBaseline, setLevelSalesBaseline] = useState<number | null>(null)
   const [orderSeries, setOrderSeries] = useState(EMPTY_ORDER_SERIES)
   const [followerSeries, setFollowerSeries] = useState(EMPTY_FOLLOWER_SERIES)
   const [visitSeries, setVisitSeries] = useState(EMPTY_VISIT_SERIES)
@@ -141,6 +145,8 @@ const MerchantDashboard: React.FC = () => {
           todayProfit?: number
           shopLevel?: number
           levelSales?: number
+          levelLocked?: boolean
+          levelSalesBaseline?: number | null
           orderSeries?: number[]
           followerSeries?: number[]
           visitSeries?: number[]
@@ -164,6 +170,10 @@ const MerchantDashboard: React.FC = () => {
         setExpectedProfit(Number(cached.expectedProfit ?? cached.todayProfit ?? 0))
         setShopLevel(Number(cached.shopLevel ?? 1))
         setLevelSales(Number(cached.levelSales ?? cached.totalSales ?? 0))
+        setLevelLocked(Boolean(cached.levelLocked))
+        setLevelSalesBaseline(
+          cached.levelSalesBaseline != null ? Number(cached.levelSalesBaseline) : null,
+        )
         if (Array.isArray(cached.orderSeries) && cached.orderSeries.length === 7) {
           setOrderSeries(cached.orderSeries)
         }
@@ -205,6 +215,9 @@ const MerchantDashboard: React.FC = () => {
         const nextExpectedProfit = Number(res.expectedProfit ?? 0)
         const nextShopLevel = Number(res.shopLevel ?? 1)
         const nextLevelSales = Number(res.shopSalesTotal ?? res.totalSales ?? 0)
+        const nextLevelLocked = Boolean(res.levelLocked)
+        const nextLevelSalesBaseline =
+          res.levelSalesBaseline != null ? Number(res.levelSalesBaseline) : null
 
         let nextChart = EMPTY_CHART_DATA
         const labels = res.orderTrend?.labels ?? []
@@ -251,6 +264,12 @@ const MerchantDashboard: React.FC = () => {
         setExpectedProfit(nextExpectedProfit)
         setShopLevel(nextShopLevel)
         setLevelSales(Number.isFinite(nextLevelSales) ? nextLevelSales : 0)
+        setLevelLocked(nextLevelLocked)
+        setLevelSalesBaseline(
+          nextLevelSalesBaseline != null && Number.isFinite(nextLevelSalesBaseline)
+            ? nextLevelSalesBaseline
+            : null,
+        )
         setOrderSeries(nextOrderSeries)
         setFollowerSeries(nextFollowerSeries)
         setVisitSeries(nextVisitSeries)
@@ -279,6 +298,11 @@ const MerchantDashboard: React.FC = () => {
                 expectedProfit: nextExpectedProfit,
                 shopLevel: nextShopLevel,
                 levelSales: Number.isFinite(nextLevelSales) ? nextLevelSales : 0,
+                levelLocked: nextLevelLocked,
+                levelSalesBaseline:
+                  nextLevelSalesBaseline != null && Number.isFinite(nextLevelSalesBaseline)
+                    ? nextLevelSalesBaseline
+                    : null,
                 orderSeries: nextOrderSeries,
                 followerSeries: nextFollowerSeries,
                 visitSeries: nextVisitSeries,
@@ -376,6 +400,8 @@ const MerchantDashboard: React.FC = () => {
         followers={followers}
         followerSeries={followerSeries}
         levelSales={levelSales}
+        levelLocked={levelLocked}
+        levelSalesBaseline={levelSalesBaseline}
         orderCount={orderCount}
         totalProfit={totalProfit}
         productCount={productCount}

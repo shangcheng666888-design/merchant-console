@@ -204,6 +204,8 @@ interface CommandHeroProps {
   followerSeries: number[]
   /** 店铺累计销售额 shops.sales，用于等级进度与展示 */
   levelSales: number
+  levelLocked?: boolean
+  levelSalesBaseline?: number | null
   orderCount: number
   totalProfit: number
   productCount: number
@@ -241,6 +243,8 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   followers,
   followerSeries,
   levelSales,
+  levelLocked = false,
+  levelSalesBaseline = null,
   orderCount,
   totalProfit,
   productCount,
@@ -256,7 +260,10 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
     next: nextLevel,
     progress: levelProgress,
     remain: levelRemain,
-  } = getMerchantShopLevelProgress(shopLevel, levelSales)
+  } = getMerchantShopLevelProgress(shopLevel, levelSales, {
+    levelLocked,
+    levelSalesBaseline,
+  })
   const levelProgressLabel = formatLevelProgressLabel(lang, nextLevel, levelRemain)
   const followerWeekGain = followerSeries.reduce((sum, value) => sum + value, 0)
 
