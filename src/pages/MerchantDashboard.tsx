@@ -37,7 +37,7 @@ interface DashboardData {
   visits30d?: number
   todayOrders: number
   todaySales: number
-  todayProfit: number
+  expectedProfit: number
   shopLevel?: number
   orderTrend: {
     labels: string[]
@@ -79,7 +79,7 @@ const MerchantDashboard: React.FC = () => {
   const [visits30d, setVisits30d] = useState(0)
   const [todayOrders, setTodayOrders] = useState(0)
   const [todaySales, setTodaySales] = useState(0)
-  const [todayProfit, setTodayProfit] = useState(0)
+  const [expectedProfit, setExpectedProfit] = useState(0)
   const [shopLevel, setShopLevel] = useState(1)
   const [orderSeries, setOrderSeries] = useState(EMPTY_ORDER_SERIES)
   const [followerSeries, setFollowerSeries] = useState(EMPTY_FOLLOWER_SERIES)
@@ -136,6 +136,7 @@ const MerchantDashboard: React.FC = () => {
           visits30d?: number
           todayOrders?: number
           todaySales?: number
+          expectedProfit?: number
           todayProfit?: number
           shopLevel?: number
           orderSeries?: number[]
@@ -159,7 +160,7 @@ const MerchantDashboard: React.FC = () => {
         setVisits30d(Number(cached.visits30d ?? 0))
         setTodayOrders(cached.todayOrders ?? 0)
         setTodaySales(Number(cached.todaySales ?? 0))
-        setTodayProfit(Number(cached.todayProfit ?? 0))
+        setExpectedProfit(Number(cached.expectedProfit ?? cached.todayProfit ?? 0))
         setShopLevel(Number(cached.shopLevel ?? 1))
         if (Array.isArray(cached.orderSeries) && cached.orderSeries.length === 7) {
           setOrderSeries(cached.orderSeries)
@@ -200,7 +201,7 @@ const MerchantDashboard: React.FC = () => {
         const nextVisits30d = Number(res.visits30d ?? 0)
         const nextTodayOrders = res.todayOrders ?? 0
         const nextTodaySales = Number(res.todaySales ?? 0)
-        const nextTodayProfit = Number(res.todayProfit ?? 0)
+        const nextExpectedProfit = Number(res.expectedProfit ?? 0)
         const nextShopLevel = Number(res.shopLevel ?? 1)
 
         let nextChart = EMPTY_CHART_DATA
@@ -246,7 +247,7 @@ const MerchantDashboard: React.FC = () => {
         setVisits30d(nextVisits30d)
         setTodayOrders(nextTodayOrders)
         setTodaySales(nextTodaySales)
-        setTodayProfit(nextTodayProfit)
+        setExpectedProfit(nextExpectedProfit)
         setShopLevel(nextShopLevel)
         setOrderSeries(nextOrderSeries)
         setFollowerSeries(nextFollowerSeries)
@@ -274,7 +275,7 @@ const MerchantDashboard: React.FC = () => {
                 visits30d: nextVisits30d,
                 todayOrders: nextTodayOrders,
                 todaySales: nextTodaySales,
-                todayProfit: nextTodayProfit,
+                expectedProfit: nextExpectedProfit,
                 shopLevel: nextShopLevel,
                 orderSeries: nextOrderSeries,
                 followerSeries: nextFollowerSeries,
@@ -378,7 +379,7 @@ const MerchantDashboard: React.FC = () => {
         productCount={productCount}
         todaySales={todaySales}
         todayOrders={todayOrders}
-        todayProfit={todayProfit}
+        expectedProfit={expectedProfit}
         unsettledAmount={unsettledAmount}
         pendingOrders={pendingOrdersCount}
         onNavigate={navigate}

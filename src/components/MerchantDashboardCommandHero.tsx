@@ -206,7 +206,7 @@ interface CommandHeroProps {
   productCount: number
   todaySales: number
   todayOrders: number
-  todayProfit: number
+  expectedProfit: number
   unsettledAmount: number
   pendingOrders: number
   onNavigate: (path: string) => void
@@ -252,7 +252,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   productCount,
   todaySales,
   todayOrders,
-  todayProfit,
+  expectedProfit,
   unsettledAmount,
   pendingOrders,
   onNavigate,
@@ -394,7 +394,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 iconSrc={yujilirun}
                 tone="lime"
                 label={lang === 'zh' ? '预计利润' : 'Expected profit'}
-                value={todayProfit}
+                value={expectedProfit}
                 format="currency"
               />
               <MetricCell
