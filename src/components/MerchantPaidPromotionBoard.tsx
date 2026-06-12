@@ -115,9 +115,13 @@ function isPromotionSetupEditable(promotion: PromotionInfo | null): boolean {
   return false
 }
 
-function isActiveMerchantPromotion(promotion: PromotionInfo | null): boolean {
+function isCurrentMerchantPromotion(promotion: PromotionInfo | null): boolean {
   if (!promotion) return false
-  return !['completed', 'ended', 'paused'].includes(promotion.status)
+  return !['completed', 'ended'].includes(promotion.status)
+}
+
+function hasLaunchedCampaign(promotion: PromotionInfo | null): boolean {
+  return Boolean(promotion?.campaignStartAt)
 }
 
 function readAuth(): { userId: string; shopId: string } | null {
@@ -260,7 +264,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       }>(
         `/api/shops/${encodeURIComponent(auth.shopId)}/paid-promotion?userId=${encodeURIComponent(auth.userId)}`,
       )
-      if (!res.active || !res.promotion || !isActiveMerchantPromotion(res.promotion)) {
+      if (!res.active || !res.promotion || !isCurrentMerchantPromotion(res.promotion)) {
         setPromotion(null)
         setMetrics(null)
         setTargetSelected(false)
@@ -406,11 +410,19 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
   const targetReady = targetType === 'shop' || Boolean(selectedListingId)
   const audienceReady = Boolean(targetRegion && targetAudiences.length > 0)
 
-  const activePromotion = isActiveMerchantPromotion(promotion) ? promotion : null
+  const activePromotion = isCurrentMerchantPromotion(promotion) ? promotion : null
   const channelInfo = activePromotion ? CHANNEL_META[activePromotion.channel] : null
   const formLocked = !isPromotionSetupEditable(activePromotion)
+  const isPausedCampaign = activePromotion?.status === 'paused'
   const showActiveSummary = Boolean(
-    activePromotion?.status === 'active' && activePromotion.merchantConfirmedAt && formLocked,
+    activePromotion
+    && (activePromotion.status === 'active' || activePromotion.status === 'paused')
+    && activePromotion.merchantConfirmedAt
+    && formLocked
+    && hasLaunchedCampaign(activePromotion),
+  )
+  const showCampaignMetrics = Boolean(
+    showActiveSummary && metrics && hasLaunchedCampaign(activePromotion),
   )
   const regionOptions = regions.length > 0 ? regions : DEFAULT_REGIONS
   const audienceOptions = audiences.length > 0 ? audiences : DEFAULT_AUDIENCES
@@ -584,9 +596,13 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
               {lang === 'zh' ? '付费推广看板' : 'Paid promotion board'}
             </h3>
             <p className="merchant-dashboard-section-desc">
-              {lang === 'zh'
-                ? `当前渠道：${channelInfo?.zh ?? promo.channel} · 选择商品、地区与受众后提交，管理员配置并开启后开始智能投放`
-                : `Channel: ${channelInfo?.en ?? promo.channel} · Submit target, region and audience, then admin launches the campaign`}
+              {isPausedCampaign
+                ? lang === 'zh'
+                  ? `当前渠道：${channelInfo?.zh ?? promo.channel} · 推广已暂停，投放数据停留在暂停时的进度`
+                  : `Channel: ${channelInfo?.en ?? promo.channel} · Campaign paused; metrics are frozen at the pause point`
+                : lang === 'zh'
+                  ? `当前渠道：${channelInfo?.zh ?? promo.channel} · 选择商品、地区与受众后提交，管理员配置并开启后开始智能投放`
+                  : `Channel: ${channelInfo?.en ?? promo.channel} · Submit target, region and audience, then admin launches the campaign`}
             </p>
           </div>
         </div>
@@ -811,6 +827,14 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
             </div>
           ) : null}
 
+          {isPausedCampaign ? (
+            <div className="merchant-paid-promo-status-banner merchant-paid-promo-status-banner--paused">
+              {lang === 'zh'
+                ? '推广已由管理员暂停，当前投放数据停留在暂停进度，恢复后将继续释放剩余数据。'
+                : 'This campaign is paused by admin. Metrics stay at the pause point and will resume when reactivated.'}
+            </div>
+          ) : null}
+
           {targetSelected && formLocked && !showActiveSummary ? (
             <div className="merchant-paid-promo-confirmed-meta">
               <span>
@@ -827,11 +851,17 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
           )}
         </div>
 
-        {promo.status === 'active' && metrics && promo.merchantConfirmedAt ? (
-          <div className="merchant-paid-promo-metrics-card">
+        {showCampaignMetrics ? (
+          <div className={`merchant-paid-promo-metrics-card${isPausedCampaign ? ' merchant-paid-promo-metrics-card--paused' : ''}`}>
             <div className="merchant-paid-promo-metrics-head">
               <h4 className="merchant-paid-promo-card-title">
-                {lang === 'zh' ? '推广投放数据' : 'Campaign performance'}
+                {isPausedCampaign
+                  ? lang === 'zh'
+                    ? '推广投放数据（已暂停）'
+                    : 'Campaign performance (paused)'
+                  : lang === 'zh'
+                    ? '推广投放数据'
+                    : 'Campaign performance'}
               </h4>
               {promo.targetType === 'product' ? (
                 <span
@@ -896,9 +926,13 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
               <MiniSparkline data={visitSeries.length > 0 ? visitSeries : [0, 0, 0, 0, 0, 0, 0]} color="#5b6cff" />
             </div>
             <p className="merchant-paid-promo-sync-hint">
-              {lang === 'zh'
-                ? '投放进店会按时间段实时计入店铺访客量，仪表盘访客趋势将同步增长。'
-                : 'Promoted store visits are added to shop visitor totals over time and reflected on your dashboard.'}
+              {isPausedCampaign
+                ? lang === 'zh'
+                  ? '暂停期间进店数据不再增长，管理员恢复投放后会继续计入店铺访客。'
+                  : 'Visit totals stay frozen while paused and resume syncing after the campaign is reactivated.'
+                : lang === 'zh'
+                  ? '投放进店会按时间段实时计入店铺访客量，仪表盘访客趋势将同步增长。'
+                  : 'Promoted store visits are added to shop visitor totals over time and reflected on your dashboard.'}
             </p>
           </div>
         ) : isPromotionSetupEditable(promo) ? (
