@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { api } from '../api/client'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { useToast } from './ToastProvider'
@@ -218,7 +219,17 @@ function MerchantPaidPromoHistoryDetailModal({
       ? '整店推广'
       : 'Whole shop'
 
-  return (
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.body.classList.add('mc-overlay-open')
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.body.classList.remove('mc-overlay-open')
+    }
+  }, [])
+
+  return createPortal(
     <div
       className="merchant-paid-promo-history-modal-overlay"
       role="presentation"
@@ -391,7 +402,8 @@ function MerchantPaidPromoHistoryDetailModal({
           ) : null}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { api } from '../api/client'
 import { useToast } from '../components/ToastProvider'
 import { useLang } from '../context/LangContext'
@@ -527,6 +528,17 @@ const MerchantOrders: React.FC = () => {
       })()
     : null
 
+  useEffect(() => {
+    if (!orderDetail && !shipModalOpen) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.body.classList.add('mc-overlay-open')
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.body.classList.remove('mc-overlay-open')
+    }
+  }, [orderDetail, shipModalOpen])
+
   const filteredOrders = useMemo(() => {
     let list = orderList
     if (activeStatus !== 'all') list = list.filter((o) => o.status === activeStatus)
@@ -1009,20 +1021,21 @@ const MerchantOrders: React.FC = () => {
       </section>
 
       {/* 结算弹窗打开时，暂时隐藏抽屉与其遮罩，避免“阴影残留/叠加” */}
-      {orderDetail && !shipModalOpen && (
-        <>
-          <div
-            className="merchant-orders-drawer-overlay"
-            onClick={() => setDetailOrder(null)}
-            role="presentation"
-            aria-hidden="true"
-          />
-          <aside
-            className="merchant-orders-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="merchant-orders-drawer-title"
-          >
+      {orderDetail && !shipModalOpen
+        ? createPortal(
+            <>
+              <div
+                className="merchant-orders-drawer-overlay"
+                onClick={() => setDetailOrder(null)}
+                role="presentation"
+                aria-hidden="true"
+              />
+              <aside
+                className="merchant-orders-drawer"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="merchant-orders-drawer-title"
+              >
             <div className="merchant-orders-drawer-head">
               <h2
                 id="merchant-orders-drawer-title"
@@ -1156,11 +1169,14 @@ const MerchantOrders: React.FC = () => {
               </section>
             </div>
           </aside>
-        </>
-      )}
+            </>,
+            document.body,
+          )
+        : null}
 
-      {shipModalOpen && settleOrder && (
-        <div className="merchant-orders-ship-overlay" role="dialog" aria-modal="true" aria-labelledby="merchant-orders-settle-title">
+      {shipModalOpen && settleOrder
+        ? createPortal(
+            <div className="merchant-orders-ship-overlay" role="dialog" aria-modal="true" aria-labelledby="merchant-orders-settle-title">
           <div
             className="merchant-orders-ship-backdrop"
             onClick={() => { setShipModalOpen(false); setSettleOrder(null) }}
@@ -1273,8 +1289,10 @@ const MerchantOrders: React.FC = () => {
               )
             })()}
           </div>
-        </div>
-      )}
+        </div>,
+            document.body,
+          )
+        : null}
     </div>
   )
 }

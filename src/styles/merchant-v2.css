@@ -7988,11 +7988,13 @@
 .merchant-paid-promo-history-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  z-index: 1300;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   background: rgba(15, 23, 42, 0.42);
   backdrop-filter: blur(6px);
   animation: mc-fade-in 0.2s ease;
@@ -8000,7 +8002,7 @@
 
 .merchant-paid-promo-history-modal {
   width: min(100%, 540px);
-  max-height: min(90vh, 760px);
+  max-height: min(90dvh, 760px);
   display: flex;
   flex-direction: column;
   border-radius: 18px;
@@ -8295,7 +8297,7 @@
 
   .merchant-paid-promo-history-modal {
     width: 100%;
-    max-height: 92vh;
+    max-height: 92dvh;
     border-radius: 16px;
   }
 
@@ -8307,4 +8309,27 @@
   .merchant-paid-promo-shop-item-badge {
     align-self: flex-start;
   }
+}
+
+@media (max-width: 768px) {
+  .merchant-paid-promo-history-modal-overlay {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .merchant-paid-promo-history-modal {
+    width: 100%;
+    max-height: min(94dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 0.5rem));
+    border-radius: 18px 18px 0 0;
+  }
+
+  .merchant-paid-promo-history-modal-body {
+    padding-bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+body.mc-overlay-open .merchant-backend-bottom-nav {
+  pointer-events: none;
 }

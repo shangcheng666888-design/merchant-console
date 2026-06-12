@@ -19831,7 +19831,7 @@ button {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
+  z-index: 1300;
   animation: merchant-orders-drawer-fade-in 0.2s ease;
 }
 
@@ -19846,10 +19846,10 @@ button {
   right: 0;
   width: 100%;
   max-width: 420px;
-  height: 100vh;
+  height: 100dvh;
   background: #fff;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
-  z-index: 1001;
+  z-index: 1301;
   display: flex;
   flex-direction: column;
   animation: merchant-orders-drawer-slide-in 0.25s ease;
@@ -19901,6 +19901,23 @@ button {
   flex: 1;
   overflow-y: auto;
   padding: 1.25rem 1.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .merchant-orders-drawer {
+    max-width: none;
+    left: 0;
+    right: 0;
+  }
+
+  .merchant-orders-drawer-head {
+    padding-top: calc(1.25rem + env(safe-area-inset-top, 0px));
+  }
+
+  .merchant-orders-drawer-body {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .merchant-orders-detail-block {
@@ -20084,11 +20101,12 @@ button {
 .merchant-orders-ship-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1320;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   isolation: isolate;
 }
 .merchant-orders-ship-backdrop {
