@@ -1109,7 +1109,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
           )}
         </div>
 
-        {showCampaignMetrics ? (
+        {showCampaignMetrics && metrics ? (
           <div className={`merchant-paid-promo-metrics-card${isPausedCampaign ? ' merchant-paid-promo-metrics-card--paused' : ''}`}>
             <div className="merchant-paid-promo-metrics-head">
               <h4 className="merchant-paid-promo-card-title">
