@@ -6104,24 +6104,136 @@
   color: var(--mc-brand-dark);
 }
 
-.merchant-warehouse-page--v2 .merchant-warehouse-detail-panel {
+.merchant-warehouse-page--v2 .merchant-warehouse-detail-modal {
   border: 1px solid #e8ecff;
   box-shadow: 0 24px 48px rgba(26, 31, 54, 0.16);
 }
 
-.merchant-warehouse-page--v2 .merchant-warehouse-detail-header {
-  border-bottom-color: #eef1f8;
+.merchant-warehouse-detail-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+  animation: mc-fade-in 0.2s ease;
+}
+
+.merchant-warehouse-detail-modal {
+  width: min(100%, 540px);
+  max-height: min(90dvh, 760px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  border: 1px solid #e8ecff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+  box-shadow: 0 24px 48px rgba(26, 31, 54, 0.18);
+  overflow: hidden;
+  animation: mc-insight-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.merchant-warehouse-detail-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.85rem;
+  border-bottom: 1px solid #eef2f7;
+  flex-shrink: 0;
   background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
 }
 
-.merchant-warehouse-page--v2 .merchant-warehouse-detail-title {
-  color: var(--mc-ink);
+.merchant-warehouse-detail-modal-head-main {
+  min-width: 0;
+}
+
+.merchant-warehouse-detail-modal-title {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
   font-weight: 700;
+  color: var(--mc-ink);
+  line-height: 1.35;
+}
+
+.merchant-warehouse-detail-modal-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--mc-ink-muted);
+  word-break: break-all;
+}
+
+.merchant-warehouse-detail-modal-close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #64748b;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.merchant-warehouse-detail-modal-close:hover {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.merchant-warehouse-detail-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-body {
+  padding: 0.9rem 1rem 1.1rem;
+}
+
+.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-carousel {
+  max-height: 220px;
+}
+
+.merchant-warehouse-page--v2 .merchant-warehouse-detail-procure-btn {
+  width: 100%;
+  margin-top: 0.25rem;
 }
 
 @media (max-width: 900px) {
   .merchant-warehouse-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .merchant-warehouse-stat {
+    flex-direction: row;
+    align-items: center;
+    padding: 0.58rem 0.42rem;
+    gap: 0.42rem;
+    min-width: 0;
+  }
+
+  .merchant-warehouse-stat-body {
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .merchant-warehouse-stat-value {
+    font-size: 0.98rem;
+  }
+
+  .merchant-warehouse-stat-label {
+    font-size: 0.66rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .merchant-warehouse-header-top {
@@ -6132,6 +6244,40 @@
   .merchant-warehouse-main-tabs {
     width: 100%;
     justify-content: center;
+  }
+
+  .merchant-warehouse-procure-toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .merchant-warehouse-page--v2 .merchant-warehouse-search-wrap--procure {
+    flex: none;
+    width: 100%;
+  }
+
+  .merchant-warehouse-procure-categories--inline {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .merchant-warehouse-procure-categories-inner {
+    min-width: 0;
+  }
+
+  .merchant-warehouse-procure-categories-list--v2 {
+    mask-image: none;
+  }
+
+  .merchant-warehouse-section--v2 {
+    overflow: visible;
+  }
+
+  .merchant-warehouse-procure-toolbar--v2 {
+    overflow: visible;
   }
 }
 
@@ -6144,6 +6290,44 @@
     padding: 0.85rem;
   }
 
+  .merchant-warehouse-stats {
+    gap: 0.35rem;
+  }
+
+  .merchant-warehouse-stat {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 0.5rem 0.38rem;
+    gap: 0.38rem;
+    min-width: 0;
+  }
+
+  .merchant-warehouse-stat-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .merchant-warehouse-stat-body {
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .merchant-warehouse-stat-value {
+    font-size: 0.88rem;
+    line-height: 1.15;
+  }
+
+  .merchant-warehouse-stat-label {
+    font-size: 0.58rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
   .merchant-warehouse-toolbar-row {
     flex-direction: column;
     align-items: stretch;
@@ -6154,23 +6338,30 @@
     width: 100%;
   }
 
-  .merchant-warehouse-procure-toolbar-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .merchant-warehouse-page--v2 .merchant-warehouse-search-wrap--procure {
-    flex: none;
-    width: 100%;
-  }
-
-  .merchant-warehouse-procure-categories--inline {
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
   .merchant-warehouse-page--v2 .merchant-warehouse-procure-categories-label {
     padding: 0;
+    font-size: 0.72rem;
+  }
+
+  .merchant-warehouse-procure-categories--expanded .merchant-warehouse-procure-categories-list--v2 {
+    max-height: none;
+  }
+
+  .merchant-warehouse-detail-modal-overlay {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .merchant-warehouse-detail-modal {
+    width: 100%;
+    max-height: min(94dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 0.5rem));
+    border-radius: 18px 18px 0 0;
+  }
+
+  .merchant-warehouse-detail-modal-body .merchant-warehouse-detail-body {
+    padding-bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
   }
 }
 

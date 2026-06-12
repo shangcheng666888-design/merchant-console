@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useToast } from '../components/ToastProvider'
 import { api } from '../api/client'
 import { getCategoryNameZh } from '../constants/categoryNameZh'
@@ -134,6 +135,71 @@ interface ApiShopProduct {
   category: string | null
   subCategory: string | null
   recommended?: boolean
+}
+
+function MerchantWarehouseDetailModal({
+  title,
+  subtitle,
+  titleId,
+  lang,
+  onClose,
+  children,
+}: {
+  title: string
+  subtitle?: string
+  titleId: string
+  lang: 'zh' | 'en'
+  onClose: () => void
+  children: React.ReactNode
+}) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.body.classList.add('mc-overlay-open')
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.body.classList.remove('mc-overlay-open')
+    }
+  }, [])
+
+  return createPortal(
+    <div
+      className="merchant-warehouse-detail-modal-overlay"
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        className="merchant-warehouse-detail-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="merchant-warehouse-detail-modal-head">
+          <div className="merchant-warehouse-detail-modal-head-main">
+            <div>
+              <h3 id={titleId} className="merchant-warehouse-detail-modal-title">
+                {title}
+              </h3>
+              {subtitle ? (
+                <p className="merchant-warehouse-detail-modal-subtitle">{subtitle}</p>
+              ) : null}
+            </div>
+          </div>
+          <button
+            type="button"
+            className="merchant-warehouse-detail-modal-close"
+            onClick={onClose}
+            aria-label={lang === 'zh' ? '关闭' : 'Close'}
+          >
+            ×
+          </button>
+        </div>
+        <div className="merchant-warehouse-detail-modal-body">{children}</div>
+      </div>
+    </div>,
+    document.body,
+  )
 }
 
 const MerchantWarehouse: React.FC = () => {
@@ -1585,143 +1651,25 @@ const MerchantWarehouse: React.FC = () => {
         const mineCanNextImage = mineDetailTotalImages > 1 && mineDetailImageIndex < mineDetailTotalImages - 1
         const mineDetailDesc = mineDetailEnriched?.description ?? ''
         return (
-          <div
-            className="merchant-warehouse-detail-overlay"
-            onClick={() => { setMineDetailItem(null); setMineDetailEnriched(null) }}
-            role="presentation"
+          <MerchantWarehouseDetailModal
+            title={mineDetailItem.productName}
+            subtitle={mineDetailItem.productCode}
+            titleId="mine-detail-title"
+            lang={lang}
+            onClose={() => {
+              setMineDetailItem(null)
+              setMineDetailEnriched(null)
+            }}
           >
-            <div
-              className="merchant-warehouse-detail-panel merchant-warehouse-mine-detail-panel"
-              onClick={(e) => e.stopPropagation()}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="mine-detail-title"
-            >
-              <div className="merchant-warehouse-detail-header">
-                <h2 id="mine-detail-title" className="merchant-warehouse-detail-title">{mineDetailItem.productName}</h2>
-                <button
-                  type="button"
-                  className="merchant-warehouse-detail-close"
-                  onClick={() => { setMineDetailItem(null); setMineDetailEnriched(null) }}
-                  aria-label={lang === 'zh' ? '关闭' : 'Close'}
-                >
-                  ×
-                </button>
-              </div>
-              <div className="merchant-warehouse-detail-carousel">
-                <div className="merchant-warehouse-detail-carousel-inner">
-                  {mineDetailTotalImages > 0 ? (
-                    <img
-                      src={mineDetailImages[mineDetailImageIndex] ?? mineDetailImages[0]}
-                      alt={
-                        lang === 'zh'
-                          ? `${mineDetailItem.productName} 图 ${mineDetailImageIndex + 1}`
-                          : `${mineDetailItem.productName} image ${mineDetailImageIndex + 1}`
-                      }
-                      className="merchant-warehouse-detail-carousel-img"
-                    />
-                  ) : (
-                    <div className="merchant-warehouse-detail-carousel-placeholder">
-                      {lang === 'zh' ? '商品图' : 'Product image'}
-                    </div>
-                  )}
-                </div>
-                {mineDetailTotalImages > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      className="merchant-warehouse-detail-carousel-btn merchant-warehouse-detail-carousel-btn--prev"
-                      disabled={!mineCanPrevImage}
-                      onClick={(e) => { e.stopPropagation(); setMineDetailImageIndex((i) => Math.max(0, i - 1)) }}
-                      aria-label={lang === 'zh' ? '上一张' : 'Previous image'}
-                    >
-                      ‹
-                    </button>
-                    <button
-                      type="button"
-                      className="merchant-warehouse-detail-carousel-btn merchant-warehouse-detail-carousel-btn--next"
-                      disabled={!mineCanNextImage}
-                      onClick={(e) => { e.stopPropagation(); setMineDetailImageIndex((i) => Math.min(mineDetailTotalImages - 1, i + 1)) }}
-                      aria-label={lang === 'zh' ? '下一张' : 'Next image'}
-                    >
-                      ›
-                    </button>
-                    <span className="merchant-warehouse-detail-carousel-dots">
-                      {mineDetailImageIndex + 1} / {mineDetailTotalImages}
-                    </span>
-                  </>
-                )}
-              </div>
-              <div className="merchant-warehouse-detail-body">
-                <div className="merchant-warehouse-detail-price">
-                  {lang === 'zh' ? '采购价' : 'Purchase price'}{' '}
-                  <strong>${mineDetailItem.supplyPrice.toFixed(2)}</strong>
-                </div>
-                <div className="merchant-warehouse-detail-price">
-                  {lang === 'zh' ? '定价' : 'Selling price'}{' '}
-                  <strong className="merchant-warehouse-detail-price--sell">
-                    ${mineDetailItem.price.toFixed(2)}
-                  </strong>
-                </div>
-                <div className="merchant-warehouse-detail-price">
-                  {lang === 'zh' ? '利润比' : 'Profit ratio'}{' '}
-                  <strong
-                    className={`merchant-warehouse-detail-profit ${
-                      mineDetailItem.price >= mineDetailItem.supplyPrice
-                        ? 'merchant-warehouse-detail-profit--up'
-                        : 'merchant-warehouse-detail-profit--down'
-                    }`}
-                  >
-                    {profitRatio(mineDetailItem.price, mineDetailItem.supplyPrice)}
-                  </strong>
-                </div>
-                {mineDetailDesc && (
-                  <div className="merchant-warehouse-detail-desc">
-                    <span className="merchant-warehouse-detail-label">
-                      {lang === 'zh' ? '商品描述' : 'Product description'}
-                    </span>
-                    <p>{mineDetailDesc}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )
-      })()}
-
-      {procureDetailItem && (
-        <div
-          className="merchant-warehouse-detail-overlay"
-          onClick={() => setProcureDetailItem(null)}
-          role="presentation"
-        >
-          <div
-            className="merchant-warehouse-detail-panel"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="procure-detail-title"
-          >
-            <div className="merchant-warehouse-detail-header">
-              <h2 id="procure-detail-title" className="merchant-warehouse-detail-title">{procureDetailItem.name}</h2>
-              <button
-                type="button"
-                className="merchant-warehouse-detail-close"
-                onClick={() => setProcureDetailItem(null)}
-                aria-label={lang === 'zh' ? '关闭' : 'Close'}
-              >
-                ×
-              </button>
-            </div>
             <div className="merchant-warehouse-detail-carousel">
               <div className="merchant-warehouse-detail-carousel-inner">
-                  {detailTotalImages > 0 ? (
+                {mineDetailTotalImages > 0 ? (
                   <img
-                    src={detailImages[detailImageIndex]}
+                    src={mineDetailImages[mineDetailImageIndex] ?? mineDetailImages[0]}
                     alt={
                       lang === 'zh'
-                        ? `${procureDetailItem.name} 图 ${detailImageIndex + 1}`
-                        : `${procureDetailItem.name} image ${detailImageIndex + 1}`
+                        ? `${mineDetailItem.productName} 图 ${mineDetailImageIndex + 1}`
+                        : `${mineDetailItem.productName} image ${mineDetailImageIndex + 1}`
                     }
                     className="merchant-warehouse-detail-carousel-img"
                   />
@@ -1731,13 +1679,16 @@ const MerchantWarehouse: React.FC = () => {
                   </div>
                 )}
               </div>
-              {detailTotalImages > 1 && (
+              {mineDetailTotalImages > 1 && (
                 <>
                   <button
                     type="button"
                     className="merchant-warehouse-detail-carousel-btn merchant-warehouse-detail-carousel-btn--prev"
-                    disabled={!canPrevImage}
-                    onClick={(e) => { e.stopPropagation(); setDetailImageIndex((i) => Math.max(0, i - 1)) }}
+                    disabled={!mineCanPrevImage}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMineDetailImageIndex((i) => Math.max(0, i - 1))
+                    }}
                     aria-label={lang === 'zh' ? '上一张' : 'Previous image'}
                   >
                     ‹
@@ -1745,53 +1696,149 @@ const MerchantWarehouse: React.FC = () => {
                   <button
                     type="button"
                     className="merchant-warehouse-detail-carousel-btn merchant-warehouse-detail-carousel-btn--next"
-                    disabled={!canNextImage}
-                    onClick={(e) => { e.stopPropagation(); setDetailImageIndex((i) => Math.min(detailTotalImages - 1, i + 1)) }}
+                    disabled={!mineCanNextImage}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMineDetailImageIndex((i) => Math.min(mineDetailTotalImages - 1, i + 1))
+                    }}
                     aria-label={lang === 'zh' ? '下一张' : 'Next image'}
                   >
                     ›
                   </button>
                   <span className="merchant-warehouse-detail-carousel-dots">
-                    {detailImageIndex + 1} / {detailTotalImages}
+                    {mineDetailImageIndex + 1} / {mineDetailTotalImages}
                   </span>
                 </>
               )}
             </div>
-              <div className="merchant-warehouse-detail-body">
+            <div className="merchant-warehouse-detail-body">
               <div className="merchant-warehouse-detail-price">
                 {lang === 'zh' ? '采购价' : 'Purchase price'}{' '}
-                <strong>${procureDetailItem.supplyPrice.toFixed(2)}</strong>
+                <strong>${mineDetailItem.supplyPrice.toFixed(2)}</strong>
               </div>
-              {procureDetailItem.description && (
+              <div className="merchant-warehouse-detail-price">
+                {lang === 'zh' ? '定价' : 'Selling price'}{' '}
+                <strong className="merchant-warehouse-detail-price--sell">
+                  ${mineDetailItem.price.toFixed(2)}
+                </strong>
+              </div>
+              <div className="merchant-warehouse-detail-price">
+                {lang === 'zh' ? '利润比' : 'Profit ratio'}{' '}
+                <strong
+                  className={`merchant-warehouse-detail-profit ${
+                    mineDetailItem.price >= mineDetailItem.supplyPrice
+                      ? 'merchant-warehouse-detail-profit--up'
+                      : 'merchant-warehouse-detail-profit--down'
+                  }`}
+                >
+                  {profitRatio(mineDetailItem.price, mineDetailItem.supplyPrice)}
+                </strong>
+              </div>
+              {mineDetailDesc && (
                 <div className="merchant-warehouse-detail-desc">
                   <span className="merchant-warehouse-detail-label">
                     {lang === 'zh' ? '商品描述' : 'Product description'}
                   </span>
-                  <p>{procureDetailItem.description}</p>
+                  <p>{mineDetailDesc}</p>
                 </div>
               )}
-              {procureDetailItem.styles.length > 0 && (
-                <div className="merchant-warehouse-detail-styles">
-                  <span className="merchant-warehouse-detail-label">
-                    {lang === 'zh' ? '款式' : 'Styles'}
-                  </span>
-                  <ul>
-                    {procureDetailItem.styles.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <button
-                type="button"
-                className="merchant-warehouse-detail-procure-btn"
-                onClick={() => openProcurePricingModal(procureDetailItem)}
-              >
-                {lang === 'zh' ? '采购并上架' : 'Purchase & list'}
-              </button>
             </div>
+          </MerchantWarehouseDetailModal>
+        )
+      })()}
+
+      {procureDetailItem && (
+        <MerchantWarehouseDetailModal
+          title={procureDetailItem.name}
+          subtitle={procureDetailItem.id}
+          titleId="procure-detail-title"
+          lang={lang}
+          onClose={() => setProcureDetailItem(null)}
+        >
+          <div className="merchant-warehouse-detail-carousel">
+            <div className="merchant-warehouse-detail-carousel-inner">
+              {detailTotalImages > 0 ? (
+                <img
+                  src={detailImages[detailImageIndex]}
+                  alt={
+                    lang === 'zh'
+                      ? `${procureDetailItem.name} 图 ${detailImageIndex + 1}`
+                      : `${procureDetailItem.name} image ${detailImageIndex + 1}`
+                  }
+                  className="merchant-warehouse-detail-carousel-img"
+                />
+              ) : (
+                <div className="merchant-warehouse-detail-carousel-placeholder">
+                  {lang === 'zh' ? '商品图' : 'Product image'}
+                </div>
+              )}
+            </div>
+            {detailTotalImages > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="merchant-warehouse-detail-carousel-btn merchant-warehouse-detail-carousel-btn--prev"
+                  disabled={!canPrevImage}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setDetailImageIndex((i) => Math.max(0, i - 1))
+                  }}
+                  aria-label={lang === 'zh' ? '上一张' : 'Previous image'}
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  className="merchant-warehouse-detail-carousel-btn merchant-warehouse-detail-carousel-btn--next"
+                  disabled={!canNextImage}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setDetailImageIndex((i) => Math.min(detailTotalImages - 1, i + 1))
+                  }}
+                  aria-label={lang === 'zh' ? '下一张' : 'Next image'}
+                >
+                  ›
+                </button>
+                <span className="merchant-warehouse-detail-carousel-dots">
+                  {detailImageIndex + 1} / {detailTotalImages}
+                </span>
+              </>
+            )}
           </div>
-        </div>
+          <div className="merchant-warehouse-detail-body">
+            <div className="merchant-warehouse-detail-price">
+              {lang === 'zh' ? '采购价' : 'Purchase price'}{' '}
+              <strong>${procureDetailItem.supplyPrice.toFixed(2)}</strong>
+            </div>
+            {procureDetailItem.description && (
+              <div className="merchant-warehouse-detail-desc">
+                <span className="merchant-warehouse-detail-label">
+                  {lang === 'zh' ? '商品描述' : 'Product description'}
+                </span>
+                <p>{procureDetailItem.description}</p>
+              </div>
+            )}
+            {procureDetailItem.styles.length > 0 && (
+              <div className="merchant-warehouse-detail-styles">
+                <span className="merchant-warehouse-detail-label">
+                  {lang === 'zh' ? '款式' : 'Styles'}
+                </span>
+                <ul>
+                  {procureDetailItem.styles.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <button
+              type="button"
+              className="merchant-warehouse-detail-procure-btn"
+              onClick={() => openProcurePricingModal(procureDetailItem)}
+            >
+              {lang === 'zh' ? '采购并上架' : 'Purchase & list'}
+            </button>
+          </div>
+        </MerchantWarehouseDetailModal>
       )}
 
       {/* 定价弹层已废弃：定价由系统自动按店铺等级计算 */}
