@@ -6190,14 +6190,49 @@
   min-height: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-}
-
-.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-body {
-  padding: 0.9rem 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .merchant-warehouse-detail-modal-body .merchant-warehouse-detail-carousel {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  height: 220px;
+  min-height: 220px;
   max-height: 220px;
+  aspect-ratio: unset;
+  overflow: hidden;
+  background: #f9fafb;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-carousel-inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-carousel-img {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-body {
+  flex: none;
+  position: relative;
+  z-index: 1;
+  padding: 0.9rem 1rem 1.1rem;
+  background: #fff;
+  overflow: visible;
+}
+
+.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-carousel-btn,
+.merchant-warehouse-detail-modal-body .merchant-warehouse-detail-carousel-dots {
+  z-index: 2;
 }
 
 .merchant-warehouse-page--v2 .merchant-warehouse-detail-procure-btn {
@@ -6358,6 +6393,12 @@
     width: 100%;
     max-height: min(94dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 0.5rem));
     border-radius: 18px 18px 0 0;
+  }
+
+  .merchant-warehouse-detail-modal-body .merchant-warehouse-detail-carousel {
+    height: min(48vw, 200px);
+    min-height: min(48vw, 200px);
+    max-height: min(48vw, 200px);
   }
 
   .merchant-warehouse-detail-modal-body .merchant-warehouse-detail-body {
