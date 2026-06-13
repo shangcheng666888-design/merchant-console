@@ -5,6 +5,11 @@ import { openCrispChat } from '../utils/crispChat'
 import zhFlagIcon from '../assets/lang-zh.png'
 import enFlagIcon from '../assets/lang-en.png'
 import deFlagIcon from '../assets/lang-de.png'
+import jaFlagIcon from '../assets/lang-ja.png'
+import koFlagIcon from '../assets/lang-ko.png'
+import esFlagIcon from '../assets/lang-es.png'
+import itFlagIcon from '../assets/lang-it.png'
+import viFlagIcon from '../assets/lang-vi.png'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
 import { tr, pickBilingual, convertStringRecord, type Lang } from '../i18n'
@@ -29,11 +34,11 @@ const LOGIN_LANG_FLAGS: Partial<Record<Lang, string>> = {
   tw: zhFlagIcon,
   en: enFlagIcon,
   de: deFlagIcon,
-  ja: enFlagIcon,
-  ko: enFlagIcon,
-  es: enFlagIcon,
-  it: enFlagIcon,
-  vi: enFlagIcon,
+  ja: jaFlagIcon,
+  ko: koFlagIcon,
+  es: esFlagIcon,
+  it: itFlagIcon,
+  vi: viFlagIcon,
 }
 
 type LoginIconName =
@@ -670,7 +675,7 @@ const MerchantLogin: React.FC = () => {
             }}
           >
             <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={enFlagIcon} alt="" className="merchant-login-lang-flag-img" />
+              <img src={jaFlagIcon} alt="" className="merchant-login-lang-flag-img" />
             </span>
             <span>日本語</span>
           </button>
@@ -684,7 +689,7 @@ const MerchantLogin: React.FC = () => {
             }}
           >
             <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={enFlagIcon} alt="" className="merchant-login-lang-flag-img" />
+              <img src={koFlagIcon} alt="" className="merchant-login-lang-flag-img" />
             </span>
             <span>한국어</span>
           </button>
@@ -698,7 +703,7 @@ const MerchantLogin: React.FC = () => {
             }}
           >
             <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={enFlagIcon} alt="" className="merchant-login-lang-flag-img" />
+              <img src={esFlagIcon} alt="" className="merchant-login-lang-flag-img" />
             </span>
             <span>Español</span>
           </button>
@@ -712,7 +717,7 @@ const MerchantLogin: React.FC = () => {
             }}
           >
             <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={enFlagIcon} alt="" className="merchant-login-lang-flag-img" />
+              <img src={itFlagIcon} alt="" className="merchant-login-lang-flag-img" />
             </span>
             <span>Italiano</span>
           </button>
@@ -726,7 +731,7 @@ const MerchantLogin: React.FC = () => {
             }}
           >
             <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={enFlagIcon} alt="" className="merchant-login-lang-flag-img" />
+              <img src={viFlagIcon} alt="" className="merchant-login-lang-flag-img" />
             </span>
             <span>Tiếng Việt</span>
           </button>

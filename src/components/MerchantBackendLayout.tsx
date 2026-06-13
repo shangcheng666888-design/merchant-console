@@ -16,6 +16,11 @@ import serviceIcon from '../assets/kefu.png'
 import zhFlagIcon from '../assets/lang-zh.png'
 import enFlagIcon from '../assets/lang-en.png'
 import deFlagIcon from '../assets/lang-de.png'
+import jaFlagIcon from '../assets/lang-ja.png'
+import koFlagIcon from '../assets/lang-ko.png'
+import esFlagIcon from '../assets/lang-es.png'
+import itFlagIcon from '../assets/lang-it.png'
+import viFlagIcon from '../assets/lang-vi.png'
 
 const AUTH_USER_KEY = 'authUser'
 
@@ -24,11 +29,11 @@ const LANG_FLAG_ICONS: Record<Lang, string> = {
   tw: zhFlagIcon,
   en: enFlagIcon,
   de: deFlagIcon,
-  ja: enFlagIcon,
-  ko: enFlagIcon,
-  es: enFlagIcon,
-  it: enFlagIcon,
-  vi: enFlagIcon,
+  ja: jaFlagIcon,
+  ko: koFlagIcon,
+  es: esFlagIcon,
+  it: itFlagIcon,
+  vi: viFlagIcon,
 }
 
 function langFlagIcon(lang: Lang): string {
