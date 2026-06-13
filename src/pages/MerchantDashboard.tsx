@@ -12,6 +12,7 @@ import { buildDashboardInsight } from '../utils/buildDashboardInsight'
 import MerchantDashboardInsight from '../components/MerchantDashboardInsight'
 import { openCrispChat } from '../utils/crispChat'
 import MerchantPaidPromotionBoard from '../components/MerchantPaidPromotionBoard'
+import { tr, toTraditional } from '../i18n'
 
 const EMPTY_CHART_DATA = [
   { name: 'Mon', 评分: 0, 访客: 0, 订单: 0 },
@@ -358,10 +359,124 @@ const MerchantDashboard: React.FC = () => {
       周六: 'Sat',
       周日: 'Sun',
     }
-
-    if (lang === 'zh') {
-      return zhFromEn[v] ?? v
+    const deFromEn: Record<string, string> = {
+      Mon: 'Mo',
+      Tue: 'Di',
+      Wed: 'Mi',
+      Thu: 'Do',
+      Fri: 'Fr',
+      Sat: 'Sa',
+      Sun: 'So',
     }
+    const deFromZh: Record<string, string> = {
+      周一: 'Mo',
+      周二: 'Di',
+      周三: 'Mi',
+      周四: 'Do',
+      周五: 'Fr',
+      周六: 'Sa',
+      周日: 'So',
+    }
+    const jaFromEn: Record<string, string> = {
+      Mon: '月',
+      Tue: '火',
+      Wed: '水',
+      Thu: '木',
+      Fri: '金',
+      Sat: '土',
+      Sun: '日',
+    }
+    const jaFromZh: Record<string, string> = {
+      周一: '月',
+      周二: '火',
+      周三: '水',
+      周四: '木',
+      周五: '金',
+      周六: '土',
+      周日: '日',
+    }
+    const koFromEn: Record<string, string> = {
+      Mon: '월',
+      Tue: '화',
+      Wed: '수',
+      Thu: '목',
+      Fri: '금',
+      Sat: '토',
+      Sun: '일',
+    }
+    const koFromZh: Record<string, string> = {
+      周一: '월',
+      周二: '화',
+      周三: '수',
+      周四: '목',
+      周五: '금',
+      周六: '토',
+      周日: '일',
+    }
+    const esFromEn: Record<string, string> = {
+      Mon: 'lun',
+      Tue: 'mar',
+      Wed: 'mié',
+      Thu: 'jue',
+      Fri: 'vie',
+      Sat: 'sáb',
+      Sun: 'dom',
+    }
+    const esFromZh: Record<string, string> = {
+      周一: 'lun',
+      周二: 'mar',
+      周三: 'mié',
+      周四: 'jue',
+      周五: 'vie',
+      周六: 'sáb',
+      周日: 'dom',
+    }
+    const itFromEn: Record<string, string> = {
+      Mon: 'lun',
+      Tue: 'mar',
+      Wed: 'mer',
+      Thu: 'gio',
+      Fri: 'ven',
+      Sat: 'sab',
+      Sun: 'dom',
+    }
+    const itFromZh: Record<string, string> = {
+      周一: 'lun',
+      周二: 'mar',
+      周三: 'mer',
+      周四: 'gio',
+      周五: 'ven',
+      周六: 'sab',
+      周日: 'dom',
+    }
+
+    const viFromEn: Record<string, string> = {
+      Mon: 'T2',
+      Tue: 'T3',
+      Wed: 'T4',
+      Thu: 'T5',
+      Fri: 'T6',
+      Sat: 'T7',
+      Sun: 'CN',
+    }
+    const viFromZh: Record<string, string> = {
+      周一: 'T2',
+      周二: 'T3',
+      周三: 'T4',
+      周四: 'T5',
+      周五: 'T6',
+      周六: 'T7',
+      周日: 'CN',
+    }
+
+    if (lang === 'zh') return zhFromEn[v] ?? v
+    if (lang === 'tw') return toTraditional(zhFromEn[v] ?? v)
+    if (lang === 'de') return deFromEn[v] ?? deFromZh[v] ?? v
+    if (lang === 'ja') return jaFromEn[v] ?? jaFromZh[v] ?? v
+    if (lang === 'ko') return koFromEn[v] ?? koFromZh[v] ?? v
+    if (lang === 'es') return esFromEn[v] ?? esFromZh[v] ?? v
+    if (lang === 'it') return itFromEn[v] ?? itFromZh[v] ?? v
+    if (lang === 'vi') return viFromEn[v] ?? viFromZh[v] ?? v
     return enFromZh[v] ?? v
   }
 
@@ -424,7 +539,7 @@ const MerchantDashboard: React.FC = () => {
       {!metricsLoading ? (
         <MerchantDashboardInsight
           storageKey="merchant-dashboard-insight-dismissed"
-          kicker={lang === 'zh' ? '智能摘要' : 'Smart insight'}
+          kicker={tr(lang, { zh: '智能摘要', en: 'Smart insight', de: 'Intelligente Zusammenfassung', ja: 'スマートサマリー', ko: '스마트 요약', es: 'Resumen inteligente', it: 'Sintesi intelligente', vi: 'Tóm tắt thông minh' })}
           text={insightText}
           lang={lang}
         />
@@ -432,10 +547,10 @@ const MerchantDashboard: React.FC = () => {
 
       <MerchantPaidPromotionBoard lang={lang} />
 
-      <section className="merchant-dashboard-segments" aria-label={lang === 'zh' ? '流量概况' : 'Traffic overview'}>
+      <section className="merchant-dashboard-segments" aria-label={tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' })}>
         <header className="merchant-dashboard-section-head merchant-dashboard-section-head--inset">
           <h3 className="merchant-dashboard-section-title">
-            {lang === 'zh' ? '流量概况' : 'Traffic overview'}
+            {tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' })}
           </h3>
         </header>
         <div className="merchant-dashboard-segments-panel" role="region">
@@ -446,10 +561,17 @@ const MerchantDashboard: React.FC = () => {
       <section className="merchant-dashboard-section merchant-dashboard-overviews merchant-dashboard-overviews--desktop">
         <header className="merchant-dashboard-section-head">
           <h3 className="merchant-dashboard-section-title">
-            {lang === 'zh' ? '流量概况' : 'Traffic overview'}
+            {tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' })}
           </h3>
           <p className="merchant-dashboard-section-desc">
-            {lang === 'zh' ? '访客趋势、转化率与智能洞察' : 'Visitor trends, conversion, and insights'}
+            {tr(lang, {
+              zh: '访客趋势、转化率与智能洞察',
+              en: 'Visitor trends, conversion, and insights',
+              de: 'Besuchertrends, Conversion und intelligente Einblicke',
+              ja: '訪問者トレンド、コンバージョン、スマートインサイト', ko: '방문자 추세, 전환율 및 스마트 인사이트',
+              es: 'Tendencias de visitantes, conversión e información inteligente', it: 'Tendenze visitatori, conversione e approfondimenti',
+              vi: 'Xu hướng khách truy cập, chuyển đổi và phân tích thông minh',
+            })}
           </p>
         </header>
         <MerchantDashboardOverview data={overviewData} mode="grid" loading={metricsLoading} />
@@ -458,10 +580,10 @@ const MerchantDashboard: React.FC = () => {
       <section className="merchant-dashboard-section merchant-dashboard-section--charts">
         <header className="merchant-dashboard-section-head">
           <h3 className="merchant-dashboard-section-title">
-            {lang === 'zh' ? '趋势分析' : 'Trend analysis'}
+            {tr(lang, { zh: '趋势分析', en: 'Trend analysis', de: 'Trendanalyse', ja: 'トレンド分析', ko: '트렌드 분석', es: 'Análisis de tendencias', it: 'Analisi delle tendenze', vi: 'Phân tích xu hướng' })}
           </h3>
           <p className="merchant-dashboard-section-desc">
-            {lang === 'zh' ? '近 7 日数据走势' : 'Last 7 days at a glance'}
+            {tr(lang, { zh: '近 7 日数据走势', en: 'Last 7 days at a glance', de: 'Die letzten 7 Tage im Überblick', ja: '直近7日間のデータ推移', ko: '최근 7일 데이터 추이', es: 'Evolución de los últimos 7 días', it: 'Ultimi 7 giorni a colpo d\'occhio', vi: 'Tổng quan 7 ngày gần nhất' })}
           </p>
         </header>
         <MerchantDashboardCharts
@@ -477,7 +599,7 @@ const MerchantDashboard: React.FC = () => {
       <button
         type="button"
         className="merchant-dashboard-fab merchant-dashboard-fab--chat"
-        aria-label={lang === 'zh' ? '客服' : 'Customer service'}
+        aria-label={tr(lang, { zh: '客服', en: 'Customer service', de: 'Kundenservice', ja: 'カスタマーサポート', ko: '고객센터', es: 'Atención al cliente', it: 'Assistenza clienti', vi: 'Hỗ trợ khách hàng' })}
         onClick={() => openCrispChat({ shopName: shop?.name, shopId: shop?.id })}
       >
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">

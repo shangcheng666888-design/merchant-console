@@ -8,6 +8,7 @@ import payMetamask from '../assets/MetaMask.png'
 import payKucoin from '../assets/KuCoin.png'
 import payBitfinex from '../assets/Bitfinex.png'
 import { useLang } from '../context/LangContext'
+import { tr } from '../i18n'
 
 const WALLETS = [
   { name: 'Binance', logo: payBinance, url: 'https://www.binance.com' },
@@ -23,14 +24,22 @@ const WALLETS = [
 const WalletPaymentBadges: React.FC = () => {
   const { lang } = useLang()
 
-  const title =
-    lang === 'zh'
-      ? '推荐交易所/钱包'
-      : 'Recommended exchanges / wallets'
-  const listLabel =
-    lang === 'zh'
-      ? '支持的交易所与钱包'
-      : 'Supported exchanges and wallets'
+  const title = tr(lang, {
+    zh: '推荐交易所/钱包',
+    en: 'Recommended exchanges / wallets',
+    de: 'Empfohlene Börsen / Wallets',
+    ja: 'おすすめの取引所・ウォレット',
+    ko: '추천 거래소/지갑',
+    es: 'Exchanges y carteras recomendadas', it: 'Exchange / portafogli consigliati', vi: 'Sàn giao dịch / ví được đề xuất',
+  })
+  const listLabel = tr(lang, {
+    zh: '支持的交易所与钱包',
+    en: 'Supported exchanges and wallets',
+    de: 'Unterstützte Börsen und Wallets',
+    ja: '対応取引所・ウォレット',
+    ko: '지원 거래소 및 지갑',
+    es: 'Exchanges y carteras compatibles', it: 'Exchange e portafogli supportati', vi: 'Sàn giao dịch và ví được hỗ trợ',
+  })
 
   return (
     <div className="merchant-wallet-form-wallets">

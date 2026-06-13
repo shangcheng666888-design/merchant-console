@@ -1,8 +1,10 @@
+import type { Lang } from '../i18n/lang'
+import { intlLocale } from '../i18n/lang'
+
 /** 商家端统一用浏览器本地时区展示时间（不写 timeZone，由用户设备决定） */
 
-export function resolveDisplayLocale(lang?: 'zh' | 'en'): string | undefined {
-  if (lang === 'zh') return 'zh-CN'
-  if (lang === 'en') return 'en-US'
+export function resolveDisplayLocale(lang?: Lang): string | undefined {
+  if (lang) return intlLocale(lang)
   return typeof navigator !== 'undefined' && navigator.language ? navigator.language : undefined
 }
 
@@ -14,7 +16,7 @@ function toDate(input: string | number | Date): Date | null {
 
 export function formatDateTime(
   input: string | number | Date | null | undefined,
-  lang?: 'zh' | 'en',
+  lang?: Lang,
   options?: Intl.DateTimeFormatOptions,
 ): string {
   if (!input) return ''
@@ -32,7 +34,7 @@ export function formatDateTime(
 
 export function formatDate(
   input: string | number | Date | null | undefined,
-  lang?: 'zh' | 'en',
+  lang?: Lang,
   options?: Intl.DateTimeFormatOptions,
 ): string {
   if (!input) return ''
@@ -49,7 +51,7 @@ export function formatDate(
 /** API 返回的 YYYY-MM-DD 日历日，按本地日历格式化（避免 UTC 偏移） */
 export function formatCalendarDateKey(
   dateKey: string | null | undefined,
-  lang?: 'zh' | 'en',
+  lang?: Lang,
   options?: Intl.DateTimeFormatOptions,
 ): string {
   if (!dateKey) return ''

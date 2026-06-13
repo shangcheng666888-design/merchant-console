@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import zhinengzhaiyao from '../assets/zhinengzhaiyao.png'
+import type { Lang } from '../i18n'
+import { tr } from '../i18n'
 
 interface MerchantDashboardInsightProps {
   storageKey: string
   kicker: string
   text: string
-  lang: 'zh' | 'en'
+  lang: Lang
   inCard?: boolean
   as?: 'section' | 'footer'
   className?: string
@@ -78,7 +80,7 @@ export default function MerchantDashboardInsight({
         type="button"
         className="merchant-dashboard-insight-close"
         onClick={dismiss}
-        aria-label={lang === 'zh' ? '关闭智能摘要' : 'Dismiss smart insight'}
+        aria-label={tr(lang, { zh: '关闭智能摘要', en: 'Dismiss smart insight', de: 'Intelligente Zusammenfassung schließen', ja: 'スマートサマリーを閉じる', ko: '스마트 요약 닫기', es: 'Cerrar resumen inteligente', it: 'Chiudi riepilogo intelligente', vi: 'Đóng tóm tắt thông minh' })}
       >
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
           <path

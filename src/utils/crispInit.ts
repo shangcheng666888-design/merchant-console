@@ -1,11 +1,12 @@
 import { Crisp } from 'crisp-sdk-web'
+import { crispLocale, isLang } from '../i18n/lang'
 
 const CRISP_WEBSITE_ID = 'f8505941-c283-456f-a52b-cd1d13b1d00c'
 
-function readCrispLocale(): 'zh' | 'en' {
+function readCrispLocale(): string {
   try {
     const stored = localStorage.getItem('site_lang')
-    return stored === 'en' || stored === 'zh' ? stored : 'zh'
+    return isLang(stored) ? crispLocale(stored) : 'zh'
   } catch {
     return 'zh'
   }

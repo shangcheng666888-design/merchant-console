@@ -10,30 +10,29 @@ import { MerchantShopProvider, useMerchantShop } from '../context/MerchantShopCo
 import { MerchantSyncProvider } from '../context/MerchantSyncContext'
 import { useLang } from '../context/LangContext'
 import { useMerchantDashboardBrief } from '../hooks/useMerchantDashboardBrief'
-import dianpu1 from '../assets/dianpu1.png'
-import dianpu2 from '../assets/dianpu2.png'
-import dianpu3 from '../assets/dianpu3.png'
-import dianpu4 from '../assets/dianpu4.png'
+import { getMerchantShopLevel, shopLevelDisplayName } from '../constants/merchantShopLevels'
+import { LANG_LABELS, SUPPORTED_LANGS, pickLabel, tr, type Lang } from '../i18n'
 import serviceIcon from '../assets/kefu.png'
 import zhFlagIcon from '../assets/lang-zh.png'
 import enFlagIcon from '../assets/lang-en.png'
+import deFlagIcon from '../assets/lang-de.png'
 
 const AUTH_USER_KEY = 'authUser'
 
-function getMobileShopLevelLabel(level: number | undefined, lang: 'zh' | 'en'): string {
-  const lvl = typeof level === 'number' ? level : 1
-  if (lvl >= 4) return lang === 'zh' ? '钻石店铺' : 'Diamond shop'
-  if (lvl >= 3) return lang === 'zh' ? '金牌店铺' : 'Gold shop'
-  if (lvl >= 2) return lang === 'zh' ? '银牌店铺' : 'Silver shop'
-  return lang === 'zh' ? '普通店铺' : 'Standard shop'
+const LANG_FLAG_ICONS: Record<Lang, string> = {
+  zh: zhFlagIcon,
+  tw: zhFlagIcon,
+  en: enFlagIcon,
+  de: deFlagIcon,
+  ja: enFlagIcon,
+  ko: enFlagIcon,
+  es: enFlagIcon,
+  it: enFlagIcon,
+  vi: enFlagIcon,
 }
 
-function getMobileShopLevelIcon(level: number | undefined): string {
-  const lvl = typeof level === 'number' ? level : 1
-  if (lvl >= 4) return dianpu4
-  if (lvl >= 3) return dianpu3
-  if (lvl >= 2) return dianpu2
-  return dianpu1
+function langFlagIcon(lang: Lang): string {
+  return LANG_FLAG_ICONS[lang]
 }
 
 const MerchantBackendLayoutInner: React.FC = () => {
@@ -88,7 +87,7 @@ const MerchantBackendLayoutInner: React.FC = () => {
       <div className="merchant-backend mc-app-loading">
         <div className="mc-app-loading-inner">
           <span className="mc-app-loading-spinner" aria-hidden="true" />
-          <span className="mc-app-loading-text">加载中…</span>
+          <span className="mc-app-loading-text">{tr(lang, { zh: '加载中…', en: 'Loading…', de: 'Wird geladen…', ja: '読み込み中…', ko: '로딩 중…', es: 'Cargando…', it: 'Caricamento…', vi: 'Đang tải…' })}</span>
         </div>
       </div>
     )
@@ -99,7 +98,7 @@ const MerchantBackendLayoutInner: React.FC = () => {
       <div className="merchant-backend mc-app-loading">
         <div className="mc-app-loading-inner">
           <span className="mc-app-loading-spinner" aria-hidden="true" />
-          <span className="mc-app-loading-text">{lang === 'zh' ? '加载店铺信息…' : 'Loading shop…'}</span>
+          <span className="mc-app-loading-text">{tr(lang, { zh: '加载店铺信息…', en: 'Loading shop…', de: 'Shop wird geladen…', ja: '店舗情報を読み込み中…', ko: '매장 정보 로딩 중…', es: 'Cargando tienda…', it: 'Caricamento negozio…', vi: 'Đang tải cửa hàng…' })}</span>
         </div>
       </div>
     )
@@ -110,11 +109,11 @@ const MerchantBackendLayoutInner: React.FC = () => {
   }
 
   const mobileNavItems = [
-    { path: '/dashboard' as const, labelZh: '首页', labelEn: 'Home', icon: 'home' as const },
-    { path: '/orders' as const, labelZh: '订单', labelEn: 'Orders', icon: 'orders' as const, badge: pendingOrders },
-    { path: null, labelZh: '快捷', labelEn: 'More', icon: 'plus' as const, quick: true },
-    { path: '/warehouse' as const, labelZh: '仓库', labelEn: 'Stock', icon: 'warehouse' as const },
-    { path: '/settings' as const, labelZh: '我的', labelEn: 'Me', icon: 'settings' as const },
+    { path: '/dashboard' as const, labelZh: '首页', labelEn: 'Home', labelDe: 'Start', labelJa: 'ホーム', labelKo: '홈', labelEs: 'Inicio', labelIt: 'Home', labelVi: 'Trang chủ', icon: 'home' as const },
+    { path: '/orders' as const, labelZh: '订单', labelEn: 'Orders', labelDe: 'Bestellungen', labelJa: '注文', labelKo: '주문', labelEs: 'Pedidos', labelIt: 'Ordini', labelVi: 'Đơn hàng', icon: 'orders' as const, badge: pendingOrders },
+    { path: null, labelZh: '快捷', labelEn: 'More', labelDe: 'Mehr', labelJa: 'その他', labelKo: '더보기', labelEs: 'Más', labelIt: 'Altro', labelVi: 'Thêm', icon: 'plus' as const, quick: true },
+    { path: '/warehouse' as const, labelZh: '仓库', labelEn: 'Stock', labelDe: 'Lager', labelJa: '倉庫', labelKo: '창고', labelEs: 'Almacén', labelIt: 'Magazzino', labelVi: 'Kho hàng', icon: 'warehouse' as const },
+    { path: '/settings' as const, labelZh: '我的', labelEn: 'Me', labelDe: 'Profil', labelJa: 'マイページ', labelKo: '내 정보', labelEs: 'Mi perfil', labelIt: 'Profilo', labelVi: 'Của tôi', icon: 'settings' as const },
   ]
 
   const isMobile =
@@ -123,12 +122,8 @@ const MerchantBackendLayoutInner: React.FC = () => {
     window.matchMedia('(max-width: 768px)').matches
 
   const menuLabel = isMobile
-    ? lang === 'zh'
-      ? '店铺信息'
-      : 'Shop info'
-    : lang === 'zh'
-      ? '展开菜单'
-      : 'Toggle menu'
+    ? tr(lang, { zh: '店铺信息', en: 'Shop info', de: 'Shop-Info', ja: '店舗情報', ko: '매장 정보', es: 'Info de la tienda', it: 'Info negozio', vi: 'Thông tin cửa hàng' })
+    : tr(lang, { zh: '展开菜单', en: 'Toggle menu', de: 'Menü umschalten', ja: 'メニューを切り替え', ko: '메뉴 열기/닫기', es: 'Alternar menú', it: 'Mostra/nascondi menu', vi: 'Bật/tắt menu' })
 
   const currentNavItem = [...MERCHANT_NAV_ITEMS]
     .sort((a, b) => b.path.length - a.path.length)
@@ -138,12 +133,10 @@ const MerchantBackendLayoutInner: React.FC = () => {
     )
   const headerTitle =
     currentNavItem != null
-      ? lang === 'zh'
-        ? currentNavItem.labelZh
-        : currentNavItem.labelEn
-      : lang === 'zh'
-        ? '仪表盘'
-        : 'Dashboard'
+      ? pickLabel(lang, currentNavItem)
+      : tr(lang, { zh: '仪表盘', en: 'Dashboard', de: 'Dashboard', ja: 'ダッシュボード', ko: '대시보드', es: 'Panel', it: 'Dashboard', vi: 'Bảng điều khiển' })
+
+  const shopLevelInfo = shop ? getMerchantShopLevel(shop.level) : null
 
   return (
     <div className="merchant-backend">
@@ -174,12 +167,12 @@ const MerchantBackendLayoutInner: React.FC = () => {
             <button
               type="button"
               className="merchant-backend-header-icon merchant-backend-header-msg"
-              aria-label={lang === 'zh' ? '客服' : 'Customer service'}
+              aria-label={tr(lang, { zh: '客服', en: 'Customer service', de: 'Kundenservice', ja: 'カスタマーサポート', ko: '고객센터', es: 'Atención al cliente', it: 'Assistenza clienti', vi: 'Chăm sóc khách hàng' })}
               onClick={() => openCrispChat({ shopName: shop?.name, shopId: shop?.id })}
             >
               <img
                 src={serviceIcon}
-                alt={lang === 'zh' ? '客服' : 'Customer service'}
+                alt={tr(lang, { zh: '客服', en: 'Customer service', de: 'Kundenservice', ja: 'カスタマーサポート', ko: '고객센터', es: 'Atención al cliente', it: 'Assistenza clienti', vi: 'Chăm sóc khách hàng' })}
                 width={20}
                 height={20}
                 aria-hidden="true"
@@ -195,51 +188,40 @@ const MerchantBackendLayoutInner: React.FC = () => {
               >
                 <span className="merchant-backend-lang-flag" aria-hidden="true">
                   <img
-                    src={lang === 'zh' ? zhFlagIcon : enFlagIcon}
+                    src={langFlagIcon(lang)}
                     alt=""
                     className="merchant-backend-lang-flag-img"
                   />
                 </span>
-                <span>{lang === 'zh' ? '简体中文' : 'English'}</span>
+                <span>{LANG_LABELS[lang]}</span>
                 <span className="merchant-backend-lang-caret">▼</span>
               </button>
               {langDropdownOpen && (
                 <div className="merchant-backend-lang-dropdown" role="listbox">
-                  <button
-                    type="button"
-                    className="merchant-backend-lang-option"
-                    aria-selected={lang === 'zh'}
-                    onClick={() => {
-                      setLang('zh')
-                      setLangDropdownOpen(false)
-                    }}
-                  >
-                    <span className="merchant-backend-lang-option-flag" aria-hidden="true">
-                      <img src={zhFlagIcon} alt="" className="merchant-backend-lang-flag-img" />
-                    </span>
-                    <span>简体中文</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="merchant-backend-lang-option"
-                    aria-selected={lang === 'en'}
-                    onClick={() => {
-                      setLang('en')
-                      setLangDropdownOpen(false)
-                    }}
-                  >
-                    <span className="merchant-backend-lang-option-flag" aria-hidden="true">
-                      <img src={enFlagIcon} alt="" className="merchant-backend-lang-flag-img" />
-                    </span>
-                    <span>English</span>
-                  </button>
+                  {SUPPORTED_LANGS.map((code) => (
+                    <button
+                      key={code}
+                      type="button"
+                      className="merchant-backend-lang-option"
+                      aria-selected={lang === code}
+                      onClick={() => {
+                        setLang(code)
+                        setLangDropdownOpen(false)
+                      }}
+                    >
+                      <span className="merchant-backend-lang-option-flag" aria-hidden="true">
+                        <img src={langFlagIcon(code)} alt="" className="merchant-backend-lang-flag-img" />
+                      </span>
+                      <span>{LANG_LABELS[code]}</span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
             <button
               type="button"
               className="merchant-backend-header-logout"
-              aria-label={lang === 'zh' ? '退出登录' : 'Logout'}
+              aria-label={tr(lang, { zh: '退出登录', en: 'Logout', de: 'Abmelden', ja: 'ログアウト', ko: '로그아웃', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất' })}
               onClick={() => setLogoutConfirmOpen(true)}
             >
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -273,12 +255,17 @@ const MerchantBackendLayoutInner: React.FC = () => {
                 id="merchant-backend-logout-title"
                 className="merchant-backend-logout-title"
               >
-                {lang === 'zh' ? '确认退出登录？' : 'Log out of this shop?'}
+                {tr(lang, { zh: '确认退出登录？', en: 'Log out of this shop?', de: 'Vom Shop abmelden?', ja: 'ログアウトしますか？', ko: '로그아웃하시겠습니까?', es: '¿Cerrar sesión de esta tienda?', it: 'Uscire da questo negozio?', vi: 'Đăng xuất khỏi cửa hàng này?' })}
               </h2>
               <p className="merchant-backend-logout-subtitle">
-                {lang === 'zh'
-                  ? '退出后需要重新登录才能管理店铺。'
-                  : 'You will need to log in again to manage your shop.'}
+                {tr(lang, {
+                  zh: '退出后需要重新登录才能管理店铺。',
+                  en: 'You will need to log in again to manage your shop.',
+                  de: 'Sie müssen sich erneut anmelden, um Ihren Shop zu verwalten.',
+                  ja: 'ログアウト後、店舗を管理するには再度ログインが必要です。',
+                  ko: '로그아웃 후 매장을 관리하려면 다시 로그인해야 합니다.',
+                  es: 'Tendrás que iniciar sesión de nuevo para gestionar tu tienda.', it: 'Dovrai accedere di nuovo per gestire il negozio.', vi: 'Bạn cần đăng nhập lại để quản lý cửa hàng.',
+                })}
               </p>
               <div className="merchant-backend-logout-actions">
                 <button
@@ -286,14 +273,14 @@ const MerchantBackendLayoutInner: React.FC = () => {
                   className="merchant-backend-logout-btn merchant-backend-logout-btn--secondary"
                   onClick={() => setLogoutConfirmOpen(false)}
                 >
-                  {lang === 'zh' ? '取消' : 'Cancel'}
+                  {tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy' })}
                 </button>
                 <button
                   type="button"
                   className="merchant-backend-logout-btn merchant-backend-logout-btn--primary"
                   onClick={handleLogout}
                 >
-                  {lang === 'zh' ? '确认退出' : 'Log out'}
+                  {tr(lang, { zh: '确认退出', en: 'Log out', de: 'Abmelden', ja: 'ログアウト', ko: '로그아웃 확인', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất' })}
                 </button>
               </div>
             </div>
@@ -316,12 +303,12 @@ const MerchantBackendLayoutInner: React.FC = () => {
                   id="merchant-backend-mobile-shop-title"
                   className="merchant-backend-mobile-shop-title"
                 >
-                  {lang === 'zh' ? '店铺信息' : 'Shop info'}
+                  {tr(lang, { zh: '店铺信息', en: 'Shop info', de: 'Shop-Info', ja: '店舗情報', ko: '매장 정보', es: 'Info de la tienda', it: 'Info negozio', vi: 'Thông tin cửa hàng' })}
                 </h2>
                 <button
                   type="button"
                   className="merchant-backend-mobile-shop-close"
-                  aria-label={lang === 'zh' ? '关闭' : 'Close'}
+                  aria-label={tr(lang, { zh: '关闭', en: 'Close', de: 'Schließen', ja: '閉じる', ko: '닫기', es: 'Cerrar', it: 'Chiudi', vi: 'Đóng' })}
                   onClick={() => setMobileShopInfoOpen(false)}
                 >
                   ×
@@ -332,43 +319,49 @@ const MerchantBackendLayoutInner: React.FC = () => {
                   {shop?.logo ? (
                     <img
                       src={shop.logo}
-                      alt={lang === 'zh' ? '店铺头像' : 'Shop avatar'}
+                      alt={tr(lang, { zh: '店铺头像', en: 'Shop avatar', de: 'Shop-Avatar', ja: '店舗アイコン', ko: '매장 아바타', es: 'Avatar de la tienda', it: 'Avatar negozio', vi: 'Ảnh đại diện cửa hàng' })}
                       className="merchant-backend-avatar"
                       loading="lazy"
                     />
                   ) : (
                     <div className="merchant-backend-avatar" aria-hidden="true">
-                      <span>{shop?.name ? shop.name.slice(0, 1) : '店'}</span>
+                      <span>{shop?.name ? shop.name.slice(0, 1) : tr(lang, { zh: '店', en: 'S', de: 'S', ja: '店', ko: '매', es: 'T', it: 'N', vi: 'C' })}</span>
                     </div>
                   )}
                 </div>
-              {shop && (
+              {shop && shopLevelInfo && (
                 <div className="merchant-backend-mobile-shop-meta">
                   <span className="merchant-backend-mobile-shop-tag">
                     <img
-                      src={getMobileShopLevelIcon(shop.level)}
+                      src={shopLevelInfo.icon}
                       alt=""
                       aria-hidden="true"
                       className="merchant-backend-mobile-shop-tag-icon"
                     />
-                    {getMobileShopLevelLabel(shop.level, lang)}
+                    {shopLevelDisplayName(shopLevelInfo, lang)}
                   </span>
                   <span className="merchant-backend-mobile-shop-sub">
-                    {lang === 'zh'
-                      ? `好评率 ${Math.round(shop.goodRate ?? 0)}% · 关注 ${shop.followers.toLocaleString()}`
-                      : `Rating ${Math.round(shop.goodRate ?? 0)}% · ${shop.followers.toLocaleString()} followers`}
+                    {tr(lang, {
+                      zh: `好评率 ${Math.round(shop.goodRate ?? 0)}% · 关注 ${shop.followers.toLocaleString()}`,
+                      en: `Rating ${Math.round(shop.goodRate ?? 0)}% · ${shop.followers.toLocaleString()} followers`,
+                      de: `Bewertung ${Math.round(shop.goodRate ?? 0)}% · ${shop.followers.toLocaleString()} Follower`,
+                      ja: `評価 ${Math.round(shop.goodRate ?? 0)}% · フォロワー ${shop.followers.toLocaleString()}`,
+                      ko: `좋은 평가율 ${Math.round(shop.goodRate ?? 0)}% · 팔로워 ${shop.followers.toLocaleString()}`,
+                      es: `Valoración ${Math.round(shop.goodRate ?? 0)}% · ${shop.followers.toLocaleString()} seguidores`,
+                      it: `Valutazione ${Math.round(shop.goodRate ?? 0)}% · ${shop.followers.toLocaleString()} follower`, vi: `Đánh giá ${Math.round(shop.goodRate ?? 0)}% · ${shop.followers.toLocaleString()} người theo dõi`,
+                    })}
                   </span>
                 </div>
               )}
                 <div
                   className="merchant-backend-user-id"
-                  title={shop?.name || (lang === 'zh' ? '我的店铺' : 'My shop')}
+                  title={shop?.name || tr(lang, { zh: '我的店铺', en: 'My shop', de: 'Mein Shop', ja: 'マイ店舗', ko: '내 매장', es: 'Mi tienda', it: 'Il mio negozio', vi: 'Cửa hàng của tôi' })}
                 >
-                  {shop?.name || (lang === 'zh' ? '我的店铺' : 'My shop')}
+                  {shop?.name || tr(lang, { zh: '我的店铺', en: 'My shop', de: 'Mein Shop', ja: 'マイ店舗', ko: '내 매장', es: 'Mi tienda', it: 'Il mio negozio', vi: 'Cửa hàng của tôi' })}
                 </div>
                 {shop?.id && (
                   <div className="merchant-backend-user-phone">
-                    {lang === 'zh' ? '店铺ID：' : 'Shop ID: '}
+                    {tr(lang, { zh: '店铺ID：', en: 'Shop ID: ', de: 'Shop-ID: ', ja: '店舗 ID: ', ko: '매장 ID: ', es: 'ID de la tienda: ', it: 'ID negozio: ', vi: 'ID cửa hàng: ' })}
                     {shop.id}
                   </div>
                 )}
@@ -378,7 +371,7 @@ const MerchantBackendLayoutInner: React.FC = () => {
                     className="merchant-backend-view-shop-btn merchant-backend-view-shop-btn--mobile"
                     onClick={() => setMobileShopInfoOpen(false)}
                   >
-                    {lang === 'zh' ? '查看我的店铺' : 'View my shop'}
+                    {tr(lang, { zh: '查看我的店铺', en: 'View my shop', de: 'Meinen Shop anzeigen', ja: '店舗を見る', ko: '내 매장 보기', es: 'Ver mi tienda', it: 'Vedi il mio negozio', vi: 'Xem cửa hàng của tôi' })}
                   </Link>
                 )}
               </div>
@@ -393,14 +386,14 @@ const MerchantBackendLayoutInner: React.FC = () => {
                   key="quick"
                   type="button"
                   className="mc-bottom-nav-item mc-bottom-nav-item--fab"
-                  aria-label={lang === 'zh' ? '快捷菜单' : 'Quick menu'}
+                  aria-label={tr(lang, { zh: '快捷菜单', en: 'Quick menu', de: 'Schnellmenü', ja: 'クイックメニュー', ko: '빠른 메뉴', es: 'Menú rápido', it: 'Menu rapido', vi: 'Menu nhanh' })}
                   onClick={() => setQuickMenuOpen(true)}
                 >
                   <span className="mc-bottom-nav-icon-wrap mc-bottom-nav-icon-wrap--fab">
                     <MerchantNavIcon name="plus" className="mc-bottom-nav-icon" />
                   </span>
                   <span className="mc-bottom-nav-label">
-                    {lang === 'zh' ? item.labelZh : item.labelEn}
+                    {pickLabel(lang, item)}
                   </span>
                 </button>
               )
@@ -430,7 +423,7 @@ const MerchantBackendLayoutInner: React.FC = () => {
                   )}
                 </span>
                 <span className="mc-bottom-nav-label">
-                  {lang === 'zh' ? item.labelZh : item.labelEn}
+                  {pickLabel(lang, item)}
                 </span>
               </Link>
             )

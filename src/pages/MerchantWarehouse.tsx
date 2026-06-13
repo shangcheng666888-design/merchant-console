@@ -4,6 +4,14 @@ import { useToast } from '../components/ToastProvider'
 import { api } from '../api/client'
 import { getCategoryNameZh } from '../constants/categoryNameZh'
 import { useLang } from '../context/LangContext'
+import { tr, toTraditional, type Lang } from '../i18n'
+
+function formatCategoryLabel(lang: Lang, name: string | null | undefined): string {
+  const raw = name || ''
+  if (lang === 'zh') return getCategoryNameZh(raw) || raw
+  if (lang === 'tw') return toTraditional(getCategoryNameZh(raw) || raw)
+  return raw
+}
 import { useMerchantSync } from '../hooks/useMerchantSync'
 import warehouseHeaderIcon from '../assets/cangku.png'
 import warehouseTotalIcon from '../assets/shangpinzongshu.png'
@@ -149,7 +157,7 @@ function MerchantWarehouseDetailModal({
   title: string
   subtitle?: string
   titleId: string
-  lang: 'zh' | 'en'
+  lang: Lang
   onClose: () => void
   children: React.ReactNode
 }) {
@@ -191,7 +199,7 @@ function MerchantWarehouseDetailModal({
             type="button"
             className="merchant-warehouse-detail-modal-close"
             onClick={onClose}
-            aria-label={lang === 'zh' ? '关闭' : 'Close'}
+            aria-label={tr(lang, { zh: '关闭', en: 'Close', de: 'Schließen', ja: '閉じる', ko: '닫기', es: 'Cerrar', it: 'Chiudi', vi: 'Đóng'})}
           >
             ×
           </button>
@@ -258,9 +266,8 @@ const MerchantWarehouse: React.FC = () => {
     if (!shopId) {
       setMyProducts([])
       showToast(
-        lang === 'zh'
-          ? '未登录商家或未绑定店铺，无法加载店铺商品'
-          : 'Not logged in or shop not bound, cannot load shop products',
+        tr(lang, { zh: '未登录商家或未绑定店铺，无法加载店铺商品', en: 'Not logged in or shop not bound, cannot load shop products', de: 'Nicht angemeldet oder kein Shop verknüpft – Shop-Produkte können nicht geladen werden',
+          ja: '未ログイン、またはショップが紐付けられていないため、商品を読み込めません', ko: '로그인되지 않았거나 쇼핑몰이 연결되지 않아 상품을 불러올 수 없습니다', es: 'Sin sesión o tienda no vinculada; no se pueden cargar los productos', it: 'Sessione assente o negozio non collegato; impossibile caricare i prodotti', vi: 'Chưa đăng nhập hoặc chưa liên kết cửa hàng, không thể tải sản phẩm'}),
         'error',
       )
       return
@@ -348,77 +355,75 @@ const MerchantWarehouse: React.FC = () => {
     if (total === 0) {
       return {
         text:
-          lang === 'zh'
-            ? '店铺暂无商品，前往「采购上架」挑选供货商品，设置售价后即可开始赚取差价利润。'
-            : 'No products yet — go to Procure & list, pick supply items, set your price, and start earning margin.',
-        actionLabel: lang === 'zh' ? '去采购上架' : 'Procure & list',
+          tr(lang, { zh: '店铺暂无商品，前往「采购上架」挑选供货商品，设置售价后即可开始赚取差价利润。', en: 'No products yet — go to Procure & list, pick supply items, set your price, and start earning margin.', de: 'Noch keine Produkte – gehen Sie zu „Beschaffen & listen“, wählen Sie Artikel, setzen Sie Ihren Preis und verdienen Sie Marge.', ja: 'ショップに商品がありません。「仕入れ・出品」から商品を選び、販売価格を設定して差益を得ましょう。', ko: '쇼핑몰에 상품이 없습니다. \'구매·등록\'에서 상품을 선택하고 판매가를 설정해 차익을 시작하세요.', es: 'Aún no hay productos — ve a Comprar y publicar, elige artículos del catálogo y empieza a ganar margen.', it: 'Nessun prodotto — vai ad Acquista e pubblica, scegli articoli dal catalogo e inizia a guadagnare margine.', vi: 'Chưa có sản phẩm — vào Mua hàng & đăng bán, chọn hàng từ kho cung ứng và bắt đầu kiếm lời.'}),
+        actionLabel: tr(lang, { zh: '去采购上架', en: 'Procure & list', de: 'Einkaufen & einlisten', ja: '仕入れ・出品へ', ko: '구매·등록', es: 'Comprar y publicar', it: 'Acquista e pubblica', vi: 'Mua hàng & đăng bán'}),
         onAction: () => setTab('procure'),
       }
     }
 
     if (offSaleCount > 0 && onSaleCount === 0) {
       return {
-        text:
-          lang === 'zh'
-            ? `全部 ${total} 件商品均已下架，建议检查库存与定价后重新上架，恢复店铺曝光。`
-            : `All ${total} product(s) are unlisted — review stock and pricing, then relist to restore visibility.`,
-        actionLabel: lang === 'zh' ? '查看已下架' : 'View unlisted',
+        text: tr(lang, {
+          zh: `全部 ${total} 件商品均已下架，建议检查库存与定价后重新上架，恢复店铺曝光。`,
+          en: `All ${total} product(s) are unlisted — review stock and pricing, then relist to restore visibility.`,
+          de: `Alle ${total} Produkte sind nicht gelistet — prüfen Sie Bestand und Preise und listen Sie sie erneut ein.`, ja: `全${total}点の商品が出品停止中です。在庫と価格を確認のうえ再出品すると、ショップの露出が回復します。`, ko: '전체 ${total}개 상품이 판매 중지 상태입니다. 재고와 가격을 확인한 뒤 재등록하면 노출이 회복됩니다.', es: `Los ${total} productos están retirados — revisa stock y precios, vuelve a publicarlos para recuperar visibilidad.`, it: `Tutti i ${total} prodotti sono non pubblicati — controlla stock e prezzi, poi ripubblica per recuperare visibilità.`, vi: `Tất cả ${total} sản phẩm đã ngừng bán — kiểm tra tồn kho và giá, rồi đăng lại để khôi phục hiển thị.`}),
+        actionLabel: tr(lang, { zh: '查看已下架', en: 'View unlisted', de: 'Nicht gelistete anzeigen', ja: '出品停止を表示', ko: '판매 중지 보기', es: 'Ver retirados', it: 'Vedi non pubblicati', vi: 'Xem đã ngừng bán'}),
         onAction: () => applyWarehouseStat('off'),
       }
     }
 
     if (offSaleCount > 0) {
       return {
-        text:
-          lang === 'zh'
-            ? `在售 ${onSaleCount} 件，已下架 ${offSaleCount} 件。下架商品不会获得曝光，可考虑优化后重新上架。`
-            : `${onSaleCount} on sale, ${offSaleCount} unlisted. Unlisted items get no exposure — consider optimizing and relisting.`,
-        actionLabel: lang === 'zh' ? '查看已下架' : 'View unlisted',
+        text: tr(lang, {
+          zh: `在售 ${onSaleCount} 件，已下架 ${offSaleCount} 件。下架商品不会获得曝光，可考虑优化后重新上架。`,
+          en: `${onSaleCount} on sale, ${offSaleCount} unlisted. Unlisted items get no exposure — consider optimizing and relisting.`,
+          de: `${onSaleCount} im Verkauf, ${offSaleCount} nicht gelistet. Nicht gelistete Artikel erhalten keine Sichtbarkeit — optimieren und erneut einlisten.`, ja: `販売中 ${onSaleCount} 点、出品停止 ${offSaleCount} 点。出品停止中の商品は露出されません。最適化のうえ再出品をご検討ください。`, ko: '판매 중 ${onSaleCount}개, 판매 중지 ${offSaleCount}개. 판매 중지 상품은 노출되지 않습니다. 최적화 후 재등록을 고려해 보세요.', es: `${onSaleCount} en venta, ${offSaleCount} retirados. Los retirados no tienen visibilidad — optimiza y vuelve a publicar.`, it: `${onSaleCount} in vendita, ${offSaleCount} non pubblicati. I non pubblicati non hanno visibilità — valuta di ottimizzare e ripubblicare.`, vi: `${onSaleCount} đang bán, ${offSaleCount} đã ngừng bán. Sản phẩm ngừng bán không được hiển thị — cân nhắc tối ưu và đăng lại.`}),
+        actionLabel: tr(lang, { zh: '查看已下架', en: 'View unlisted', de: 'Nicht gelistete anzeigen', ja: '出品停止を表示', ko: '판매 중지 보기', es: 'Ver retirados', it: 'Vedi non pubblicati', vi: 'Xem đã ngừng bán'}),
         onAction: () => applyWarehouseStat('off'),
       }
     }
 
     if (q) {
       return {
-        text:
-          lang === 'zh'
-            ? `搜索到 ${filtered.length} 件相关商品（店铺共 ${total} 件）。`
-            : `Found ${filtered.length} matching product(s) out of ${total} total.`,
+        text: tr(lang, {
+          zh: `搜索到 ${filtered.length} 件相关商品（店铺共 ${total} 件）。`,
+          en: `Found ${filtered.length} matching product(s) out of ${total} total.`,
+          de: `${filtered.length} passende Produkte gefunden (insgesamt ${total} im Shop).`, ja: `関連商品 ${filtered.length} 点が見つかりました（ショップ合計 ${total} 点）。`, ko: '관련 상품 ${filtered.length}개를 찾았습니다(쇼핑몰 전체 ${total}개).', es: `Se encontraron ${filtered.length} productos relacionados (de ${total} en total).`, it: `Trovati ${filtered.length} prodotti corrispondenti su ${total} totali.`, vi: `Tìm thấy ${filtered.length} sản phẩm phù hợp trong tổng ${total}.`}),
       }
     }
 
     if (statusFilter === 'on') {
       return {
-        text:
-          lang === 'zh'
-            ? `当前查看在售商品 ${filtered.length} 件，点击顶部统计卡片可切换筛选。`
-            : `Viewing ${filtered.length} on-sale product(s). Use the stat cards above to switch filters.`,
+        text: tr(lang, {
+          zh: `当前查看在售商品 ${filtered.length} 件，点击顶部统计卡片可切换筛选。`,
+          en: `Viewing ${filtered.length} on-sale product(s). Use the stat cards above to switch filters.`,
+          de: `${filtered.length} Produkte im Verkauf. Nutzen Sie die Statistik-Karten oben zum Filtern.`, ja: `販売中の商品 ${filtered.length} 点を表示中。上部の統計カードでフィルターを切り替えられます。`, ko: '판매 중인 상품 ${filtered.length}개를 보고 있습니다. 상단 통계 카드로 필터를 전환할 수 있습니다.', es: `Viendo ${filtered.length} productos en venta. Usa las tarjetas superiores para cambiar filtros.`, it: `Visualizzazione di ${filtered.length} prodotti in vendita. Usa le schede sopra per cambiare filtro.`, vi: `Đang xem ${filtered.length} sản phẩm đang bán. Dùng thẻ thống kê phía trên để đổi bộ lọc.`}),
       }
     }
 
     if (statusFilter === 'off') {
       return {
-        text:
-          lang === 'zh'
-            ? `当前查看已下架商品 ${filtered.length} 件，重新上架后可恢复店铺曝光。`
-            : `Viewing ${filtered.length} unlisted product(s). Relist them to restore shop visibility.`,
+        text: tr(lang, {
+          zh: `当前查看已下架商品 ${filtered.length} 件，重新上架后可恢复店铺曝光。`,
+          en: `Viewing ${filtered.length} unlisted product(s). Relist them to restore shop visibility.`,
+          de: `${filtered.length} nicht gelistete Produkte. Nach dem Einlisten wird die Sichtbarkeit wiederhergestellt.`, ja: `出品停止中の商品 ${filtered.length} 点を表示中。再出品するとショップの露出が回復します。`, ko: '판매 중지 상품 ${filtered.length}개를 보고 있습니다. 재등록하면 쇼핑몰 노출이 회복됩니다.', es: `Viendo ${filtered.length} productos retirados. Vuelve a publicarlos para recuperar visibilidad.`, it: `Visualizzazione di ${filtered.length} prodotti non pubblicati. Ripubblicali per recuperare visibilità.`, vi: `Đang xem ${filtered.length} sản phẩm đã ngừng bán. Đăng lại để khôi phục hiển thị.`}),
       }
     }
 
     if (onSaleCount > 0 && recommendedCount === 0) {
       return {
-        text:
-          lang === 'zh'
-            ? `当前 ${onSaleCount} 件商品在售，建议设置 1–3 款主推商品，有助于提升转化与曝光权重。`
-            : `${onSaleCount} product(s) on sale — set 1–3 featured items to improve conversion and visibility.`,
+        text: tr(lang, {
+          zh: `当前 ${onSaleCount} 件商品在售，建议设置 1–3 款主推商品，有助于提升转化与曝光权重。`,
+          en: `${onSaleCount} product(s) on sale — set 1–3 featured items to improve conversion and visibility.`,
+          de: `${onSaleCount} Produkte im Verkauf — setzen Sie 1–3 Highlight-Artikel für bessere Conversion und Sichtbarkeit.`, ja: `現在 ${onSaleCount} 点が販売中です。1〜3点のおすすめ商品を設定すると、コンバージョンと露出の向上に役立ちます。`, ko: '현재 ${onSaleCount}개 상품이 판매 중입니다. 1~3개의 추천 상품을 설정하면 전환율과 노출을 높일 수 있습니다.', es: `${onSaleCount} productos en venta — destaca 1–3 para mejorar conversión y visibilidad.`, it: `${onSaleCount} prodotti in vendita — imposta 1–3 articoli in evidenza per migliorare conversione e visibilità.`, vi: `${onSaleCount} sản phẩm đang bán — đặt 1–3 sản phẩm nổi bật để tăng chuyển đổi và hiển thị.`}),
       }
     }
 
     return {
-      text:
-        lang === 'zh'
-          ? `共 ${total} 件商品运行中，保持商品信息更新与合理定价有助于持续出单。`
-          : `${total} product(s) in your catalog — keep listings fresh and priced well for steady orders.`,
+      text: tr(lang, {
+        zh: `共 ${total} 件商品运行中，保持商品信息更新与合理定价有助于持续出单。`,
+        en: `${total} product(s) in your catalog — keep listings fresh and priced well for steady orders.`,
+        de: `${total} Produkte im Katalog — aktuelle Infos und faire Preise fördern kontinuierliche Bestellungen.`, ja: `合計${total}点の商品を運用中です。情報の更新と適正な価格設定が継続的な受注につながります。`, ko: '총 ${total}개 상품을 운영 중입니다. 정보를 최신으로 유지하고 적정 가격을 유지하면 꾸준한 주문으로 이어집니다.', es: `${total} productos en tu catálogo — mantén la información y precios actualizados para pedidos constantes.`, it: `${total} prodotti nel catalogo — mantieni informazioni e prezzi aggiornati per ordini costanti.`, vi: `${total} sản phẩm trong kho — cập nhật thông tin và giá hợp lý để có đơn ổn định.`}),
     }
   }, [
     myProducts.length,
@@ -523,25 +528,22 @@ const MerchantWarehouse: React.FC = () => {
         const top = list.filter((c) => !c.parent_id || c.level === 1)
         const mapped = top.map((c) => ({
           id: c.id,
-          label:
-            lang === 'zh'
-              ? getCategoryNameZh(c.name) || c.name || ''
-              : c.name || '',
+          label: formatCategoryLabel(lang, c.name),
         }))
         const nonEmpty = mapped.filter((c) => c.label.trim() !== '')
         const empty = mapped.filter((c) => c.label.trim() === '')
         const finalList = [
-          { id: '', label: lang === 'zh' ? '全部' : 'All' },
+          { id: '', label: tr(lang, { zh: '全部', en: 'All', de: 'Alle', ja: 'すべて', ko: '전체', es: 'Todos', it: 'Tutti', vi: 'Tất cả'}) },
           ...nonEmpty,
           ...empty.map((c) => ({
             ...c,
-            label: c.id || (lang === 'zh' ? '未命名分类' : 'Untitled category'),
+            label: c.id || (tr(lang, { zh: '未命名分类', en: 'Untitled category', de: 'Unbenannte Kategorie', ja: '名称未設定のカテゴリ', ko: '이름 없는 카테고리', es: 'Categoría sin nombre', it: 'Categoria senza nome', vi: 'Danh mục chưa đặt tên'})),
           })),
         ]
         setProcureCategories(finalList)
       } catch {
         if (!cancelled) {
-          setProcureCategories([{ id: '', label: lang === 'zh' ? '全部' : 'All' }])
+          setProcureCategories([{ id: '', label: tr(lang, { zh: '全部', en: 'All', de: 'Alle', ja: 'すべて', ko: '전체', es: 'Todos', it: 'Tutti', vi: 'Tất cả'}) }])
         }
       } finally {
         if (!cancelled) setProcureCategoriesLoaded(true)
@@ -598,10 +600,7 @@ const MerchantWarehouse: React.FC = () => {
             name: row.title,
             supplyPrice: row.purchasePrice ?? 0,
             suggestedPrice: row.price,
-            category:
-              lang === 'zh'
-                ? getCategoryNameZh(row.category) || row.category || ''
-                : row.category || '',
+            category: formatCategoryLabel(lang, row.category),
             images: imgs,
             description: '',
             styles: [],
@@ -706,12 +705,12 @@ const MerchantWarehouse: React.FC = () => {
       action !== 'recommend_blocked' &&
       !item.productId
     ) {
-      showToast(lang === 'zh' ? '商品数据异常' : 'Product data error', 'error')
+      showToast(tr(lang, { zh: '商品数据异常', en: 'Product data error', de: 'Produktdatenfehler', ja: '商品データに異常があります', ko: '상품 데이터 오류', es: 'Error en los datos del producto', it: 'Errore dati prodotto', vi: 'Lỗi dữ liệu sản phẩm'}), 'error')
       return
     }
     if (!shopId) {
       showToast(
-        lang === 'zh' ? '未登录商家或未绑定店铺' : 'Not logged in or shop not bound',
+        tr(lang, { zh: '未登录商家或未绑定店铺', en: 'Not logged in or shop not bound', de: 'Nicht angemeldet oder Shop nicht verknüpft', ja: '未ログイン、またはショップが紐付けられていません', ko: '로그인되지 않았거나 쇼핑몰이 연결되지 않았습니다', es: 'Sin sesión o tienda no vinculada', it: 'Sessione assente o negozio non collegato', vi: 'Chưa đăng nhập hoặc chưa liên kết cửa hàng'}),
         'error',
       )
       return
@@ -730,13 +729,12 @@ const MerchantWarehouse: React.FC = () => {
           `/api/shop-products/${shopId}/${encodeURIComponent(item.productId)}?permanent=1`,
         )
         showToast(
-          lang === 'zh'
-            ? wasFeatured
-              ? '已删除，并已自动取消主推'
-              : '已删除'
-            : wasFeatured
-              ? 'Deleted and removed from featured'
-              : 'Deleted from shop',
+          wasFeatured
+            ? tr(lang, {
+                zh: '已删除，并已自动取消主推',
+                en: 'Deleted and removed from featured',
+                de: 'Gelöscht und Highlight entfernt', ja: '削除し、おすすめも自動解除しました', ko: '삭제되었으며 추천도 자동 해제되었습니다', es: 'Eliminado y quitado de destacados', it: 'Eliminato e rimosso da in evidenza', vi: 'Đã xóa và gỡ khỏi sản phẩm nổi bật'})
+            : tr(lang, { zh: '已删除', en: 'Deleted from shop', de: 'Gelöscht', ja: '削除しました', ko: '삭제되었습니다', es: 'Eliminado de la tienda', it: 'Eliminato dal negozio', vi: 'Đã xóa khỏi cửa hàng'}),
         )
         loadMineProducts()
       } else if (action === 'unlist') {
@@ -760,13 +758,12 @@ const MerchantWarehouse: React.FC = () => {
           ),
         )
         showToast(
-          lang === 'zh'
-            ? wasFeatured
-              ? '已下架，并已自动取消主推'
-              : '已下架'
-            : wasFeatured
-              ? 'Unlisted and removed from featured'
-              : 'Unlisted from shop',
+          wasFeatured
+            ? tr(lang, {
+                zh: '已下架，并已自动取消主推',
+                en: 'Unlisted and removed from featured',
+                de: 'Entfernt und Highlight aufgehoben', ja: '出品停止し、おすすめも自動解除しました', ko: '판매 중지되었으며 추천도 자동 해제되었습니다', es: 'Retirado y quitado de destacados', it: 'Rimosso e tolto da in evidenza', vi: 'Đã ngừng bán và gỡ khỏi nổi bật'})
+            : tr(lang, { zh: '已下架', en: 'Unlisted from shop', de: 'Aus dem Shop entfernt', ja: '出品停止', ko: '판매가 중지되었습니다', es: 'Retirado de la tienda', it: 'Rimosso dal negozio', vi: 'Đã ngừng bán trên cửa hàng'}),
         )
         loadMineProducts()
       } else if (action === 'recommend_blocked') {
@@ -775,7 +772,7 @@ const MerchantWarehouse: React.FC = () => {
       } else if (action === 'recommend' || action === 'unrecommend') {
         const userId = getAuthUserId()
         if (!userId) {
-          showToast(lang === 'zh' ? '请先登录' : 'Please log in first', 'error')
+          showToast(tr(lang, { zh: '请先登录', en: 'Please log in first', de: 'Bitte zuerst anmelden', ja: '先にログインしてください', ko: '먼저 로그인해 주세요', es: 'Inicia sesión primero', it: 'Accedi prima', vi: 'Vui lòng đăng nhập trước'}), 'error')
           return
         }
         if (action === 'recommend') {
@@ -790,7 +787,7 @@ const MerchantWarehouse: React.FC = () => {
           setMyProducts((prev) =>
             prev.map((p) => (p.id === item.id ? { ...p, recommended: true } : p)),
           )
-          showToast(lang === 'zh' ? '已设为主推' : 'Set as featured')
+          showToast(tr(lang, { zh: '已设为主推', en: 'Set as featured', de: 'Als Highlight gesetzt', ja: 'おすすめに設定しました', ko: '추천으로 설정', es: 'Marcar como destacado', it: 'Imposta come in evidenza', vi: 'Đặt làm nổi bật'}))
         } else {
           await api.delete(
             `/api/shops/${shopId}/recommendations/${encodeURIComponent(item.id)}?userId=${encodeURIComponent(userId)}`,
@@ -798,7 +795,7 @@ const MerchantWarehouse: React.FC = () => {
           setMyProducts((prev) =>
             prev.map((p) => (p.id === item.id ? { ...p, recommended: false } : p)),
           )
-          showToast(lang === 'zh' ? '已取消主推' : 'Removed from featured')
+          showToast(tr(lang, { zh: '已取消主推', en: 'Removed from featured', de: 'Highlight entfernt', ja: 'おすすめを解除しました', ko: '추천이 해제되었습니다', es: 'Quitado de destacados', it: 'Rimosso da in evidenza', vi: 'Đã gỡ khỏi sản phẩm nổi bật'}))
         }
       } else if (action === 'list') {
         await api.post('/api/shop-products', {
@@ -806,31 +803,21 @@ const MerchantWarehouse: React.FC = () => {
           productId: item.productId,
           price: item.price,
         })
-        showToast(lang === 'zh' ? '已上架' : 'Listed to shop')
+        showToast(tr(lang, { zh: '已上架', en: 'Listed to shop', de: 'Im Shop gelistet', ja: '出品済み', ko: '쇼핑몰에 등록되었습니다', es: 'Publicado en la tienda', it: 'Pubblicato nel negozio', vi: 'Đã đăng bán trên cửa hàng'}))
         loadMineProducts()
       }
       setConfirmModal(null)
     } catch {
       const errorMessage =
         action === 'delete'
-          ? lang === 'zh'
-            ? '删除失败'
-            : 'Failed to delete'
+          ? tr(lang, { zh: '删除失败', en: 'Failed to delete', de: 'Löschen fehlgeschlagen', ja: '削除に失敗しました', ko: '삭제에 실패했습니다', es: 'Error al eliminar', it: 'Eliminazione non riuscita', vi: 'Xóa thất bại'})
           : action === 'unlist'
-            ? lang === 'zh'
-              ? '下架失败'
-              : 'Failed to unlist'
+            ? tr(lang, { zh: '下架失败', en: 'Failed to unlist', de: 'Auslistung fehlgeschlagen', ja: '出品停止に失敗しました', ko: '판매 중지에 실패했습니다', es: 'Error al retirar', it: 'Rimozione non riuscita', vi: 'Ngừng bán thất bại'})
             : action === 'recommend'
-              ? lang === 'zh'
-                ? '设置失败'
-                : 'Failed to set featured'
+              ? tr(lang, { zh: '设置失败', en: 'Failed to set featured', de: 'Als Empfehlung setzen fehlgeschlagen', ja: '設定に失敗しました', ko: '추천 설정에 실패했습니다', es: 'Error al marcar como destacado', it: 'Impossibile impostare in evidenza', vi: 'Đặt nổi bật thất bại'})
               : action === 'unrecommend'
-                ? lang === 'zh'
-                  ? '取消失败'
-                  : 'Failed to remove featured'
-                : lang === 'zh'
-                  ? '上架失败'
-                  : 'Failed to list'
+                ? tr(lang, { zh: '取消失败', en: 'Failed to remove featured', de: 'Empfehlung entfernen fehlgeschlagen', ja: '解除に失敗しました', ko: '추천 해제에 실패했습니다', es: 'Error al quitar de destacados', it: 'Impossibile rimuovere da in evidenza', vi: 'Gỡ nổi bật thất bại'})
+                : tr(lang, { zh: '上架失败', en: 'Failed to list', de: 'Failed to list', ja: '出品に失敗しました', ko: '등록에 실패했습니다', es: 'Error al publicar', it: 'Pubblicazione non riuscita', vi: 'Đăng bán thất bại'})
       showToast(errorMessage, 'error')
     } finally {
       setConfirmLoading(false)
@@ -845,79 +832,73 @@ const MerchantWarehouse: React.FC = () => {
     if (action === 'list') {
       return {
         variant: 'brand' as MerchantConfirmVariant,
-        title: lang === 'zh' ? '确认上架售卖？' : 'List for sale?',
+        title: tr(lang, { zh: '确认上架售卖？', en: 'List for sale?', de: 'Zum Verkauf einlisten?', ja: '出品しますか？', ko: '판매 등록하시겠습니까?', es: '¿Publicar a la venta?', it: 'Pubblicare in vendita?', vi: 'Đăng bán sản phẩm?'}),
         subtitle:
-          lang === 'zh'
-            ? '上架后买家可在店铺正常购买该商品。'
-            : 'Buyers will be able to purchase this item in your shop.',
-        confirmLabel: lang === 'zh' ? '确认上架' : 'List for sale',
+          tr(lang, { zh: '上架后买家可在店铺正常购买该商品。', en: 'Buyers will be able to purchase this item in your shop.', de: 'Käufer können diesen Artikel in Ihrem Shop kaufen.', ja: '出品後、購入者はショップでこの商品を購入できます。', ko: '등록 후 구매자가 쇼핑몰에서 이 상품을 구매할 수 있습니다.', es: 'Los compradores podrán adquirir este producto en tu tienda.', it: 'Gli acquirenti potranno acquistare questo articolo nel tuo negozio.', vi: 'Người mua có thể mua sản phẩm này tại cửa hàng của bạn.'}),
+        confirmLabel: tr(lang, { zh: '确认上架', en: 'List for sale', de: 'Zum Verkauf einlisten', ja: '出品を確認', ko: '판매 등록', es: 'Publicar a la venta', it: 'Pubblica in vendita', vi: 'Đăng bán'}),
       }
     }
 
     if (action === 'unlist') {
       return {
         variant: 'warning' as MerchantConfirmVariant,
-        title: lang === 'zh' ? '确认下架商品？' : 'Unlist this product?',
-        subtitle:
-          lang === 'zh'
-            ? isFeatured
-              ? '该商品当前为主推商品。下架后用户将无法购买，并会自动取消主推展示。'
-              : '下架后用户将无法购买该商品。'
-            : isFeatured
-              ? 'This item is currently featured. After unlisting, customers cannot purchase it and featured status will be removed automatically.'
-              : 'Customers will no longer be able to purchase this item.',
-        confirmLabel: lang === 'zh' ? '确认下架' : 'Unlist product',
+        title: tr(lang, { zh: '确认下架商品？', en: 'Unlist this product?', de: 'Produkt entfernen?', ja: 'この商品の出品を停止しますか？', ko: '이 상품의 판매를 중지하시겠습니까?', es: '¿Retirar este producto?', it: 'Rimuovere questo prodotto?', vi: 'Ngừng bán sản phẩm này?'}),
+        subtitle: isFeatured
+          ? tr(lang, {
+              zh: '该商品当前为主推商品。下架后用户将无法购买，并会自动取消主推展示。',
+              en: 'This item is currently featured. After unlisting, customers cannot purchase it and featured status will be removed automatically.',
+              de: 'Dieser Artikel ist aktuell hervorgehoben. Nach dem Entfernen können Kunden nicht mehr kaufen; der Highlight-Status wird automatisch entfernt.', ja: 'この商品は現在おすすめです。出品停止後は購入できなくなり、おすすめも自動解除されます。', ko: '이 상품은 현재 추천 상품입니다. 판매 중지 후 구매할 수 없으며 추천도 자동 해제됩니다.', es: 'Este producto está destacado. Al retirarlo, no se podrá comprar y se quitará automáticamente de destacados.', it: 'Questo articolo è attualmente in evidenza. Dopo la rimozione non sarà acquistabile e lo stato in evidenza verrà tolto automaticamente.', vi: 'Sản phẩm này đang nổi bật. Sau khi ngừng bán, khách không thể mua và trạng thái nổi bật sẽ tự động bị gỡ.'})
+          : tr(lang, {
+              zh: '下架后用户将无法购买该商品。',
+              en: 'Customers will no longer be able to purchase this item.',
+              de: 'Kunden können diesen Artikel danach nicht mehr kaufen.', ja: '出品停止後、購入者はこの商品を購入できなくなります。', ko: '판매 중지 후 구매자는 이 상품을 구매할 수 없습니다.', es: 'Los clientes ya no podrán comprar este producto.', it: 'Gli clienti non potranno più acquistare questo articolo.', vi: 'Khách hàng sẽ không thể mua sản phẩm này nữa.'}),
+        confirmLabel: tr(lang, { zh: '确认下架', en: 'Unlist product', de: 'Produkt entfernen', ja: '出品停止を確認', ko: '판매 중지', es: 'Retirar producto', it: 'Rimuovi prodotto', vi: 'Ngừng bán sản phẩm'}),
       }
     }
 
     if (action === 'recommend_blocked') {
       return {
         variant: 'warning' as MerchantConfirmVariant,
-        title: lang === 'zh' ? '无法设为主推' : 'Cannot set as featured',
+        title: tr(lang, { zh: '无法设为主推', en: 'Cannot set as featured', de: 'Kann nicht als Highlight gesetzt werden', ja: 'おすすめに設定できません', ko: '추천으로 설정할 수 없습니다', es: 'No se puede marcar como destacado', it: 'Impossibile impostare in evidenza', vi: 'Không thể đặt làm nổi bật'}),
         subtitle:
-          lang === 'zh'
-            ? '该商品已下架，需先上架售卖后才能设为主推。'
-            : 'This product is unlisted. List it for sale before setting it as featured.',
-        confirmLabel: lang === 'zh' ? '去上架' : 'List for sale',
+          tr(lang, { zh: '该商品已下架，需先上架售卖后才能设为主推。', en: 'This product is unlisted. List it for sale before setting it as featured.', de: 'Dieses Produkt ist nicht gelistet. Listen Sie es zum Verkauf, bevor Sie es als Empfehlung setzen.', ja: 'この商品は出品停止中です。おすすめに設定する前に出品してください。', ko: '이 상품은 판매 중지 상태입니다. 추천으로 설정하기 전에 판매 등록해 주세요.', es: 'Este producto está retirado. Publícalo antes de marcarlo como destacado.', it: 'Prodotto non pubblicato. Pubblicalo in vendita prima di metterlo in evidenza.', vi: 'Sản phẩm đã ngừng bán. Hãy đăng bán trước khi đặt làm nổi bật.'}),
+        confirmLabel: tr(lang, { zh: '去上架', en: 'List for sale', de: 'Einlisten', ja: '出品する', ko: '판매 등록', es: 'Publicar a la venta', it: 'Pubblica in vendita', vi: 'Đăng bán'}),
       }
     }
 
     if (action === 'recommend') {
       return {
         variant: 'brand' as MerchantConfirmVariant,
-        title: lang === 'zh' ? '确认设为主推？' : 'Set as featured?',
+        title: tr(lang, { zh: '确认设为主推？', en: 'Set as featured?', de: 'Als Highlight setzen?', ja: 'おすすめに設定しますか？', ko: '추천으로 설정하시겠습니까?', es: '¿Marcar como destacado?', it: 'Impostare come in evidenza?', vi: 'Đặt làm sản phẩm nổi bật?'}),
         subtitle:
-          lang === 'zh'
-            ? '主推商品将在店铺「推荐」专区优先展示，并出现在商品详情页的店铺推荐中，有助于提升曝光与转化。建议设置 1–3 款主推商品。'
-            : 'Featured items appear first in your shop’s Recommended section and in product detail recommendations, helping boost visibility and conversion. We suggest featuring 1–3 items.',
-        confirmLabel: lang === 'zh' ? '确认主推' : 'Set featured',
+          tr(lang, { zh: '主推商品将在店铺「推荐」专区优先展示，并出现在商品详情页的店铺推荐中，有助于提升曝光与转化。建议设置 1–3 款主推商品。', en: 'Featured items appear first in your shop’s Recommended section and in product detail recommendations, helping boost visibility and conversion. We suggest featuring 1–3 items.', de: 'Empfohlene Artikel erscheinen zuerst im Bereich „Empfohlen“ und in Produktempfehlungen – das steigert Sichtbarkeit und Conversion. Wir empfehlen 1–3 Artikel.', ja: 'おすすめ商品はショップの「おすすめ」セクションや商品詳細ページで優先表示され、露出とコンバージョンの向上に役立ちます。1〜3点の設定をおすすめします。', ko: '추천 상품은 쇼핑몰 \'추천\' 섹션과 상품 상세 페이지에서 우선 노출되어 전환율과 노출 향상에 도움이 됩니다. 1~3개 설정을 권장합니다.', es: 'Los productos destacados aparecen primero en la sección Recomendados y en las sugerencias del detalle, lo que mejora visibilidad y conversión. Recomendamos destacar 1–3 productos.', it: 'Gli articoli in evidenza compaiono per primi nella sezione Consigliati e nelle raccomandazioni del dettaglio prodotto, migliorando visibilità e conversione. Consigliamo 1–3 articoli in evidenza.', vi: 'Sản phẩm nổi bật hiển thị ưu tiên trong mục Gợi ý và trang chi tiết, giúp tăng độ hiển thị và chuyển đổi. Nên chọn 1–3 sản phẩm.'}),
+        confirmLabel: tr(lang, { zh: '确认主推', en: 'Set featured', de: 'Als Highlight setzen', ja: 'おすすめを確認', ko: '추천 설정', es: 'Destacar', it: 'Imposta in evidenza', vi: 'Đặt nổi bật'}),
       }
     }
 
     if (action === 'unrecommend') {
       return {
         variant: 'warning' as MerchantConfirmVariant,
-        title: lang === 'zh' ? '确认取消主推？' : 'Remove from featured?',
+        title: tr(lang, { zh: '确认取消主推？', en: 'Remove from featured?', de: 'Highlight entfernen?', ja: 'おすすめを解除しますか？', ko: '추천을 해제하시겠습니까?', es: '¿Quitar de destacados?', it: 'Rimuovere da in evidenza?', vi: 'Gỡ khỏi sản phẩm nổi bật?'}),
         subtitle:
-          lang === 'zh'
-            ? '取消后该商品将不再在店铺「推荐」专区优先展示。'
-            : 'This item will no longer be prioritized in your shop’s Recommended section.',
-        confirmLabel: lang === 'zh' ? '确认取消主推' : 'Remove featured',
+          tr(lang, { zh: '取消后该商品将不再在店铺「推荐」专区优先展示。', en: 'This item will no longer be prioritized in your shop’s Recommended section.', de: 'Dieser Artikel wird im Bereich „Empfohlen“ nicht mehr priorisiert.', ja: '解除後、この商品はショップの「おすすめ」セクションで優先表示されなくなります。', ko: '해당 상품은 쇼핑몰 \'추천\' 섹션에서 더 이상 우선 노출되지 않습니다.', es: 'Este producto ya no tendrá prioridad en la sección Recomendados.', it: 'Questo articolo non avrà più priorità nella sezione Consigliati del negozio.', vi: 'Sản phẩm sẽ không còn ưu tiên trong mục Gợi ý của cửa hàng.'}),
+        confirmLabel: tr(lang, { zh: '确认取消主推', en: 'Remove featured', de: 'Highlight entfernen', ja: 'おすすめ解除を確認', ko: '추천 해제', es: 'Quitar destacado', it: 'Rimuovi da in evidenza', vi: 'Gỡ nổi bật'}),
       }
     }
 
     return {
       variant: 'danger' as MerchantConfirmVariant,
-      title: lang === 'zh' ? '确认删除商品？' : 'Delete this product?',
-      subtitle:
-        lang === 'zh'
-          ? isFeatured
-            ? '该商品当前为主推商品。删除后将从店铺永久移除，并自动取消主推，此操作不可恢复。'
-            : '删除后该商品将从店铺永久移除，此操作不可恢复。'
-          : isFeatured
-            ? 'This item is currently featured. It will be permanently removed and unfeatured. This cannot be undone.'
-            : 'This item will be permanently removed from your shop. This cannot be undone.',
-      confirmLabel: lang === 'zh' ? '确认删除' : 'Delete product',
+      title: tr(lang, { zh: '确认删除商品？', en: 'Delete this product?', de: 'Produkt löschen?', ja: 'この商品を削除しますか？', ko: '이 상품을 삭제하시겠습니까?', es: '¿Eliminar este producto?', it: 'Eliminare questo prodotto?', vi: 'Xóa sản phẩm này?'}),
+      subtitle: isFeatured
+        ? tr(lang, {
+            zh: '该商品当前为主推商品。删除后将从店铺永久移除，并自动取消主推，此操作不可恢复。',
+            en: 'This item is currently featured. It will be permanently removed and unfeatured. This cannot be undone.',
+            de: 'Dieser Artikel ist hervorgehoben. Er wird dauerhaft entfernt und das Highlight aufgehoben. Dies kann nicht rückgängig gemacht werden.', ja: 'この商品は現在おすすめです。削除するとショップから完全に削除され、おすすめも自動解除されます。この操作は元に戻せません。', ko: '이 상품은 현재 추천 상품입니다. 삭제하면 쇼핑몰에서 영구 제거되며 추천도 자동 해제됩니다. 되돌릴 수 없습니다.', es: 'Este producto está destacado. Se eliminará permanentemente y se quitará de destacados. Esta acción no se puede deshacer.', it: 'Questo articolo è in evidenza. Verrà eliminato permanentemente e rimosso da in evidenza. Operazione irreversibile.', vi: 'Sản phẩm này đang nổi bật. Sẽ bị xóa vĩnh viễn và gỡ nổi bật. Không thể hoàn tác.'})
+        : tr(lang, {
+            zh: '删除后该商品将从店铺永久移除，此操作不可恢复。',
+            en: 'This item will be permanently removed from your shop. This cannot be undone.',
+            de: 'Dieser Artikel wird dauerhaft aus Ihrem Shop entfernt. Dies kann nicht rückgängig gemacht werden.', ja: '削除するとショップから完全に削除されます。この操作は元に戻せません。', ko: '삭제하면 쇼핑몰에서 영구 제거됩니다. 되돌릴 수 없습니다.', es: 'Este producto se eliminará permanentemente de tu tienda. Esta acción no se puede deshacer.', it: 'Questo articolo verrà eliminato permanentemente dal negozio. Operazione irreversibile.', vi: 'Sản phẩm sẽ bị xóa vĩnh viễn khỏi cửa hàng. Không thể hoàn tác.'}),
+      confirmLabel: tr(lang, { zh: '确认删除', en: 'Delete product', de: 'Produkt löschen', ja: '削除を確認', ko: '상품 삭제', es: 'Eliminar producto', it: 'Elimina prodotto', vi: 'Xóa sản phẩm'}),
     }
   }, [confirmModal, lang])
 
@@ -925,7 +906,7 @@ const MerchantWarehouse: React.FC = () => {
   const addProcureAndList = (item: CatalogItem) => {
     if (!shopId) {
       showToast(
-        lang === 'zh' ? '未登录商家或未绑定店铺' : 'Not logged in or shop not bound',
+        tr(lang, { zh: '未登录商家或未绑定店铺', en: 'Not logged in or shop not bound', de: 'Nicht angemeldet oder Shop nicht verknüpft', ja: '未ログイン、またはショップが紐付けられていません', ko: '로그인되지 않았거나 쇼핑몰이 연결되지 않았습니다', es: 'Sin sesión o tienda no vinculada', it: 'Sessione assente o negozio non collegato', vi: 'Chưa đăng nhập hoặc chưa liên kết cửa hàng'}),
         'error',
       )
       return
@@ -937,7 +918,7 @@ const MerchantWarehouse: React.FC = () => {
       })
       .then(() => {
         showToast(
-          lang === 'zh' ? '已采购并上架到店铺' : 'Purchased and listed to your shop',
+          tr(lang, { zh: '已采购并上架到店铺', en: 'Purchased and listed to your shop', de: 'Gekauft und in Ihrem Shop gelistet', ja: '仕入れてショップに出品しました', ko: '구매 후 쇼핑몰에 등록되었습니다', es: 'Comprado y publicado en tu tienda', it: 'Acquistato e pubblicato nel tuo negozio', vi: 'Đã mua và đăng bán trên cửa hàng'}),
         )
         setProcureDetailItem(null)
         setProcurePricingItem(null)
@@ -946,7 +927,7 @@ const MerchantWarehouse: React.FC = () => {
       })
       .catch(() => {
         showToast(
-          lang === 'zh' ? '采购上架失败' : 'Failed to purchase and list',
+          tr(lang, { zh: '采购上架失败', en: 'Failed to purchase and list', de: 'Kauf und Einlistung fehlgeschlagen', ja: '仕入れ・出品に失敗しました', ko: '구매 및 등록에 실패했습니다', es: 'Error al comprar y publicar', it: 'Acquisto e pubblicazione non riusciti', vi: 'Mua và đăng bán thất bại'}),
           'error',
         )
       })
@@ -1059,19 +1040,17 @@ const MerchantWarehouse: React.FC = () => {
             </span>
             <div className="merchant-warehouse-header-copy">
               <h1 className="merchant-warehouse-title">
-                {lang === 'zh' ? '商品仓库' : 'Product warehouse'}
+                {tr(lang, { zh: '商品仓库', en: 'Product warehouse', de: 'Produktlager', ja: '商品倉庫', ko: '상품 창고', es: 'Almacén de productos', it: 'Magazzino prodotti', vi: 'Kho sản phẩm'})}
               </h1>
               <p className="merchant-warehouse-subtitle">
-                {lang === 'zh'
-                  ? '管理店铺商品、调整上下架，并从供货市场采购赚取利润'
-                  : 'Manage shop products, listing status, and procure from supply market for profit.'}
+                {tr(lang, { zh: '管理店铺商品、调整上下架，并从供货市场采购赚取利润', en: 'Manage shop products, listing status, and procure from supply market for profit.', de: 'Verwalten Sie Shop-Produkte, Listing-Status und beschaffen Sie aus dem Supply-Markt für Gewinn.', ja: 'ショップ商品の管理、出品/停止、仕入れ市場からの調達で利益を得ましょう', ko: '쇼핑몰 상품 관리, 판매 상태 조정, 공급 시장에서 구매해 수익을 창출하세요.', es: 'Administra productos, estado de publicación y compra en el mercado de proveedores para obtener ganancias.', it: 'Gestisci prodotti, stato di pubblicazione e acquisti dal mercato fornitori per ottenere profitto.', vi: 'Quản lý sản phẩm, trạng thái đăng bán và mua từ kho cung ứng để kiếm lời.'})}
               </p>
             </div>
           </div>
           <div
             className="merchant-warehouse-main-tabs"
             role="tablist"
-            aria-label={lang === 'zh' ? '仓库视图' : 'Warehouse views'}
+            aria-label={tr(lang, { zh: '仓库视图', en: 'Warehouse views', de: 'Warehouse views', ja: '倉庫ビュー', ko: '창고 보기', es: 'Vistas del almacén', it: 'Viste magazzino', vi: 'Chế độ xem kho'})}
           >
             <button
               type="button"
@@ -1082,7 +1061,7 @@ const MerchantWarehouse: React.FC = () => {
               }`}
               onClick={() => setTab('mine')}
             >
-              {lang === 'zh' ? '我的商品' : 'My products'}
+              {tr(lang, { zh: '我的商品', en: 'My products', de: 'Meine Produkte', ja: 'マイ商品', ko: '내 상품', es: 'Mis productos', it: 'I miei prodotti', vi: 'Sản phẩm của tôi'})}
             </button>
             <button
               type="button"
@@ -1093,14 +1072,14 @@ const MerchantWarehouse: React.FC = () => {
               }`}
               onClick={() => setTab('procure')}
             >
-              {lang === 'zh' ? '采购上架' : 'Procure & list'}
+              {tr(lang, { zh: '采购上架', en: 'Procure & list', de: 'Einkaufen & einlisten', ja: '仕入れ・出品', ko: '구매·등록', es: 'Comprar y publicar', it: 'Acquista e pubblica', vi: 'Mua hàng & đăng bán'})}
             </button>
           </div>
         </div>
         <div
           className="merchant-warehouse-stats"
           role="group"
-          aria-label={lang === 'zh' ? '商品快捷筛选' : 'Product quick filters'}
+          aria-label={tr(lang, { zh: '商品快捷筛选', en: 'Product quick filters', de: 'Produkt-Schnellfilter', ja: '商品クイックフィルター', ko: '상품 빠른 필터', es: 'Filtros rápidos de productos', it: 'Filtri rapidi prodotti', vi: 'Lọc sản phẩm nhanh'})}
         >
           <button
             type="button"
@@ -1116,7 +1095,7 @@ const MerchantWarehouse: React.FC = () => {
             <div className="merchant-warehouse-stat-body">
               <span className="merchant-warehouse-stat-value">{myProducts.length}</span>
               <span className="merchant-warehouse-stat-label">
-                {lang === 'zh' ? '全部商品' : 'All products'}
+                {tr(lang, { zh: '全部商品', en: 'All products', de: 'Alle Produkte', ja: 'すべての商品', ko: '전체 상품', es: 'Todos los productos', it: 'Tutti i prodotti', vi: 'Tất cả sản phẩm'})}
               </span>
             </div>
           </button>
@@ -1134,7 +1113,7 @@ const MerchantWarehouse: React.FC = () => {
             <div className="merchant-warehouse-stat-body">
               <span className="merchant-warehouse-stat-value">{onSaleCount}</span>
               <span className="merchant-warehouse-stat-label">
-                {lang === 'zh' ? '在售' : 'On sale'}
+                {tr(lang, { zh: '在售', en: 'On sale', de: 'Im Verkauf', ja: '販売中', ko: '판매 중', es: 'En venta', it: 'In vendita', vi: 'Đang bán'})}
               </span>
             </div>
           </button>
@@ -1152,7 +1131,7 @@ const MerchantWarehouse: React.FC = () => {
             <div className="merchant-warehouse-stat-body">
               <span className="merchant-warehouse-stat-value">{offSaleCount}</span>
               <span className="merchant-warehouse-stat-label">
-                {lang === 'zh' ? '已下架' : 'Unlisted'}
+                {tr(lang, { zh: '已下架', en: 'Unlisted', de: 'Nicht gelistet', ja: '出品停止', ko: '판매 중지', es: 'Retirado', it: 'Non pubblicato', vi: 'Đã ngừng bán'})}
               </span>
             </div>
           </button>
@@ -1172,7 +1151,7 @@ const MerchantWarehouse: React.FC = () => {
                   type="text"
                   className="merchant-warehouse-search"
                   placeholder={
-                    lang === 'zh' ? '搜索商品编号 / 商品名称' : 'Search by product code / name'
+                    tr(lang, { zh: '搜索商品编号 / 商品名称', en: 'Search by product code / name', de: 'Nach Produktcode / Name suchen', ja: '商品番号 / 商品名で検索', ko: '상품번호 / 상품명 검색', es: 'Buscar por código / nombre de producto', it: 'Cerca per codice / nome prodotto', vi: 'Tìm theo mã / tên sản phẩm'})
                   }
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -1181,7 +1160,7 @@ const MerchantWarehouse: React.FC = () => {
               <MerchantDashboardInsight
                 storageKey="merchant-warehouse-insight-dismissed"
                 className="merchant-warehouse-insight"
-                kicker={lang === 'zh' ? '智能摘要' : 'Smart insight'}
+                kicker={tr(lang, { zh: '智能摘要', en: 'Smart insight', de: 'Intelligente Zusammenfassung', ja: 'スマートサマリー', ko: '스마트 요약', es: 'Resumen inteligente', it: 'Sintesi intelligente', vi: 'Tóm tắt thông minh'})}
                 text={warehouseInsight.text}
                 lang={lang}
                 actionLabel={warehouseInsight.actionLabel}
@@ -1211,28 +1190,22 @@ const MerchantWarehouse: React.FC = () => {
                     </svg>
                   </div>
                   <div className="merchant-warehouse-empty-title">
-                    {lang === 'zh'
-                      ? '你的店铺还没有任何商品'
-                      : 'Your shop does not have any products yet'}
+                    {tr(lang, { zh: '你的店铺还没有任何商品', en: 'Your shop does not have any products yet', de: 'Ihr Shop hat noch keine Produkte', ja: 'ショップに商品がまだありません', ko: '쇼핑몰에 아직 상품이 없습니다', es: 'Tu tienda aún no tiene productos', it: 'Il tuo negozio non ha ancora prodotti', vi: 'Cửa hàng của bạn chưa có sản phẩm nào'})}
                   </div>
                   <div className="merchant-warehouse-empty-desc">
-                    {lang === 'zh'
-                      ? '请前往「采购上架」选择商品加入店铺，开始赚取利润'
-                      : 'Go to "Procure & list" to add products and start earning profit.'}
+                    {tr(lang, { zh: '请前往「采购上架」选择商品加入店铺，开始赚取利润', en: 'Go to "Procure & list" to add products and start earning profit.', de: 'Gehen Sie zu „Beschaffen & listen“, um Produkte hinzuzufügen und Gewinn zu erzielen.', ja: '「仕入れ・出品」から商品を選んでショップに追加し、利益を得ましょう', ko: '"구매·등록"에서 상품을 선택해 쇼핑몰에 추가하고 수익을 시작하세요.', es: 'Ve a "Comprar y publicar" para agregar productos y empezar a ganar.', it: 'Vai ad «Acquista e pubblica» per aggiungere prodotti e iniziare a guadagnare.', vi: 'Vào "Mua hàng & đăng bán" để thêm sản phẩm và bắt đầu kiếm lời.'})}
                   </div>
                   <button
                     type="button"
                     className="merchant-warehouse-empty-cta"
                     onClick={() => setTab('procure')}
                   >
-                    {lang === 'zh' ? '去采购上架' : 'Go to procure & list'}
+                    {tr(lang, { zh: '去采购上架', en: 'Go to procure & list', de: 'Zum Einkauf & Einlisten', ja: '仕入れ・出品へ', ko: '구매·등록으로 이동', es: 'Ir a comprar y publicar', it: 'Vai ad acquista e pubblica', vi: 'Đi tới mua hàng & đăng bán'})}
                   </button>
                 </div>
               ) : (
                 <div className="merchant-warehouse-empty">
-                  {lang === 'zh'
-                    ? '没有符合当前筛选条件的商品'
-                    : 'No products match the current filters'}
+                  {tr(lang, { zh: '没有符合当前筛选条件的商品', en: 'No products match the current filters', de: 'Keine Produkte entsprechen den aktuellen Filtern', ja: '現在のフィルター条件に一致する商品がありません', ko: '현재 필터 조건에 맞는 상품이 없습니다', es: 'Ningún producto coincide con los filtros actuales', it: 'Nessun prodotto corrisponde ai filtri attuali', vi: 'Không có sản phẩm phù hợp với bộ lọc hiện tại'})}
                 </div>
               )
             ) : (
@@ -1258,7 +1231,7 @@ const MerchantWarehouse: React.FC = () => {
                           if (imgs.length === 0) {
                             return (
                               <div className="merchant-warehouse-card-img-placeholder">
-                                {lang === 'zh' ? '商品图' : 'Product image'}
+                                {tr(lang, { zh: '商品图', en: 'Product image', de: 'Produktbild', ja: '商品画像', ko: '상품 이미지', es: 'Imagen del producto', it: 'Immagine prodotto', vi: 'Ảnh sản phẩm'})}
                               </div>
                             )
                           }
@@ -1270,12 +1243,8 @@ const MerchantWarehouse: React.FC = () => {
                           className={`merchant-warehouse-card-status merchant-warehouse-card-status--${item.status}`}
                         >
                           {item.status === 'off'
-                            ? lang === 'zh'
-                              ? '已下架'
-                              : 'Unlisted'
-                            : lang === 'zh'
-                              ? '在售'
-                              : 'On sale'}
+                            ? tr(lang, { zh: '已下架', en: 'Unlisted', de: 'Nicht gelistet', ja: '出品停止', ko: '판매 중지', es: 'Retirado', it: 'Non pubblicato', vi: 'Đã ngừng bán'})
+                            : tr(lang, { zh: '在售', en: 'On sale', de: 'Im Verkauf', ja: '販売中', ko: '판매 중', es: 'En venta', it: 'In vendita', vi: 'Đang bán'})}
                         </span>
                       </div>
                       <div className="merchant-warehouse-card-body">
@@ -1283,19 +1252,19 @@ const MerchantWarehouse: React.FC = () => {
                         <div className="merchant-warehouse-card-pricing">
                           <span className="merchant-warehouse-card-price-row">
                             <span className="merchant-warehouse-card-price-label">
-                              {lang === 'zh' ? '采购价' : 'Purchase price'}
+                              {tr(lang, { zh: '采购价', en: 'Purchase price', de: 'Einkaufspreis', ja: '仕入れ価格', ko: '구매가', es: 'Precio de compra', it: 'Prezzo di acquisto', vi: 'Giá nhập'})}
                             </span>
                             <span className="merchant-warehouse-card-price-value">${item.supplyPrice.toFixed(2)}</span>
                           </span>
                           <span className="merchant-warehouse-card-price-row">
                             <span className="merchant-warehouse-card-price-label">
-                              {lang === 'zh' ? '定价' : 'Selling price'}
+                              {tr(lang, { zh: '定价', en: 'Selling price', de: 'Verkaufspreis', ja: '販売価格', ko: '판매가', es: 'Precio de venta', it: 'Prezzo di vendita', vi: 'Giá bán'})}
                             </span>
                             <span className="merchant-warehouse-card-price-value merchant-warehouse-card-price-value--sell">${item.price.toFixed(2)}</span>
                           </span>
                           <span className="merchant-warehouse-card-price-row">
                             <span className="merchant-warehouse-card-price-label">
-                              {lang === 'zh' ? '利润比' : 'Profit ratio'}
+                              {tr(lang, { zh: '利润比', en: 'Profit ratio', de: 'Gewinnquote', ja: '利益率', ko: '이익률', es: 'Margen de ganancia', it: 'Margine di profitto', vi: 'Tỷ suất lợi nhuận'})}
                             </span>
                             <span className={`merchant-warehouse-card-profit ${item.price >= item.supplyPrice ? 'merchant-warehouse-card-profit--up' : 'merchant-warehouse-card-profit--down'}`}>
                               {profitRatio(item.price, item.supplyPrice)}
@@ -1313,7 +1282,7 @@ const MerchantWarehouse: React.FC = () => {
                                 className="merchant-warehouse-action-btn"
                                 onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'unlist') }}
                               >
-                                {lang === 'zh' ? '下架' : 'Unlist'}
+                                {tr(lang, { zh: '下架', en: 'Unlist', de: 'Entfernen', ja: '出品停止', ko: '판매 중지', es: 'Retirar', it: 'Rimuovi', vi: 'Ngừng bán'})}
                               </button>
                             ) : (
                               <>
@@ -1322,14 +1291,14 @@ const MerchantWarehouse: React.FC = () => {
                                   className="merchant-warehouse-action-btn"
                                   onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'list') }}
                                 >
-                                  {lang === 'zh' ? '上架' : 'List'}
+                                  {tr(lang, { zh: '上架', en: 'List', de: 'Einlisten', ja: '出品', ko: '등록', es: 'Publicar', it: 'Pubblica', vi: 'Đăng bán'})}
                                 </button>
                                 <button
                                   type="button"
                                   className="merchant-warehouse-action-btn merchant-warehouse-action-btn--danger"
                                   onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'delete') }}
                                 >
-                                  {lang === 'zh' ? '删除' : 'Delete'}
+                                  {tr(lang, { zh: '删除', en: 'Delete', de: 'Löschen', ja: '削除', ko: '삭제', es: 'Eliminar', it: 'Elimina', vi: 'Xóa'})}
                                 </button>
                               </>
                             )}
@@ -1349,21 +1318,13 @@ const MerchantWarehouse: React.FC = () => {
                             }}
                             title={
                               item.recommended
-                                ? lang === 'zh'
-                                  ? '取消主推'
-                                  : 'Remove from featured'
-                                : lang === 'zh'
-                                  ? '设为主推'
-                                  : 'Set as featured'
+                                ? tr(lang, { zh: '取消主推', en: 'Remove from featured', de: 'Aus Empfehlungen entfernen', ja: 'おすすめ解除', ko: '추천 해제', es: 'Quitar de destacados', it: 'Remove from featured', vi: 'Gỡ khỏi nổi bật'})
+                                : tr(lang, { zh: '设为主推', en: 'Set as featured', de: 'Set as featured', ja: 'おすすめに設定', ko: '추천으로 설정', es: 'Marcar como destacado', it: 'Imposta come in evidenza', vi: 'Đặt làm nổi bật'})
                             }
                             aria-label={
                               item.recommended
-                                ? lang === 'zh'
-                                  ? '取消主推'
-                                  : 'Remove from featured'
-                                : lang === 'zh'
-                                  ? '设为主推'
-                                  : 'Set as featured'
+                                ? tr(lang, { zh: '取消主推', en: 'Remove from featured', de: 'Aus Empfehlungen entfernen', ja: 'おすすめ解除', ko: '추천 해제', es: 'Quitar de destacados', it: 'Remove from featured', vi: 'Gỡ khỏi nổi bật'})
+                                : tr(lang, { zh: '设为主推', en: 'Set as featured', de: 'Set as featured', ja: 'おすすめに設定', ko: '추천으로 설정', es: 'Marcar como destacado', it: 'Imposta come in evidenza', vi: 'Đặt làm nổi bật'})
                             }
                           >
                             <span className="merchant-warehouse-card-recommend-emoji" aria-hidden>👍</span>
@@ -1381,7 +1342,7 @@ const MerchantWarehouse: React.FC = () => {
                       disabled={minePage <= 1}
                       onClick={() => setMinePage((p) => Math.max(1, p - 1))}
                     >
-                      {lang === 'zh' ? '上一页' : 'Previous'}
+                      {tr(lang, { zh: '上一页', en: 'Previous', de: 'Zurück', ja: '前へ', ko: '이전', es: 'Anterior', it: 'Precedente', vi: 'Trước'})}
                     </button>
                     <span className="merchant-warehouse-page-info">
                       {minePage} / {totalMinePages}
@@ -1392,7 +1353,7 @@ const MerchantWarehouse: React.FC = () => {
                       disabled={minePage >= totalMinePages}
                       onClick={() => setMinePage((p) => Math.min(totalMinePages, p + 1))}
                     >
-                      {lang === 'zh' ? '下一页' : 'Next'}
+                      {tr(lang, { zh: '下一页', en: 'Next', de: 'Weiter', ja: '次へ', ko: '다음', es: 'Siguiente', it: 'Successivo', vi: 'Tiếp'})}
                     </button>
                   </div>
                 )}
@@ -1414,9 +1375,7 @@ const MerchantWarehouse: React.FC = () => {
                   type="text"
                   className="merchant-warehouse-search"
                   placeholder={
-                    lang === 'zh'
-                      ? '搜索商品名称 / 商品编号'
-                      : 'Search by product name / code'
+                    tr(lang, { zh: '搜索商品名称 / 商品编号', en: 'Search by product name / code', de: 'Nach Produktname / Code suchen', ja: '商品名 / 商品番号で検索', ko: '상품명 / 상품번호 검색', es: 'Buscar por nombre / código de producto', it: 'Cerca per nome / codice prodotto', vi: 'Tìm theo tên / mã sản phẩm'})
                   }
                   value={procureSearchInput}
                   onChange={(e) => setProcureSearchInput(e.target.value)}
@@ -1435,7 +1394,7 @@ const MerchantWarehouse: React.FC = () => {
                       setProcureSearch('')
                     }}
                   >
-                    {lang === 'zh' ? '清空' : 'Clear'}
+                    {tr(lang, { zh: '清空', en: 'Clear', de: 'Leeren', ja: 'クリア', ko: '지우기', es: 'Limpiar', it: 'Cancella', vi: 'Xóa'})}
                   </button>
                 )}
                 <button
@@ -1444,7 +1403,7 @@ const MerchantWarehouse: React.FC = () => {
                   onClick={() => setProcureSearch(procureSearchInput.trim())}
                   disabled={procureLoading}
                 >
-                  {lang === 'zh' ? '搜索' : 'Search'}
+                  {tr(lang, { zh: '搜索', en: 'Search', de: 'Suchen', ja: '検索', ko: '검색', es: 'Buscar', it: 'Cerca', vi: 'Tìm kiếm'})}
                 </button>
               </div>
               <div
@@ -1453,7 +1412,7 @@ const MerchantWarehouse: React.FC = () => {
                 }`}
               >
                 <span className="merchant-warehouse-procure-categories-label">
-                  {lang === 'zh' ? '商品分类' : 'Categories'}
+                  {tr(lang, { zh: '商品分类', en: 'Categories', de: 'Kategorien', ja: '商品カテゴリ', ko: '카테고리', es: 'Categorías', it: 'Categorie', vi: 'Danh mục'})}
                 </span>
                 <div className="merchant-warehouse-procure-categories-inner">
                   <div className="merchant-warehouse-procure-categories-list merchant-warehouse-procure-categories-list--v2">
@@ -1483,21 +1442,13 @@ const MerchantWarehouse: React.FC = () => {
                       aria-expanded={procureCategoriesExpanded}
                       aria-label={
                         procureCategoriesExpanded
-                          ? lang === 'zh'
-                            ? '收起分类'
-                            : 'Collapse categories'
-                          : lang === 'zh'
-                            ? '展开更多分类'
-                            : 'Show more categories'
+                          ? tr(lang, { zh: '收起分类', en: 'Collapse categories', de: 'Kategorien einklappen', ja: 'カテゴリを折りたたむ', ko: '카테고리 접기', es: 'Contraer categorías', it: 'Comprimi categorie', vi: 'Thu gọn danh mục'})
+                          : tr(lang, { zh: '展开更多分类', en: 'Show more categories', de: 'Mehr Kategorien anzeigen', ja: 'カテゴリをもっと表示', ko: '카테고리 더 보기', es: 'Mostrar más categorías', it: 'Mostra più categorie', vi: 'Xem thêm danh mục'})
                       }
                       title={
                         procureCategoriesExpanded
-                          ? lang === 'zh'
-                            ? '收起分类'
-                            : 'Collapse categories'
-                          : lang === 'zh'
-                            ? '展开更多分类'
-                            : 'Show more categories'
+                          ? tr(lang, { zh: '收起分类', en: 'Collapse categories', de: 'Kategorien einklappen', ja: 'カテゴリを折りたたむ', ko: '카테고리 접기', es: 'Contraer categorías', it: 'Comprimi categorie', vi: 'Thu gọn danh mục'})
+                          : tr(lang, { zh: '展开更多分类', en: 'Show more categories', de: 'Mehr Kategorien anzeigen', ja: 'カテゴリをもっと表示', ko: '카테고리 더 보기', es: 'Mostrar más categorías', it: 'Mostra più categorie', vi: 'Xem thêm danh mục'})
                       }
                     >
                       <ProcureCategoryExpandIcon expanded={procureCategoriesExpanded} />
@@ -1524,12 +1475,14 @@ const MerchantWarehouse: React.FC = () => {
             ) : procureList.length === 0 ? (
               <div className="merchant-warehouse-empty">
                 {procureSearch
-                  ? lang === 'zh'
-                    ? `当前分类下没有找到与「${procureSearch}」相关的商品`
-                    : `No products found for "${procureSearch}" in this category`
-                  : lang === 'zh'
-                    ? '该分类下暂无采购商品'
-                    : 'No purchasable products in this category'}
+                  ? tr(lang, {
+                      zh: `当前分类下没有找到与「${procureSearch}」相关的商品`,
+                      en: `No products found for "${procureSearch}" in this category`,
+                      de: `Keine Produkte für „${procureSearch}“ in dieser Kategorie gefunden`, ja: `このカテゴリで「${procureSearch}」に一致する商品は見つかりませんでした`, ko: '이 카테고리에서 "${procureSearch}"와(과) 관련된 상품을 찾지 못했습니다', es: `No se encontraron productos para "${procureSearch}" en esta categoría`, it: `Nessun prodotto trovato per "${procureSearch}" in questa categoria`, vi: `Không tìm thấy sản phẩm cho "${procureSearch}" trong danh mục này`})
+                  : tr(lang, {
+                      zh: '该分类下暂无采购商品',
+                      en: 'No purchasable products in this category',
+                      de: 'Keine einkaufbaren Produkte in dieser Kategorie', ja: 'このカテゴリに仕入れ可能な商品はありません', ko: '이 카테고리에 구매 가능한 상품이 없습니다', es: 'No hay productos disponibles en esta categoría', it: 'Nessun prodotto acquistabile in questa categoria', vi: 'Không có sản phẩm mua được trong danh mục này'})}
               </div>
             ) : (
               <>
@@ -1553,7 +1506,7 @@ const MerchantWarehouse: React.FC = () => {
                           />
                         ) : (
                           <div className="merchant-warehouse-catalog-card-img-placeholder">
-                            {lang === 'zh' ? '商品图' : 'Product image'}
+                            {tr(lang, { zh: '商品图', en: 'Product image', de: 'Produktbild', ja: '商品画像', ko: '상품 이미지', es: 'Imagen del producto', it: 'Immagine prodotto', vi: 'Ảnh sản phẩm'})}
                           </div>
                         )}
                       </div>
@@ -1562,13 +1515,13 @@ const MerchantWarehouse: React.FC = () => {
                         <div className="merchant-warehouse-catalog-name">{item.name}</div>
                         <div className="merchant-warehouse-catalog-prices-row">
                           <span>
-                            {lang === 'zh' ? '采购价' : 'Purchase price'} $
+                            {tr(lang, { zh: '采购价', en: 'Purchase price', de: 'Einkaufspreis', ja: '仕入れ価格', ko: '구매가', es: 'Precio de compra', it: 'Prezzo di acquisto', vi: 'Giá nhập'})} $
                             {item.supplyPrice.toFixed(2)}
                           </span>
                         </div>
                           {item.status === 'off' ? (
                             <div className="merchant-warehouse-procure-disabled-badge">
-                              {lang === 'zh' ? '暂无库存' : 'Out of stock'}
+                              {tr(lang, { zh: '暂无库存', en: 'Out of stock', de: 'Nicht auf Lager', ja: '在庫なし', ko: '재고 없음', es: 'Sin stock', it: 'Esaurito', vi: 'Hết hàng'})}
                             </div>
                           ) : (
                             <button
@@ -1576,7 +1529,7 @@ const MerchantWarehouse: React.FC = () => {
                               className="merchant-warehouse-procure-btn"
                               onClick={(e) => { e.stopPropagation(); openProcurePricingModal(item) }}
                             >
-                              {lang === 'zh' ? '采购并上架' : 'Purchase & list'}
+                              {tr(lang, { zh: '采购并上架', en: 'Purchase & list', de: 'Kaufen & einlisten', ja: '仕入れて出品', ko: '구매 후 등록', es: 'Comprar y publicar', it: 'Acquista e pubblica', vi: 'Mua & đăng bán'})}
                             </button>
                           )}
                       </div>
@@ -1599,7 +1552,7 @@ const MerchantWarehouse: React.FC = () => {
                       disabled={procurePage <= 1}
                       onClick={() => setProcurePage((p) => Math.max(1, p - 1))}
                     >
-                      {lang === 'zh' ? '上一页' : 'Previous'}
+                      {tr(lang, { zh: '上一页', en: 'Previous', de: 'Zurück', ja: '前へ', ko: '이전', es: 'Anterior', it: 'Precedente', vi: 'Trước'})}
                     </button>
                     <span className="merchant-warehouse-page-info">
                       {procurePage} / {totalProcurePages}
@@ -1610,7 +1563,7 @@ const MerchantWarehouse: React.FC = () => {
                       disabled={procurePage >= totalProcurePages}
                       onClick={() => setProcurePage((p) => Math.min(totalProcurePages, p + 1))}
                     >
-                      {lang === 'zh' ? '下一页' : 'Next'}
+                      {tr(lang, { zh: '下一页', en: 'Next', de: 'Weiter', ja: '次へ', ko: '다음', es: 'Siguiente', it: 'Successivo', vi: 'Tiếp'})}
                     </button>
                   </div>
                 )}
@@ -1649,16 +1602,15 @@ const MerchantWarehouse: React.FC = () => {
                 {mineDetailTotalImages > 0 ? (
                   <img
                     src={mineDetailImages[mineDetailImageIndex] ?? mineDetailImages[0]}
-                    alt={
-                      lang === 'zh'
-                        ? `${mineDetailItem.productName} 图 ${mineDetailImageIndex + 1}`
-                        : `${mineDetailItem.productName} image ${mineDetailImageIndex + 1}`
-                    }
+                    alt={tr(lang, {
+                      zh: `${mineDetailItem.productName} 图 ${mineDetailImageIndex + 1}`,
+                      en: `${mineDetailItem.productName} image ${mineDetailImageIndex + 1}`,
+                      de: `${mineDetailItem.productName} Bild ${mineDetailImageIndex + 1}`, ja: `${mineDetailItem.productName} 画像 ${mineDetailImageIndex + 1}`, ko: '${mineDetailItem.productName} 이미지 ${mineDetailImageIndex + 1}', es: `${mineDetailItem.productName} imagen ${mineDetailImageIndex + 1}`, it: `${mineDetailItem.productName} immagine ${mineDetailImageIndex + 1}`, vi: `${mineDetailItem.productName} ảnh ${mineDetailImageIndex + 1}`})}
                     className="merchant-warehouse-detail-carousel-img"
                   />
                 ) : (
                   <div className="merchant-warehouse-detail-carousel-placeholder">
-                    {lang === 'zh' ? '商品图' : 'Product image'}
+                    {tr(lang, { zh: '商品图', en: 'Product image', de: 'Produktbild', ja: '商品画像', ko: '상품 이미지', es: 'Imagen del producto', it: 'Immagine prodotto', vi: 'Ảnh sản phẩm'})}
                   </div>
                 )}
               </div>
@@ -1672,7 +1624,7 @@ const MerchantWarehouse: React.FC = () => {
                       e.stopPropagation()
                       setMineDetailImageIndex((i) => Math.max(0, i - 1))
                     }}
-                    aria-label={lang === 'zh' ? '上一张' : 'Previous image'}
+                    aria-label={tr(lang, { zh: '上一张', en: 'Previous image', de: 'Previous image', ja: '前の画像', ko: '이전 이미지', es: 'Imagen anterior', it: 'Immagine precedente', vi: 'Ảnh trước'})}
                   >
                     ‹
                   </button>
@@ -1684,7 +1636,7 @@ const MerchantWarehouse: React.FC = () => {
                       e.stopPropagation()
                       setMineDetailImageIndex((i) => Math.min(mineDetailTotalImages - 1, i + 1))
                     }}
-                    aria-label={lang === 'zh' ? '下一张' : 'Next image'}
+                    aria-label={tr(lang, { zh: '下一张', en: 'Next image', de: 'Next image', ja: '次の画像', ko: '다음 이미지', es: 'Imagen siguiente', it: 'Immagine successiva', vi: 'Ảnh tiếp theo'})}
                   >
                     ›
                   </button>
@@ -1696,17 +1648,17 @@ const MerchantWarehouse: React.FC = () => {
             </div>
             <div className="merchant-warehouse-detail-body">
               <div className="merchant-warehouse-detail-price">
-                {lang === 'zh' ? '采购价' : 'Purchase price'}{' '}
+                {tr(lang, { zh: '采购价', en: 'Purchase price', de: 'Einkaufspreis', ja: '仕入れ価格', ko: '구매가', es: 'Precio de compra', it: 'Prezzo di acquisto', vi: 'Giá nhập'})}{' '}
                 <strong>${mineDetailItem.supplyPrice.toFixed(2)}</strong>
               </div>
               <div className="merchant-warehouse-detail-price">
-                {lang === 'zh' ? '定价' : 'Selling price'}{' '}
+                {tr(lang, { zh: '定价', en: 'Selling price', de: 'Verkaufspreis', ja: '販売価格', ko: '판매가', es: 'Precio de venta', it: 'Prezzo di vendita', vi: 'Giá bán'})}{' '}
                 <strong className="merchant-warehouse-detail-price--sell">
                   ${mineDetailItem.price.toFixed(2)}
                 </strong>
               </div>
               <div className="merchant-warehouse-detail-price">
-                {lang === 'zh' ? '利润比' : 'Profit ratio'}{' '}
+                {tr(lang, { zh: '利润比', en: 'Profit ratio', de: 'Gewinnquote', ja: '利益率', ko: '이익률', es: 'Margen de ganancia', it: 'Margine di profitto', vi: 'Tỷ suất lợi nhuận'})}{' '}
                 <strong
                   className={`merchant-warehouse-detail-profit ${
                     mineDetailItem.price >= mineDetailItem.supplyPrice
@@ -1720,7 +1672,7 @@ const MerchantWarehouse: React.FC = () => {
               {mineDetailDesc && (
                 <div className="merchant-warehouse-detail-desc">
                   <span className="merchant-warehouse-detail-label">
-                    {lang === 'zh' ? '商品描述' : 'Product description'}
+                    {tr(lang, { zh: '商品描述', en: 'Product description', de: 'Produktbeschreibung', ja: '商品説明', ko: '상품 설명', es: 'Descripción del producto', it: 'Descrizione prodotto', vi: 'Mô tả sản phẩm'})}
                   </span>
                   <p>{mineDetailDesc}</p>
                 </div>
@@ -1743,16 +1695,15 @@ const MerchantWarehouse: React.FC = () => {
               {detailTotalImages > 0 ? (
                 <img
                   src={detailImages[detailImageIndex]}
-                  alt={
-                    lang === 'zh'
-                      ? `${procureDetailItem.name} 图 ${detailImageIndex + 1}`
-                      : `${procureDetailItem.name} image ${detailImageIndex + 1}`
-                  }
+                  alt={tr(lang, {
+                    zh: `${procureDetailItem.name} 图 ${detailImageIndex + 1}`,
+                    en: `${procureDetailItem.name} image ${detailImageIndex + 1}`,
+                    de: `${procureDetailItem.name} Bild ${detailImageIndex + 1}`, ja: `${procureDetailItem.name} 画像 ${detailImageIndex + 1}`, ko: '${procureDetailItem.name} 이미지 ${detailImageIndex + 1}', es: `${procureDetailItem.name} imagen ${detailImageIndex + 1}`, it: `${procureDetailItem.name} immagine ${detailImageIndex + 1}`, vi: `${procureDetailItem.name} ảnh ${detailImageIndex + 1}`})}
                   className="merchant-warehouse-detail-carousel-img"
                 />
               ) : (
                 <div className="merchant-warehouse-detail-carousel-placeholder">
-                  {lang === 'zh' ? '商品图' : 'Product image'}
+                  {tr(lang, { zh: '商品图', en: 'Product image', de: 'Produktbild', ja: '商品画像', ko: '상품 이미지', es: 'Imagen del producto', it: 'Immagine prodotto', vi: 'Ảnh sản phẩm'})}
                 </div>
               )}
             </div>
@@ -1766,7 +1717,7 @@ const MerchantWarehouse: React.FC = () => {
                     e.stopPropagation()
                     setDetailImageIndex((i) => Math.max(0, i - 1))
                   }}
-                  aria-label={lang === 'zh' ? '上一张' : 'Previous image'}
+                  aria-label={tr(lang, { zh: '上一张', en: 'Previous image', de: 'Previous image', ja: '前の画像', ko: '이전 이미지', es: 'Imagen anterior', it: 'Immagine precedente', vi: 'Ảnh trước'})}
                 >
                   ‹
                 </button>
@@ -1778,7 +1729,7 @@ const MerchantWarehouse: React.FC = () => {
                     e.stopPropagation()
                     setDetailImageIndex((i) => Math.min(detailTotalImages - 1, i + 1))
                   }}
-                  aria-label={lang === 'zh' ? '下一张' : 'Next image'}
+                  aria-label={tr(lang, { zh: '下一张', en: 'Next image', de: 'Next image', ja: '次の画像', ko: '다음 이미지', es: 'Imagen siguiente', it: 'Immagine successiva', vi: 'Ảnh tiếp theo'})}
                 >
                   ›
                 </button>
@@ -1790,13 +1741,13 @@ const MerchantWarehouse: React.FC = () => {
           </div>
           <div className="merchant-warehouse-detail-body">
             <div className="merchant-warehouse-detail-price">
-              {lang === 'zh' ? '采购价' : 'Purchase price'}{' '}
+              {tr(lang, { zh: '采购价', en: 'Purchase price', de: 'Einkaufspreis', ja: '仕入れ価格', ko: '구매가', es: 'Precio de compra', it: 'Prezzo di acquisto', vi: 'Giá nhập'})}{' '}
               <strong>${procureDetailItem.supplyPrice.toFixed(2)}</strong>
             </div>
             {procureDetailItem.description && (
               <div className="merchant-warehouse-detail-desc">
                 <span className="merchant-warehouse-detail-label">
-                  {lang === 'zh' ? '商品描述' : 'Product description'}
+                  {tr(lang, { zh: '商品描述', en: 'Product description', de: 'Produktbeschreibung', ja: '商品説明', ko: '상품 설명', es: 'Descripción del producto', it: 'Descrizione prodotto', vi: 'Mô tả sản phẩm'})}
                 </span>
                 <p>{procureDetailItem.description}</p>
               </div>
@@ -1804,7 +1755,7 @@ const MerchantWarehouse: React.FC = () => {
             {procureDetailItem.styles.length > 0 && (
               <div className="merchant-warehouse-detail-styles">
                 <span className="merchant-warehouse-detail-label">
-                  {lang === 'zh' ? '款式' : 'Styles'}
+                  {tr(lang, { zh: '款式', en: 'Styles', de: 'Styles', ja: 'バリエーション', ko: '옵션', es: 'Variantes', it: 'Varianti', vi: 'Biến thể'})}
                 </span>
                 <ul>
                   {procureDetailItem.styles.map((s, i) => (
@@ -1818,7 +1769,7 @@ const MerchantWarehouse: React.FC = () => {
               className="merchant-warehouse-detail-procure-btn"
               onClick={() => openProcurePricingModal(procureDetailItem)}
             >
-              {lang === 'zh' ? '采购并上架' : 'Purchase & list'}
+              {tr(lang, { zh: '采购并上架', en: 'Purchase & list', de: 'Kaufen & einlisten', ja: '仕入れて出品', ko: '구매 후 등록', es: 'Comprar y publicar', it: 'Acquista e pubblica', vi: 'Mua & đăng bán'})}
             </button>
           </div>
         </MerchantWarehouseDetailModal>
@@ -1833,7 +1784,7 @@ const MerchantWarehouse: React.FC = () => {
         title={confirmModalCopy?.title ?? ''}
         subtitle={confirmModalCopy?.subtitle}
         confirmLabel={confirmModalCopy?.confirmLabel ?? ''}
-        cancelLabel={lang === 'zh' ? '取消' : 'Cancel'}
+        cancelLabel={tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy'})}
         variant={confirmModalCopy?.variant}
         loading={confirmLoading}
         onConfirm={handleConfirmAction}

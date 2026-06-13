@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { crispLocale, isLang, type Lang } from '../i18n/lang'
 
-export type Lang = 'zh' | 'en'
+export type { Lang }
 
 interface LangContextValue {
   lang: Lang
@@ -16,7 +17,7 @@ export const LangProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window === 'undefined') return 'zh'
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY)
-      if (stored === 'en' || stored === 'zh') return stored
+      if (isLang(stored)) return stored
     } catch {
       // ignore
     }
@@ -40,12 +41,11 @@ export const LangProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [lang])
 
-  // 站点切换语言时同步 Crisp 聊天框语言（zh / en）
   useEffect(() => {
     try {
       const crisp = (window as Window & { $crisp?: { push: (cmd: unknown[]) => void } }).$crisp
       if (crisp && typeof crisp.push === 'function') {
-        crisp.push(['config', 'locale', [lang]])
+        crisp.push(['config', 'locale', [crispLocale(lang)]])
       }
     } catch {
       // ignore
@@ -62,4 +62,3 @@ export function useLang(): LangContextValue {
   }
   return ctx
 }
-

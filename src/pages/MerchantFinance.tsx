@@ -9,6 +9,7 @@ import {
   MerchantWithdrawFlowIcon,
 } from '../components/MerchantWalletFlowIcons'
 import { formatDateTime } from '../utils/datetime'
+import { pickBilingual, tr, type Lang } from '../i18n'
 
 type RangeKey = '7d' | '30d' | '90d'
 type RawType = 'recharge' | 'withdraw' | 'consume' | 'refund'
@@ -51,14 +52,14 @@ function formatMoney(value: number): string {
   return `$${n.toFixed(2)}`
 }
 
-function typeLabel(rawType: RawType, lang: 'zh' | 'en'): string {
-  const map: Record<RawType, { zh: string; en: string }> = {
-    recharge: { zh: '充值', en: 'Recharge' },
-    withdraw: { zh: '提现', en: 'Withdraw' },
-    consume: { zh: '消费', en: 'Spend' },
-    refund: { zh: '退款', en: 'Refund' },
+function typeLabel(rawType: RawType, lang: Lang): string {
+  const map: Record<RawType, { zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string }> = {
+    recharge: { zh: '充值', en: 'Recharge', de: 'Aufladung', ja: 'チャージ', ko: '충전', es: 'Recarga', it: 'Ricarica', vi: 'Nạp tiền' },
+    withdraw: { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retiro', it: 'Prelievo', vi: 'Rút tiền' },
+    consume: { zh: '消费', en: 'Spend', de: 'Ausgabe', ja: '利用', ko: '사용', es: 'Gasto', it: 'Spesa', vi: 'Chi tiêu' },
+    refund: { zh: '退款', en: 'Refund', de: 'Erstattung', ja: '返金', ko: '환불', es: 'Reembolso', it: 'Rimborso', vi: 'Hoàn tiền' },
   }
-  return map[rawType]?.[lang] ?? rawType
+  return pickBilingual(lang, map[rawType] ?? { zh: rawType, en: rawType, de: rawType, ja: rawType, es: rawType, it: rawType })
 }
 
 const FinanceStatSkeleton: React.FC = () => (
@@ -98,7 +99,10 @@ const MerchantFinance: React.FC = () => {
   const fetchFinance = useCallback(async (silent = false) => {
     const shopId = readAuthShopId()
     if (!shopId) {
-      setError(lang === 'zh' ? '未找到店铺信息，请重新登录商家后台' : 'Shop not found. Please sign in again.')
+      setError(tr(lang, {
+        zh: '未找到店铺信息，请重新登录商家后台',
+        en: 'Shop not found. Please sign in again.',
+        de: 'Shop nicht gefunden. Bitte melden Sie sich erneut an.', ja: 'ショップ情報が見つかりません。再度ログインしてください', ko: '쇼핑몰 정보를 찾을 수 없습니다. 다시 로그인해 주세요.', es: 'Tienda no encontrada. Vuelve a iniciar sesión.', it: 'Negozio non trovato. Accedi di nuovo.', vi: 'Không tìm thấy cửa hàng. Vui lòng đăng nhập lại.'}))
       setRecords([])
       setTotalIncome(0)
       setTotalExpense(0)
@@ -135,8 +139,10 @@ const MerchantFinance: React.FC = () => {
         const amt = Number(row.amount ?? 0)
         let remark = row.remark || ''
         if (!remark && row.orderNo) {
-          remark =
-            lang === 'zh' ? `记录号：${row.orderNo}` : `Ref: ${row.orderNo}`
+          remark = tr(lang, {
+            zh: `记录号：${row.orderNo}`,
+            en: `Ref: ${row.orderNo}`,
+            de: `Ref.: ${row.orderNo}`, ja: `記録番号：${row.orderNo}`, ko: '기록번호: ${row.orderNo}', es: `Ref.: ${row.orderNo}`, it: `Rif.: ${row.orderNo}`, vi: `Mã: ${row.orderNo}`})
         }
         return {
           id: row.id,
@@ -155,7 +161,10 @@ const MerchantFinance: React.FC = () => {
       setRecords(list)
       financeCache[range] = { records: list, income, expense, net }
     } catch (e: unknown) {
-      let msg = lang === 'zh' ? '加载财务报表失败' : 'Failed to load finance report'
+      let msg = tr(lang, {
+        zh: '加载财务报表失败',
+        en: 'Failed to load finance report',
+        de: 'Finanzbericht konnte nicht geladen werden', ja: '財務レポートの読み込みに失敗しました', ko: '재무 보고서를 불러오지 못했습니다', es: 'No se pudo cargar el informe financiero', it: 'Impossibile caricare il report finanziario', vi: 'Không thể tải báo cáo tài chính'})
       if (e && typeof e === 'object' && 'message' in e && typeof e.message === 'string' && e.message.trim()) {
         msg = e.message.trim()
       }
@@ -208,18 +217,18 @@ const MerchantFinance: React.FC = () => {
     return records.filter((row) => row.rawType === typeFilter)
   }, [records, typeFilter])
 
-  const rangeLabels: Record<RangeKey, { zh: string; en: string }> = {
-    '7d': { zh: '近7天', en: '7 days' },
-    '30d': { zh: '近30天', en: '30 days' },
-    '90d': { zh: '近90天', en: '90 days' },
+  const rangeLabels: Record<RangeKey, { zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string }> = {
+    '7d': { zh: '近7天', en: '7 days', de: '7 Tage', ja: '過去7日', ko: '최근 7일', es: '7 días', it: '7 giorni', vi: '7 ngày' },
+    '30d': { zh: '近30天', en: '30 days', de: '30 Tage', ja: '過去30日', ko: '최근 30일', es: '30 días', it: '30 giorni', vi: '30 ngày' },
+    '90d': { zh: '近90天', en: '90 days', de: '90 Tage', ja: '過去90日', ko: '최근 90일', es: '90 días', it: '90 giorni', vi: '90 ngày' },
   }
 
-  const typeFilters: { key: TypeFilter; zh: string; en: string }[] = [
-    { key: 'all', zh: '全部', en: 'All' },
-    { key: 'recharge', zh: '充值', en: 'Recharge' },
-    { key: 'withdraw', zh: '提现', en: 'Withdraw' },
-    { key: 'consume', zh: '消费', en: 'Spend' },
-    { key: 'refund', zh: '退款', en: 'Refund' },
+  const typeFilters: { key: TypeFilter; zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string }[] = [
+    { key: 'all', zh: '全部', en: 'All', de: 'Alle', ja: 'すべて', ko: '전체', es: 'Todos', it: 'Tutti', vi: 'Tất cả' },
+    { key: 'recharge', zh: '充值', en: 'Recharge', de: 'Aufladung', ja: 'チャージ', ko: '충전', es: 'Recarga', it: 'Ricarica', vi: 'Nạp tiền' },
+    { key: 'withdraw', zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retiro', it: 'Prelievo', vi: 'Rút tiền' },
+    { key: 'consume', zh: '消费', en: 'Spend', de: 'Ausgabe', ja: '利用', ko: '사용', es: 'Gasto', it: 'Spesa', vi: 'Chi tiêu' },
+    { key: 'refund', zh: '退款', en: 'Refund', de: 'Erstattung', ja: '返金', ko: '환불', es: 'Reembolso', it: 'Rimborso', vi: 'Hoàn tiền' },
   ]
 
   const incomeRatio = totalIncome + totalExpense > 0 ? (totalIncome / (totalIncome + totalExpense)) * 100 : 50
@@ -235,12 +244,13 @@ const MerchantFinance: React.FC = () => {
             </span>
             <div className="merchant-finance-header-copy">
               <h1 className="merchant-finance-title">
-                {lang === 'zh' ? '财务报表' : 'Finance report'}
+                {tr(lang, { zh: '财务报表', en: 'Finance report', de: 'Finanzbericht', ja: '財務レポート', ko: '재무 보고서', es: 'Informe financiero', it: 'Report finanziario', vi: 'Báo cáo tài chính'})}
               </h1>
               <p className="merchant-finance-subtitle">
-                {lang === 'zh'
-                  ? '查看收入、支出与资金流水，掌握店铺经营状况'
-                  : 'Track income, spending and fund flows for your shop.'}
+                {tr(lang, {
+                  zh: '查看收入、支出与资金流水，掌握店铺经营状况',
+                  en: 'Track income, spending and fund flows for your shop.',
+                  de: 'Verfolgen Sie Einnahmen, Ausgaben und Geldflüsse Ihres Shops.', ja: '収入・支出・資金の流れを確認し、ショップの経営状況を把握しましょう', ko: '수입, 지출, 자금 흐름을 확인하고 쇼핑몰 경영 현황을 파악하세요.', es: 'Consulta ingresos, gastos y movimientos de fondos de tu tienda.', it: 'Monitora entrate, spese e flussi di fondi del tuo negozio.', vi: 'Theo dõi thu nhập, chi tiêu và dòng tiền của cửa hàng.'})}
               </p>
             </div>
           </div>
@@ -249,14 +259,14 @@ const MerchantFinance: React.FC = () => {
             className="merchant-finance-wallet-link"
             onClick={() => navigate('/wallet')}
           >
-            {lang === 'zh' ? '我的钱包' : 'My wallet'}
+            {tr(lang, { zh: '我的钱包', en: 'My wallet', de: 'Meine Wallet', ja: 'マイウォレット', ko: '내 지갑', es: 'Mi billetera', it: 'Il mio portafoglio', vi: 'Ví của tôi'})}
           </button>
         </div>
 
         <div
           className="merchant-finance-stats"
           role="group"
-          aria-label={lang === 'zh' ? '财务汇总' : 'Finance summary'}
+          aria-label={tr(lang, { zh: '财务汇总', en: 'Finance summary', de: 'Finanzübersicht', ja: '財務サマリー', ko: '재무 요약', es: 'Resumen financiero', it: 'Riepilogo finanziario', vi: 'Tóm tắt tài chính'})}
         >
           {showSkeleton ? (
             <>
@@ -272,7 +282,7 @@ const MerchantFinance: React.FC = () => {
                 </span>
                 <div className="merchant-finance-stat-body">
                   <span className="merchant-finance-stat-value">{formatMoney(totalIncome)}</span>
-                  <span className="merchant-finance-stat-label">{lang === 'zh' ? '收入' : 'Income'}</span>
+                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '收入', en: 'Income', de: 'Einnahmen', ja: '収入', ko: '수입', es: 'Ingresos', it: 'Entrate', vi: 'Thu nhập'})}</span>
                 </div>
               </div>
               <div className="merchant-finance-stat merchant-finance-stat--expense">
@@ -281,7 +291,7 @@ const MerchantFinance: React.FC = () => {
                 </span>
                 <div className="merchant-finance-stat-body">
                   <span className="merchant-finance-stat-value">{formatMoney(totalExpense)}</span>
-                  <span className="merchant-finance-stat-label">{lang === 'zh' ? '支出' : 'Expense'}</span>
+                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '支出', en: 'Expense', de: 'Ausgaben', ja: '支出', ko: '지출', es: 'Gastos', it: 'Spese', vi: 'Chi tiêu'})}</span>
                 </div>
               </div>
               <div className="merchant-finance-stat merchant-finance-stat--net">
@@ -299,7 +309,7 @@ const MerchantFinance: React.FC = () => {
                   >
                     {formatMoney(netTotal)}
                   </span>
-                  <span className="merchant-finance-stat-label">{lang === 'zh' ? '结余' : 'Net'}</span>
+                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '结余', en: 'Net', de: 'Saldo', ja: '収支', ko: '순수익', es: 'Balance neto', it: 'Saldo netto', vi: 'Số dư ròng'})}</span>
                 </div>
               </div>
             </>
@@ -323,14 +333,14 @@ const MerchantFinance: React.FC = () => {
       <section className="merchant-finance-section--v2">
         <div className="merchant-finance-toolbar">
           <h2 className="merchant-finance-detail-title">
-            {lang === 'zh' ? '流水明细' : 'Transactions'}
+            {tr(lang, { zh: '流水明细', en: 'Transactions', de: 'Transaktionen', ja: '取引明細', ko: '거래 내역', es: 'Movimientos', it: 'Movimenti', vi: 'Giao dịch'})}
           </h2>
           <button
             type="button"
             className="merchant-finance-refresh-btn"
             onClick={() => fetchFinance(records.length > 0)}
             disabled={loading || refreshing}
-            aria-label={lang === 'zh' ? '刷新' : 'Refresh'}
+            aria-label={tr(lang, { zh: '刷新', en: 'Refresh', de: 'Aktualisieren', ja: '更新', ko: '새로고침', es: 'Actualizar', it: 'Aggiorna', vi: 'Làm mới'})}
           >
             <svg
               width="18"
@@ -355,7 +365,7 @@ const MerchantFinance: React.FC = () => {
               className={`merchant-finance-filter-btn${range === key ? ' merchant-finance-filter-btn--active' : ''}`}
               onClick={() => setRange(key)}
             >
-              {lang === 'zh' ? rangeLabels[key].zh : rangeLabels[key].en}
+              {pickBilingual(lang, rangeLabels[key])}
             </button>
           ))}
         </div>
@@ -363,7 +373,7 @@ const MerchantFinance: React.FC = () => {
         <div
           className="merchant-finance-filters merchant-finance-filters--type"
           role="group"
-          aria-label={lang === 'zh' ? '流水类型' : 'Transaction type'}
+          aria-label={tr(lang, { zh: '流水类型', en: 'Transaction type', de: 'Transaktionstyp', ja: '取引タイプ', ko: '거래 유형', es: 'Tipo de movimiento', it: 'Tipo di movimento', vi: 'Loại giao dịch'})}
         >
           {typeFilters.map((item) => (
             <button
@@ -374,7 +384,7 @@ const MerchantFinance: React.FC = () => {
               }`}
               onClick={() => setTypeFilter(item.key)}
             >
-              {lang === 'zh' ? item.zh : item.en}
+              {pickBilingual(lang, item)}
               <span className="merchant-finance-type-chip-count">{typeCounts[item.key]}</span>
             </button>
           ))}
@@ -402,7 +412,10 @@ const MerchantFinance: React.FC = () => {
                 </svg>
               </span>
               <p className="merchant-finance-empty-text">
-                {lang === 'zh' ? '该时间范围内暂无资金流水' : 'No transactions in this period'}
+                {tr(lang, {
+                  zh: '该时间范围内暂无资金流水',
+                  en: 'No transactions in this period',
+                  de: 'Keine Transaktionen in diesem Zeitraum', ja: 'この期間の取引履歴はありません', ko: '해당 기간에 거래 내역이 없습니다', es: 'No hay movimientos en este período', it: 'Nessun movimento in questo periodo', vi: 'Không có giao dịch trong khoảng thời gian này'})}
               </p>
             </div>
           ) : (
@@ -435,7 +448,7 @@ const MerchantFinance: React.FC = () => {
                         </span>
                         {row.balanceAfter != null && (
                           <span className="merchant-finance-row-balance">
-                            {lang === 'zh' ? '余额' : 'Balance'} {formatMoney(row.balanceAfter)}
+                            {tr(lang, { zh: '余额', en: 'Balance', de: 'Guthaben', ja: '残高', ko: '잔액', es: 'Saldo', it: 'Saldo', vi: 'Số dư'})} {formatMoney(row.balanceAfter)}
                           </span>
                         )}
                       </div>
@@ -453,11 +466,11 @@ const MerchantFinance: React.FC = () => {
                 <table className="merchant-finance-table">
                   <thead>
                     <tr>
-                      <th>{lang === 'zh' ? '日期' : 'Date'}</th>
-                      <th>{lang === 'zh' ? '类型' : 'Type'}</th>
-                      <th>{lang === 'zh' ? '金额' : 'Amount'}</th>
-                      <th>{lang === 'zh' ? '余额' : 'Balance'}</th>
-                      <th>{lang === 'zh' ? '备注' : 'Note'}</th>
+                      <th>{tr(lang, { zh: '日期', en: 'Date', de: 'Datum', ja: '日付', ko: '날짜', es: 'Fecha', it: 'Data', vi: 'Ngày'})}</th>
+                      <th>{tr(lang, { zh: '类型', en: 'Type', de: 'Typ', ja: 'タイプ', ko: '유형', es: 'Tipo', it: 'Tipo', vi: 'Loại'})}</th>
+                      <th>{tr(lang, { zh: '金额', en: 'Amount', de: 'Betrag', ja: '金額', ko: '금액', es: 'Monto', it: 'Importo', vi: 'Số tiền'})}</th>
+                      <th>{tr(lang, { zh: '余额', en: 'Balance', de: 'Guthaben', ja: '残高', ko: '잔액', es: 'Saldo', it: 'Saldo', vi: 'Số dư'})}</th>
+                      <th>{tr(lang, { zh: '备注', en: 'Note', de: 'Notiz', ja: '備考', ko: '비고', es: 'Nota', it: 'Nota', vi: 'Ghi chú'})}</th>
                     </tr>
                   </thead>
                   <tbody>

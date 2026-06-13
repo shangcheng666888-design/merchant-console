@@ -2,16 +2,19 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
 import LocationGlobeVisual from './LocationGlobeVisual'
 import {
+  countryCentroidLabel,
   formatLatLabel,
   formatLngLabel,
   formatRegionDisplay,
   lookupCountryCentroid,
 } from '../utils/shopLocationMap'
+import type { Lang } from '../i18n'
+import { tr } from '../i18n'
 
 interface MerchantSettingsLocationMapProps {
   address: string
   country?: string
-  lang: 'zh' | 'en'
+  lang: Lang
 }
 
 interface ResolvedLocation {
@@ -26,10 +29,10 @@ function buildLocationQuery(address: string, country: string): string {
   return parts.join(', ')
 }
 
-function resolveLocalFallback(query: string, country: string): ResolvedLocation | null {
+function resolveLocalFallback(query: string, country: string, lang: Lang): ResolvedLocation | null {
   const centroid = lookupCountryCentroid(country) ?? lookupCountryCentroid(query)
   if (!centroid) return null
-  const label = country.trim() || centroid.labelZh
+  const label = country.trim() || countryCentroidLabel(centroid, lang)
   return {
     lat: centroid.lat,
     lng: centroid.lng,
@@ -100,7 +103,7 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
 
       if (cancelled) return
 
-      const fallback = resolveLocalFallback(debouncedQuery, debouncedCountry)
+      const fallback = resolveLocalFallback(debouncedQuery, debouncedCountry, lang)
       if (fallback) {
         setResolved(fallback)
         return
@@ -116,7 +119,7 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
     return () => {
       cancelled = true
     }
-  }, [debouncedQuery, debouncedCountry, hasInput])
+  }, [debouncedQuery, debouncedCountry, hasInput, lang])
 
   const region = resolved ? formatRegionDisplay(resolved.label, address, lang) : null
 
@@ -125,7 +128,7 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
       <div className="merchant-settings-loc-card merchant-settings-loc-card--idle">
         <LocationGlobeVisual mode="idle" />
         <p className="merchant-settings-loc-empty-text">
-          {lang === 'zh' ? '暂未设置店铺地址' : 'No shop address configured yet'}
+          {tr(lang, { zh: '暂未设置店铺地址', en: 'No shop address configured yet', de: 'Noch keine Shop-Adresse hinterlegt', ja: '店舗住所がまだ設定されていません', ko: '매장 주소가 아직 설정되지 않았습니다', es: 'Aún no hay dirección de la tienda configurada', it: 'Nessun indirizzo del negozio configurato', vi: 'Chưa cấu hình địa chỉ cửa hàng' })}
         </p>
       </div>
     )
@@ -137,7 +140,7 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
         <LocationGlobeVisual mode="idle" />
         <div className="merchant-settings-loc-loading-mask">
           <span className="merchant-settings-loc-loading-ring" />
-          <span>{lang === 'zh' ? '正在定位…' : 'Locating…'}</span>
+          <span>{tr(lang, { zh: '正在定位…', en: 'Locating…', de: 'Standort wird ermittelt…', ja: '位置情報を取得中…', ko: '위치 확인 중…', es: 'Localizando…', it: 'Localizzazione…', vi: 'Đang định vị…' })}</span>
         </div>
       </div>
     )
@@ -148,9 +151,14 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
       <div className="merchant-settings-loc-card merchant-settings-loc-card--idle">
         <LocationGlobeVisual mode="idle" />
         <p className="merchant-settings-loc-error">
-          {lang === 'zh'
-            ? '无法解析该地址，请检查店铺地址是否填写完整'
-            : 'Could not locate this address. Please check your shop address.'}
+          {tr(lang, {
+            zh: '无法解析该地址，请检查店铺地址是否填写完整',
+            en: 'Could not locate this address. Please check your shop address.',
+            de: 'Adresse konnte nicht gefunden werden. Bitte prüfen Sie Ihre Shop-Adresse.',
+            ja: 'この住所を特定できませんでした。店舗住所が正しく入力されているかご確認ください。',
+            ko: '주소를 확인할 수 없습니다. 매장 주소가 올바르게 입력되었는지 확인해 주세요.',
+            es: 'No se pudo localizar esta dirección. Comprueba la dirección de tu tienda.', it: 'Impossibile individuare questo indirizzo. Controlla l\'indirizzo del negozio.', vi: 'Không thể xác định địa chỉ này. Vui lòng kiểm tra địa chỉ cửa hàng.',
+          })}
         </p>
       </div>
     )

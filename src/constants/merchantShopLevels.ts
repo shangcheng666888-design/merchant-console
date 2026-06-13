@@ -2,6 +2,8 @@ import dianpu1 from '../assets/dianpu1.png'
 import dianpu2 from '../assets/dianpu2.png'
 import dianpu3 from '../assets/dianpu3.png'
 import dianpu4 from '../assets/dianpu4.png'
+import type { Lang } from '../i18n/lang'
+import { pickField } from '../i18n/tr'
 
 export type ShopLevelKey = 'normal' | 'silver' | 'gold' | 'diamond'
 
@@ -10,8 +12,20 @@ export interface MerchantShopLevel {
   level: number
   nameZh: string
   nameEn: string
+  nameDe: string
+  nameJa: string
+  nameKo: string
+  nameEs: string
+  nameIt: string
+  nameVi: string
   sellerZh: string
   sellerEn: string
+  sellerDe: string
+  sellerJa: string
+  sellerKo: string
+  sellerEs: string
+  sellerIt: string
+  sellerVi: string
   minSales: number
   icon: string
 }
@@ -22,8 +36,20 @@ export const MERCHANT_SHOP_LEVELS: MerchantShopLevel[] = [
     level: 1,
     nameZh: '普通店铺',
     nameEn: 'Standard shop',
+    nameDe: 'Standard-Shop',
+    nameJa: 'スタンダードショップ',
+    nameKo: '스탠다드 샵',
+    nameEs: 'Tienda estándar',
+    nameIt: 'Negozio standard',
+    nameVi: 'Cửa hàng tiêu chuẩn',
     sellerZh: '普通卖家',
     sellerEn: 'Standard seller',
+    sellerDe: 'Standard-Verkäufer',
+    sellerJa: 'スタンダードセラー',
+    sellerKo: '스탠다드 셀러',
+    sellerEs: 'Vendedor estándar',
+    sellerIt: 'Venditore standard',
+    sellerVi: 'Người bán tiêu chuẩn',
     minSales: 0,
     icon: dianpu1,
   },
@@ -32,8 +58,20 @@ export const MERCHANT_SHOP_LEVELS: MerchantShopLevel[] = [
     level: 2,
     nameZh: '银牌店铺',
     nameEn: 'Silver shop',
+    nameDe: 'Silber-Shop',
+    nameJa: 'シルバーショップ',
+    nameKo: '실버 샵',
+    nameEs: 'Tienda plata',
+    nameIt: 'Negozio argento',
+    nameVi: 'Cửa hàng bạc',
     sellerZh: '银牌卖家',
     sellerEn: 'Silver seller',
+    sellerDe: 'Silber-Verkäufer',
+    sellerJa: 'シルバーセラー',
+    sellerKo: '실버 셀러',
+    sellerEs: 'Vendedor plata',
+    sellerIt: 'Venditore argento',
+    sellerVi: 'Người bán bạc',
     minSales: 10000,
     icon: dianpu2,
   },
@@ -42,8 +80,20 @@ export const MERCHANT_SHOP_LEVELS: MerchantShopLevel[] = [
     level: 3,
     nameZh: '金牌店铺',
     nameEn: 'Gold shop',
+    nameDe: 'Gold-Shop',
+    nameJa: 'ゴールドショップ',
+    nameKo: '골드 샵',
+    nameEs: 'Tienda oro',
+    nameIt: 'Negozio oro',
+    nameVi: 'Cửa hàng vàng',
     sellerZh: '金牌卖家',
     sellerEn: 'Gold seller',
+    sellerDe: 'Gold-Verkäufer',
+    sellerJa: 'ゴールドセラー',
+    sellerKo: '골드 셀러',
+    sellerEs: 'Vendedor oro',
+    sellerIt: 'Venditore oro',
+    sellerVi: 'Người bán vàng',
     minSales: 50000,
     icon: dianpu3,
   },
@@ -52,12 +102,32 @@ export const MERCHANT_SHOP_LEVELS: MerchantShopLevel[] = [
     level: 4,
     nameZh: '钻石店铺',
     nameEn: 'Diamond shop',
+    nameDe: 'Diamant-Shop',
+    nameJa: 'ダイヤモンドショップ',
+    nameKo: '다이아몬드 샵',
+    nameEs: 'Tienda diamante',
+    nameIt: 'Negozio diamante',
+    nameVi: 'Cửa hàng kim cương',
     sellerZh: '钻石卖家',
     sellerEn: 'Diamond seller',
+    sellerDe: 'Diamant-Verkäufer',
+    sellerJa: 'ダイヤモンドセラー',
+    sellerKo: '다이아몬드 셀러',
+    sellerEs: 'Vendedor diamante',
+    sellerIt: 'Venditore diamante',
+    sellerVi: 'Người bán kim cương',
     minSales: 100000,
     icon: dianpu4,
   },
 ]
+
+export function shopLevelDisplayName(level: MerchantShopLevel, lang: Lang): string {
+  return pickField(lang, { zh: level.nameZh, en: level.nameEn, de: level.nameDe, ja: level.nameJa, ko: level.nameKo, es: level.nameEs, it: level.nameIt, vi: level.nameVi })
+}
+
+export function shopLevelSellerTitle(level: MerchantShopLevel, lang: Lang): string {
+  return pickField(lang, { zh: level.sellerZh, en: level.sellerEn, de: level.sellerDe, ja: level.sellerJa, ko: level.sellerKo, es: level.sellerEs, it: level.sellerIt, vi: level.sellerVi })
+}
 
 export function mapShopLevelNumber(level: number): ShopLevelKey {
   if (level >= 4) return 'diamond'

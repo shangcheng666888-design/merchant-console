@@ -13,6 +13,7 @@
     "cobe": "^2.0.1",
     "crisp-sdk-web": "^1.0.27",
     "dompurify": "^3.3.1",
+    "opencc-js": "^1.3.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.1",

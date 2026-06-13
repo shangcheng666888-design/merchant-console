@@ -3,13 +3,15 @@ import AnimatedMetric, { type AnimatedMetricFormat } from './AnimatedMetric'
 import MerchantDashboardInsight from './MerchantDashboardInsight'
 import MiniSparkline from './MiniSparkline'
 import { DashboardOverviewSkeleton } from './McLoadingSkeletons'
+import type { Lang } from '../i18n'
+import { tr } from '../i18n'
 import liulianggaikuang from '../assets/liulianggaikuang.png'
 import jinrufangke from '../assets/jinrufangke.png'
 import qirifangke from '../assets/qirifangke.png'
 import zhuanhuashuai from '../assets/zhuanhuashuai.png'
 
 export interface OverviewDashboardData {
-  lang: 'zh' | 'en'
+  lang: Lang
   visitsToday: number
   visits7d: number
   visits30d: number
@@ -55,7 +57,7 @@ interface OverviewCardConfig {
   metrics: OverviewMetric[]
   insight: string
   insightKicker: string
-  lang: 'zh' | 'en'
+  lang: Lang
   progress?: { label: string; percent: number; tone: MetricTone }
 }
 
@@ -96,23 +98,33 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
 
   const trafficInsight =
     conversionRate >= 2
-      ? lang === 'zh'
-        ? '转化率表现良好，可加大爆款商品推广'
-        : 'Solid conversion rate — consider promoting top sellers'
-      : lang === 'zh'
-        ? '访客转化偏低，建议优化商品详情与定价'
-        : 'Conversion is low — refine listings and pricing'
+      ? tr(lang, {
+          zh: '转化率表现良好，可加大爆款商品推广',
+          en: 'Solid conversion rate — consider promoting top sellers',
+          de: 'Gute Conversion-Rate — Top-Seller stärker bewerben',
+          ja: 'コンバージョン率は良好です。人気商品のプロモーション強化を検討してください。',
+          ko: '전환율이 양호합니다. 인기 상품 프로모션을 강화해 보세요.',
+          es: 'Buena tasa de conversión: considera promocionar tus productos estrella.', it: 'Buon tasso di conversione: considera di promuovere i prodotti più venduti', vi: 'Tỷ lệ chuyển đổi tốt — hãy cân nhắc quảng bá sản phẩm bán chạy',
+        })
+      : tr(lang, {
+          zh: '访客转化偏低，建议优化商品详情与定价',
+          en: 'Conversion is low — refine listings and pricing',
+          de: 'Niedrige Conversion — Listings und Preise optimieren',
+          ja: 'コンバージョン率が低めです。商品詳細と価格の最適化をおすすめします。',
+          ko: '방문 전환율이 낮습니다. 상품 상세와 가격을 최적화해 보세요.',
+          es: 'La conversión es baja: optimiza las fichas de producto y los precios.', it: 'La conversione è bassa: ottimizza schede prodotto e prezzi', vi: 'Tỷ lệ chuyển đổi thấp — hãy tối ưu mô tả sản phẩm và giá',
+        })
 
   return {
     variant: 'traffic',
-    title: lang === 'zh' ? '流量概况' : 'Traffic overview',
+    title: tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' }),
     code: 'TRAFFIC · 7D',
     primaryNumeric: visits30d,
     primaryFormat: 'compact',
-    primaryLabel: lang === 'zh' ? '30日访客' : '30-day visitors',
+    primaryLabel: tr(lang, { zh: '30日访客', en: '30-day visitors', de: 'Besucher (30 Tage)', ja: '30日間の訪問者', ko: '30일 방문자', es: 'Visitantes en 30 días', it: 'Visitatori in 30 giorni', vi: 'Khách truy cập 30 ngày' }),
     primaryDelta: visitDelta,
     primaryDeltaMode: visitDeltaMode,
-    primaryDeltaLabel: lang === 'zh' ? '今日较昨日' : 'today vs yesterday',
+    primaryDeltaLabel: tr(lang, { zh: '今日较昨日', en: 'today vs yesterday', de: 'heute vs. gestern', ja: '昨日比（本日）', ko: '어제 대비 오늘', es: 'hoy vs. ayer', it: 'oggi rispetto a ieri', vi: 'hôm nay so với hôm qua' }),
     sparkData: sparkVisits,
     sparkColor: '#4f9cf9',
     metrics: [
@@ -120,14 +132,14 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
         iconSrc: jinrufangke,
         numericValue: visitsToday,
         valueFormat: 'number',
-        label: lang === 'zh' ? '今日访客' : "Today's visitors",
+        label: tr(lang, { zh: '今日访客', en: "Today's visitors", de: 'Besucher heute', ja: '本日の訪問者', ko: '오늘 방문자', es: 'Visitantes hoy', it: 'Visitatori di oggi', vi: 'Khách truy cập hôm nay' }),
         tone: 'blue',
       },
       {
         iconSrc: qirifangke,
         numericValue: visits7d,
         valueFormat: 'number',
-        label: lang === 'zh' ? '7日访客' : '7-day visitors',
+        label: tr(lang, { zh: '7日访客', en: '7-day visitors', de: 'Besucher (7 Tage)', ja: '7日間の訪問者', ko: '7일 방문자', es: 'Visitantes en 7 días', it: 'Visitatori in 7 giorni', vi: 'Khách truy cập 7 ngày' }),
         tone: 'indigo',
       },
       {
@@ -135,13 +147,13 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
         numericValue: conversionRate,
         valueFormat: 'percent',
         decimals: 2,
-        label: lang === 'zh' ? '转化率' : 'Conversion',
+        label: tr(lang, { zh: '转化率', en: 'Conversion', de: 'Conversion', ja: 'コンバージョン率', ko: '전환율', es: 'Conversión', it: 'Conversione', vi: 'Chuyển đổi' }),
         barPercent: Math.min(100, conversionRate * 20),
         tone: 'violet',
       },
     ],
     insight: trafficInsight,
-    insightKicker: lang === 'zh' ? '智能摘要' : 'Smart insight',
+    insightKicker: tr(lang, { zh: '智能摘要', en: 'Smart insight', de: 'Intelligente Zusammenfassung', ja: 'スマートサマリー', ko: '스마트 요약', es: 'Resumen inteligente', it: 'Riepilogo intelligente', vi: 'Tóm tắt thông minh' }),
     lang,
   }
 }

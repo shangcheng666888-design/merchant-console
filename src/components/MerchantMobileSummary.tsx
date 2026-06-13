@@ -3,26 +3,8 @@ import { Link } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { useMerchantDashboardBrief } from '../hooks/useMerchantDashboardBrief'
-import dianpu1 from '../assets/dianpu1.png'
-import dianpu2 from '../assets/dianpu2.png'
-import dianpu3 from '../assets/dianpu3.png'
-import dianpu4 from '../assets/dianpu4.png'
-
-function getShopLevelLabel(level: number | undefined, lang: 'zh' | 'en'): string {
-  const lvl = typeof level === 'number' ? level : 1
-  if (lvl >= 4) return lang === 'zh' ? '钻石店铺' : 'Diamond'
-  if (lvl >= 3) return lang === 'zh' ? '金牌店铺' : 'Gold'
-  if (lvl >= 2) return lang === 'zh' ? '银牌店铺' : 'Silver'
-  return lang === 'zh' ? '普通店铺' : 'Standard'
-}
-
-function getShopLevelIcon(level: number | undefined): string {
-  const lvl = typeof level === 'number' ? level : 1
-  if (lvl >= 4) return dianpu4
-  if (lvl >= 3) return dianpu3
-  if (lvl >= 2) return dianpu2
-  return dianpu1
-}
+import { getMerchantShopLevel, shopLevelDisplayName } from '../constants/merchantShopLevels'
+import { tr } from '../i18n'
 
 const MerchantMobileSummary: React.FC = () => {
   const { lang } = useLang()
@@ -31,6 +13,8 @@ const MerchantMobileSummary: React.FC = () => {
 
   if (!shop) return null
 
+  const levelInfo = getMerchantShopLevel(shop.level)
+
   return (
     <div className="mc-mobile-summary">
       <div className="mc-mobile-summary-shop">
@@ -38,27 +22,27 @@ const MerchantMobileSummary: React.FC = () => {
           <img src={shop.logo} alt="" className="mc-mobile-summary-avatar" />
         ) : (
           <div className="mc-mobile-summary-avatar mc-mobile-summary-avatar--fallback">
-            {shop.name.slice(0, 1) || '店'}
+            {shop.name.slice(0, 1) || tr(lang, { zh: '店', en: 'S', de: 'S', ja: '店', ko: '매', es: 'T', it: 'N', vi: 'C' })}
           </div>
         )}
         <div className="mc-mobile-summary-meta">
           <div className="mc-mobile-summary-name">{shop.name}</div>
           <div className="mc-mobile-summary-level">
-            <img src={getShopLevelIcon(shop.level)} alt="" aria-hidden="true" />
-            {getShopLevelLabel(shop.level, lang)}
+            <img src={levelInfo.icon} alt="" aria-hidden="true" />
+            {shopLevelDisplayName(levelInfo, lang)}
           </div>
         </div>
       </div>
       <div className="mc-mobile-summary-stats">
         <div className="mc-mobile-summary-stat">
           <span className="mc-mobile-summary-stat-label">
-            {lang === 'zh' ? '今日销售' : 'Today'}
+            {tr(lang, { zh: '今日销售', en: 'Today', de: 'Heute', ja: '本日の売上', ko: '오늘 매출', es: 'Hoy', it: 'Oggi', vi: 'Hôm nay' })}
           </span>
           <span className="mc-mobile-summary-stat-value">${todaySales.toFixed(2)}</span>
         </div>
         <Link to="/orders" className="mc-mobile-summary-stat mc-mobile-summary-stat--link">
           <span className="mc-mobile-summary-stat-label">
-            {lang === 'zh' ? '待处理' : 'Pending'}
+            {tr(lang, { zh: '待处理', en: 'Pending', de: 'Offen', ja: '未処理', ko: '대기 중', es: 'Pendiente', it: 'In attesa', vi: 'Chờ xử lý' })}
           </span>
           <span className="mc-mobile-summary-stat-value">
             {pendingOrders}

@@ -1,4 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useLang } from '../context/LangContext'
+import { tr } from '../i18n/tr'
 
 export type ToastType = 'success' | 'error'
 
@@ -24,8 +26,10 @@ const TOAST_DURATION = {
 } as const
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { lang } = useLang()
   const [toast, setToast] = useState<ToastState | null>(null)
   const timerRef = useRef<number | null>(null)
+  const toastSeparator = tr(lang, { zh: '：', en: ': ', de: ': ', ja: ': ', ko: ': ', es: ': ', it: ': ', vi: ': ' })
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -71,7 +75,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           <span className="app-toast-icon" aria-hidden="true">
             {toast.type === 'error' ? '✕' : '✔'}
           </span>
-          <span className="app-toast-text">{toast.message ? `${toast.title}：${toast.message}` : toast.title}</span>
+          <span className="app-toast-text">
+            {toast.message ? `${toast.title}${toastSeparator}${toast.message}` : toast.title}
+          </span>
         </div>
       )}
     </ToastContext.Provider>

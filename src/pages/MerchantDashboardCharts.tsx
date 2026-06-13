@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import type { Lang } from '../context/LangContext'
 import { DashboardChartSkeletonShell } from '../components/McLoadingSkeletons'
+import { pickField, tr, type Lang } from '../i18n'
 
 export type ChartDataItem = { name: string; 评分: number; 访客: number; 订单: number }
 type ActiveChart = 'shop' | 'traffic' | 'orders'
@@ -49,6 +49,54 @@ const tooltipStyle = {
   fontSize: 12,
 }
 
+const CHART_TABS = [
+  { id: 'shop' as const, zh: '店铺评分', en: 'Shop score', de: 'Shop-Bewertung', ja: 'ショップ評価', ko: '점포 평점', es: 'Puntuación de tienda', it: 'Punteggio negozio', vi: 'Điểm cửa hàng' },
+  { id: 'traffic' as const, zh: '流量', en: 'Traffic', de: 'Traffic', ja: 'トラフィック', ko: '트래픽', es: 'Tráfico', it: 'Traffico', vi: 'Lưu lượng' },
+  { id: 'orders' as const, zh: '订单趋势', en: 'Orders', de: 'Bestellungen', ja: '注文トレンド', ko: '주문 추세', es: 'Pedidos', it: 'Ordini', vi: 'Đơn hàng' },
+]
+
+const CHART_CARDS = [
+  {
+    id: 'shop' as const,
+    titleZh: '店铺概况趋势',
+    titleEn: 'Shop overview trend',
+    titleDe: 'Shop-Übersichtstrend',
+    titleJa: 'ショップ概要トレンド',
+    titleKo: '점포 개요 추세',
+    titleEs: 'Tendencia general de la tienda',
+    titleIt: 'Tendenza panoramica negozio',
+    titleVi: 'Xu hướng tổng quan cửa hàng',
+    dataKey: '评分' as const,
+    theme: CHART_THEME.shop,
+  },
+  {
+    id: 'traffic' as const,
+    titleZh: '流量趋势',
+    titleEn: 'Traffic trend',
+    titleDe: 'Traffic-Trend',
+    titleJa: 'トラフィックトレンド',
+    titleKo: '트래픽 추세',
+    titleEs: 'Tendencia de tráfico',
+    titleIt: 'Tendenza del traffico',
+    titleVi: 'Xu hướng lưu lượng',
+    dataKey: '访客' as const,
+    theme: CHART_THEME.traffic,
+  },
+  {
+    id: 'orders' as const,
+    titleZh: '订单趋势',
+    titleEn: 'Order trend',
+    titleDe: 'Bestelltrend',
+    titleJa: '注文トレンド',
+    titleKo: '주문 추세',
+    titleEs: 'Tendencia de pedidos',
+    titleIt: 'Tendenza ordini',
+    titleVi: 'Xu hướng đơn hàng',
+    dataKey: '订单' as const,
+    theme: CHART_THEME.orders,
+  },
+]
+
 export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = ({
   chartData,
   activeChart,
@@ -67,42 +115,12 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
     return <DashboardChartSkeletonShell lang={lang} />
   }
 
-  const tabs = [
-    { id: 'shop' as const, zh: '店铺评分', en: 'Shop score' },
-    { id: 'traffic' as const, zh: '流量', en: 'Traffic' },
-    { id: 'orders' as const, zh: '订单趋势', en: 'Orders' },
-  ]
-
-  const chartCards = [
-    {
-      id: 'shop' as const,
-      titleZh: '店铺概况趋势',
-      titleEn: 'Shop overview trend',
-      dataKey: '评分' as const,
-      theme: CHART_THEME.shop,
-    },
-    {
-      id: 'traffic' as const,
-      titleZh: '流量趋势',
-      titleEn: 'Traffic trend',
-      dataKey: '访客' as const,
-      theme: CHART_THEME.traffic,
-    },
-    {
-      id: 'orders' as const,
-      titleZh: '订单趋势',
-      titleEn: 'Order trend',
-      dataKey: '订单' as const,
-      theme: CHART_THEME.orders,
-    },
-  ]
-
   const { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts
 
   return (
     <div className="merchant-dashboard-charts-shell merchant-dashboard-charts-shell--animated">
       <div className="merchant-dashboard-chart-switch">
-        {tabs.map((tab) => (
+        {CHART_TABS.map((tab) => (
           <button
             key={tab.id}
             type="button"
@@ -111,13 +129,13 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
             }`}
             onClick={() => setActiveChart(tab.id)}
           >
-            {lang === 'zh' ? tab.zh : tab.en}
+            {pickField(lang, { zh: tab.zh, en: tab.en, de: tab.de, ja: tab.ja, ko: tab.ko, es: tab.es, it: tab.it, vi: tab.vi })}
           </button>
         ))}
       </div>
 
       <div className="merchant-dashboard-charts merchant-dashboard-charts--v2">
-        {chartCards.map((card) => (
+        {CHART_CARDS.map((card) => (
           <div
             key={card.id}
             className={`merchant-dashboard-chart-card${
@@ -126,13 +144,13 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
           >
             <div className="merchant-dashboard-chart-card-head">
               <h3 className="merchant-dashboard-chart-title">
-                {lang === 'zh' ? card.titleZh : card.titleEn}
+                {pickField(lang, { zh: card.titleZh, en: card.titleEn, de: card.titleDe, ja: card.titleJa, ko: card.titleKo, es: card.titleEs, it: card.titleIt, vi: card.titleVi })}
               </h3>
               <span
                 className="merchant-dashboard-chart-legend"
                 style={{ color: card.theme.stroke }}
               >
-                ● {lang === 'zh' ? '近7日' : '7 days'}
+                ● {tr(lang, { zh: '近7日', en: '7 days', de: '7 Tage', ja: '直近7日', ko: '최근 7일', es: '7 días', it: '7 giorni', vi: '7 ngày' })}
               </span>
             </div>
             <div className="merchant-dashboard-chart-wrap">

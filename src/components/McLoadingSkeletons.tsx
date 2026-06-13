@@ -1,10 +1,13 @@
+import type { Lang } from '../i18n'
+import { tr } from '../i18n'
+
 export function McSkeletonBlock({ className = '' }: { className?: string }) {
   return <span className={`mc-skeleton-block ${className}`.trim()} aria-hidden="true" />
 }
 
-export function DashboardChartSkeletonShell({ lang }: { lang: 'zh' | 'en' }) {
+export function DashboardChartSkeletonShell({ lang }: { lang: Lang }) {
   return (
-    <div className="merchant-dashboard-charts-shell merchant-dashboard-charts-shell--animated" aria-busy="true" aria-label={lang === 'zh' ? '图表加载中' : 'Loading chart'}>
+    <div className="merchant-dashboard-charts-shell merchant-dashboard-charts-shell--animated" aria-busy="true" aria-label={tr(lang, { zh: '图表加载中', en: 'Loading chart', de: 'Diagramm wird geladen', ja: 'グラフを読み込み中', ko: '차트 로딩 중', es: 'Cargando gráfico', it: 'Caricamento grafico', vi: 'Đang tải biểu đồ' })}>
       <div className="merchant-dashboard-chart-switch">
         <span className="mc-skeleton-block mc-skeleton-chart-tab" />
         <span className="mc-skeleton-block mc-skeleton-chart-tab" />
@@ -127,12 +130,12 @@ export function PlanCurrentLevelSkeleton() {
   )
 }
 
-export function PaidPromoBoardSkeleton({ lang }: { lang: 'zh' | 'en' }) {
+export function PaidPromoBoardSkeleton({ lang }: { lang: Lang }) {
   return (
     <section
       className="merchant-paid-promo-board merchant-paid-promo-board--skeleton"
       aria-busy="true"
-      aria-label={lang === 'zh' ? '推广数据加载中' : 'Loading promotion data'}
+      aria-label={tr(lang, { zh: '推广数据加载中', en: 'Loading promotion data', de: 'Werbedaten werden geladen', ja: 'プロモーションデータを読み込み中', ko: '프로모션 데이터 로딩 중', es: 'Cargando datos de promoción', it: 'Caricamento dati promozione', vi: 'Đang tải dữ liệu quảng cáo' })}
     >
       <header className="merchant-dashboard-section-head">
         <div className="merchant-paid-promo-board-head">
