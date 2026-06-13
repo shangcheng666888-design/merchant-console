@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { api, apiBase } from '../api/client'
+import { apiBase } from '../api/client'
 import {
   emitMerchantSync,
   MERCHANT_SYNC_POLL_MS,
@@ -23,6 +23,7 @@ interface MerchantSyncContextValue {
   snapshot: ShopSyncSnapshot | null
   lastVersion: number | null
   connected: boolean
+  syncAvailable: boolean
   forceSync: () => Promise<void>
 }
 
@@ -58,12 +59,51 @@ function parseSseTopics(raw: unknown): MerchantSyncTopic[] {
   return topics.length > 0 ? topics : ['all']
 }
 
+async function fetchSyncSnapshot(auth: MerchantAuth): Promise<{ ok: true; snap: ShopSyncSnapshot } | { ok: false; status: number }> {
+  const base = apiBase || ''
+  const url = `${base}/api/shops/${encodeURIComponent(auth.shopId)}/sync?userId=${encodeURIComponent(auth.userId)}`
+  const res = await fetch(url, { method: 'GET', credentials: 'include' })
+  if (!res.ok) {
+    return { ok: false, status: res.status }
+  }
+  const snap = (await res.json()) as ShopSyncSnapshot
+  return { ok: true, snap }
+}
+
 export const MerchantSyncProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [snapshot, setSnapshot] = useState<ShopSyncSnapshot | null>(null)
   const [lastVersion, setLastVersion] = useState<number | null>(null)
   const [connected, setConnected] = useState(false)
+  const [syncAvailable, setSyncAvailable] = useState(true)
   const lastVersionRef = useRef<number | null>(null)
   const pollingRef = useRef(false)
+  const syncAvailableRef = useRef(true)
+  const fallbackTimerRef = useRef<number | null>(null)
+
+  const stopFallbackPolling = useCallback(() => {
+    if (fallbackTimerRef.current != null) {
+      window.clearInterval(fallbackTimerRef.current)
+      fallbackTimerRef.current = null
+    }
+  }, [])
+
+  const startFallbackPolling = useCallback(() => {
+    if (fallbackTimerRef.current != null) return
+    fallbackTimerRef.current = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        emitMerchantSync(['all'], 'poll')
+      }
+    }, MERCHANT_SYNC_POLL_MS)
+  }, [])
+
+  const markSyncUnavailable = useCallback(() => {
+    if (!syncAvailableRef.current) return
+    syncAvailableRef.current = false
+    setSyncAvailable(false)
+    setConnected(false)
+    startFallbackPolling()
+    emitMerchantSync(['all'], 'poll')
+  }, [startFallbackPolling])
 
   const applySnapshot = useCallback((snap: ShopSyncSnapshot, topics: MerchantSyncTopic[], reason: 'poll' | 'sse' | 'visible' | 'manual') => {
     setSnapshot(snap)
@@ -75,14 +115,28 @@ export const MerchantSyncProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const pollSync = useCallback(async (reason: 'poll' | 'visible' | 'manual') => {
     const auth = readMerchantAuth()
     if (!auth || pollingRef.current) return
+
+    if (!syncAvailableRef.current) {
+      emitMerchantSync(['all'], reason)
+      return
+    }
+
     pollingRef.current = true
     try {
-      const snap = await api.get<ShopSyncSnapshot>(
-        `/api/shops/${encodeURIComponent(auth.shopId)}/sync?userId=${encodeURIComponent(auth.userId)}`,
-      )
+      const result = await fetchSyncSnapshot(auth)
+      if (!result.ok) {
+        if (result.status === 404 || result.status === 501) {
+          markSyncUnavailable()
+        }
+        return
+      }
+
+      const snap = result.snap
       const prev = lastVersionRef.current
       setSnapshot(snap)
       setLastVersion(snap.version)
+      stopFallbackPolling()
+
       if (prev === null) {
         lastVersionRef.current = snap.version
         return
@@ -92,11 +146,13 @@ export const MerchantSyncProvider: React.FC<{ children: React.ReactNode }> = ({ 
         applySnapshot(snap, ['all'], reason)
       }
     } catch {
-      // keep last snapshot
+      if (syncAvailableRef.current) {
+        emitMerchantSync(['all'], reason)
+      }
     } finally {
       pollingRef.current = false
     }
-  }, [applySnapshot])
+  }, [applySnapshot, markSyncUnavailable, stopFallbackPolling])
 
   const forceSync = useCallback(async () => {
     await pollSync('manual')
@@ -120,21 +176,23 @@ export const MerchantSyncProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => {
       document.removeEventListener('visibilitychange', onVisible)
       window.clearInterval(timer)
+      stopFallbackPolling()
     }
-  }, [pollSync])
+  }, [pollSync, stopFallbackPolling])
 
   useEffect(() => {
     const auth = readMerchantAuth()
-    if (!auth) return
+    if (!auth || !syncAvailable) return
 
     const base = apiBase || ''
     const url = `${base}/api/merchant/events?shopId=${encodeURIComponent(auth.shopId)}&userId=${encodeURIComponent(auth.userId)}`
     let es: EventSource | null = null
     let reconnectTimer: number | null = null
     let closed = false
+    let sseDisabled = false
 
     const connect = () => {
-      if (closed) return
+      if (closed || sseDisabled || !syncAvailableRef.current) return
       es = new EventSource(url)
 
       es.onopen = () => setConnected(true)
@@ -142,9 +200,15 @@ export const MerchantSyncProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setConnected(false)
         es?.close()
         es = null
-        if (!closed) {
+        if (closed || sseDisabled || !syncAvailableRef.current) return
+        void fetchSyncSnapshot(auth).then((probe) => {
+          if (closed || sseDisabled || !syncAvailableRef.current) return
+          if (!probe.ok && (probe.status === 404 || probe.status === 501)) {
+            markSyncUnavailable()
+            return
+          }
           reconnectTimer = window.setTimeout(connect, 4000)
-        }
+        })
       }
 
       es.onmessage = (event) => {
@@ -153,6 +217,10 @@ export const MerchantSyncProvider: React.FC<{ children: React.ReactNode }> = ({ 
             type?: string
             version?: number | null
             topics?: unknown
+          }
+          if (data.type === 'connected') {
+            setConnected(true)
+            return
           }
           if (data.type !== 'shop.sync') return
           const topics = parseSseTopics(data.topics)
@@ -172,14 +240,15 @@ export const MerchantSyncProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     return () => {
       closed = true
+      sseDisabled = true
       setConnected(false)
       if (reconnectTimer != null) window.clearTimeout(reconnectTimer)
       es?.close()
     }
-  }, [pollSync])
+  }, [pollSync, syncAvailable, markSyncUnavailable])
 
   return (
-    <MerchantSyncContext.Provider value={{ snapshot, lastVersion, connected, forceSync }}>
+    <MerchantSyncContext.Provider value={{ snapshot, lastVersion, connected, syncAvailable, forceSync }}>
       {children}
     </MerchantSyncContext.Provider>
   )
