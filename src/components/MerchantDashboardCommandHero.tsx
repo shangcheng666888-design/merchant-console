@@ -20,6 +20,7 @@ import {
   getMerchantShopLevelProgress,
 } from '../constants/merchantShopLevels'
 import MiniSparkline from './MiniSparkline'
+import { DashboardHeroMetricsSkeleton, McSkeletonBlock } from './McLoadingSkeletons'
 
 function HealthRing({ value, label }: { value: number; label: string }) {
   const radius = 37
@@ -212,6 +213,7 @@ interface CommandHeroProps {
   expectedProfit: number
   unsettledAmount: number
   pendingOrders: number
+  metricsLoading?: boolean
   onNavigate: (path: string) => void
 }
 
@@ -252,6 +254,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
   expectedProfit,
   unsettledAmount,
   pendingOrders,
+  metricsLoading = false,
   onNavigate,
 }) => {
   const levelInfo = getMerchantShopLevel(shopLevel)
@@ -278,19 +281,6 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
     ? `${lang === 'zh' ? '店铺 ID' : 'Shop ID'} · ${shopId}`
     : ''
 
-  const renderShopHead = (variant: 'under-emblem' | 'beside-emblem') => (
-    <div className={`merchant-cmd-shop-head merchant-cmd-shop-head--${variant}`}>
-      <h2 className="merchant-cmd-shop-name" title={displayShopName}>
-        {displayShopName}
-      </h2>
-      {shopId ? (
-        <span className="merchant-cmd-shop-id" title={shopId}>
-          {shopIdLabel}
-        </span>
-      ) : null}
-    </div>
-  )
-
   const quickActions: { key: CmdActionKey; path: string; zh: string; en: string; badge: number; primary: boolean; iconSrc?: string }[] = [
     { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', badge: pendingOrders, primary: pendingOrders > 0, iconSrc: daifahuo },
     { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', badge: 0, primary: false, iconSrc: yunyingjihua },
@@ -309,19 +299,29 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
 
       <div className="merchant-cmd-inner">
         <header className="merchant-cmd-header">
+          <span className="merchant-cmd-date">{dateLabel}</span>
+
           <div className="merchant-cmd-identity">
-            <div className="merchant-cmd-identity-emblem-col">
-              <div className={`merchant-cmd-shop-emblem merchant-cmd-shop-emblem--${levelInfo.key}`}>
-                <img
-                  src={shopLogo || levelInfo.icon}
-                  alt=""
-                  className={`merchant-cmd-shop-emblem-img${shopLogo ? '' : ' merchant-cmd-shop-emblem-img--icon'}`}
-                />
-              </div>
-              {renderShopHead('under-emblem')}
+            <div className={`merchant-cmd-shop-emblem merchant-cmd-shop-emblem--${levelInfo.key}`}>
+              <img
+                src={shopLogo || levelInfo.icon}
+                alt=""
+                className={`merchant-cmd-shop-emblem-img${shopLogo ? '' : ' merchant-cmd-shop-emblem-img--icon'}`}
+              />
             </div>
+
             <div className="merchant-cmd-identity-body">
-              {renderShopHead('beside-emblem')}
+              <div className="merchant-cmd-shop-head">
+                <h2 className="merchant-cmd-shop-name" title={displayShopName}>
+                  {displayShopName}
+                </h2>
+                {shopId ? (
+                  <span className="merchant-cmd-shop-id" title={shopId}>
+                    {shopIdLabel}
+                  </span>
+                ) : null}
+              </div>
+
               <div className="merchant-cmd-level-row">
                 <span className={`merchant-cmd-level-badge merchant-cmd-level-badge--${levelInfo.key}`}>
                   <img src={levelInfo.icon} alt="" className="merchant-cmd-level-badge-icon" />
@@ -331,48 +331,63 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                   {lang === 'zh' ? '查看等级权益' : 'View level benefits'}
                 </button>
               </div>
-              <div className="merchant-cmd-level-progress">
-                <div className="merchant-cmd-level-progress-meta">
-                  <span>{levelProgressLabel}</span>
-                  <strong>{Math.round(levelProgress)}%</strong>
-                </div>
-                <span
-                  className="merchant-cmd-level-progress-track"
-                  role="progressbar"
-                  aria-valuenow={Math.round(levelProgress)}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={levelProgressLabel}
-                >
-                  <span
-                    className="merchant-cmd-level-progress-fill"
-                    style={{ width: `${Math.min(100, Math.max(0, levelProgress))}%` }}
-                  />
-                </span>
+
+              <div className={`merchant-cmd-level-progress${metricsLoading ? ' merchant-cmd-level-progress--skeleton' : ''}`}>
+                {metricsLoading ? (
+                  <>
+                    <McSkeletonBlock className="mc-skeleton-cmd-progress-meta" />
+                    <McSkeletonBlock className="mc-skeleton-cmd-progress-track" />
+                  </>
+                ) : (
+                  <>
+                    <div className="merchant-cmd-level-progress-meta">
+                      <span>{levelProgressLabel}</span>
+                      <strong>{Math.round(levelProgress)}%</strong>
+                    </div>
+                    <span
+                      className="merchant-cmd-level-progress-track"
+                      role="progressbar"
+                      aria-valuenow={Math.round(levelProgress)}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={levelProgressLabel}
+                    >
+                      <span
+                        className="merchant-cmd-level-progress-fill"
+                        style={{ width: `${Math.min(100, Math.max(0, levelProgress))}%` }}
+                      />
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
-          <div className="merchant-cmd-header-meta">
-            <span className="merchant-cmd-date">{dateLabel}</span>
-            <div className="merchant-cmd-total-sales">
-              <span className="merchant-cmd-total-sales-icon merchant-cmd-total-sales-icon--img" aria-hidden="true">
-                <img src={leijixiaoshoue} alt="" className="merchant-cmd-total-sales-icon-img" />
+
+          <div className="merchant-cmd-total-sales">
+            <span className="merchant-cmd-total-sales-icon merchant-cmd-total-sales-icon--img" aria-hidden="true">
+              <img src={leijixiaoshoue} alt="" className="merchant-cmd-total-sales-icon-img" />
+            </span>
+            <div className="merchant-cmd-total-sales-body">
+              <span className="merchant-cmd-total-sales-label">
+                {lang === 'zh' ? '累计销售额' : 'Total sales'}
               </span>
-              <div className="merchant-cmd-total-sales-body">
-                <span className="merchant-cmd-total-sales-label">
-                  {lang === 'zh' ? '累计销售额' : 'Total sales'}
-                </span>
+              {metricsLoading ? (
+                <McSkeletonBlock className="merchant-cmd-total-sales-value merchant-cmd-total-sales-value--skeleton" />
+              ) : (
                 <AnimatedMetric
                   value={levelSales}
                   format="currency"
                   decimals={0}
                   className="merchant-cmd-total-sales-value"
                 />
-              </div>
+              )}
             </div>
           </div>
         </header>
 
+        {metricsLoading ? (
+          <DashboardHeroMetricsSkeleton />
+        ) : (
         <div className="merchant-cmd-body">
           <div className="merchant-cmd-metrics-panel">
             <div className="merchant-cmd-metrics-row merchant-cmd-metrics-row--total">
@@ -489,6 +504,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
             </div>
           </div>
         </div>
+        )}
 
         <div className="merchant-cmd-actions">
           {quickActions.map((action) => (

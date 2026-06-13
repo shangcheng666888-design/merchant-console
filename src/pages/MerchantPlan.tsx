@@ -6,6 +6,7 @@ import dianpu2 from '../assets/dianpu2.png'
 import dianpu3 from '../assets/dianpu3.png'
 import dianpu4 from '../assets/dianpu4.png'
 import yunyingjihua from '../assets/yunyingjihua.png'
+import { PlanCurrentLevelSkeleton, PlanHeaderStatsSkeleton } from '../components/McLoadingSkeletons'
 import liulianggaikuang from '../assets/liulianggaikuang.png'
 import paidTiktok from '../assets/paid-tiktok.png'
 import paidMeta from '../assets/paid-meta.png'
@@ -308,24 +309,28 @@ const MerchantPlan: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="merchant-plan-header-stats">
-          <div className="merchant-plan-header-stat">
-            <span className="merchant-plan-header-stat-value">
-              {loading ? '—' : `$${totalSales.toLocaleString()}`}
-            </span>
-            <span className="merchant-plan-header-stat-label">
-              {lang === 'zh' ? '累计销售额' : 'Total sales'}
-            </span>
+        {loading ? (
+          <PlanHeaderStatsSkeleton />
+        ) : (
+          <div className="merchant-plan-header-stats">
+            <div className="merchant-plan-header-stat">
+              <span className="merchant-plan-header-stat-value">
+                ${totalSales.toLocaleString()}
+              </span>
+              <span className="merchant-plan-header-stat-label">
+                {lang === 'zh' ? '累计销售额' : 'Total sales'}
+              </span>
+            </div>
+            <div className="merchant-plan-header-stat">
+              <span className="merchant-plan-header-stat-value">
+                {lang === 'zh' ? currentLevelInfo.nameZh : currentLevelInfo.nameEn}
+              </span>
+              <span className="merchant-plan-header-stat-label">
+                {lang === 'zh' ? '当前等级' : 'Current level'}
+              </span>
+            </div>
           </div>
-          <div className="merchant-plan-header-stat">
-            <span className="merchant-plan-header-stat-value">
-              {lang === 'zh' ? currentLevelInfo.nameZh : currentLevelInfo.nameEn}
-            </span>
-            <span className="merchant-plan-header-stat-label">
-              {lang === 'zh' ? '当前等级' : 'Current level'}
-            </span>
-          </div>
-        </div>
+        )}
       </header>
 
       {error && <div className="merchant-plan-error merchant-plan-error--v2">{error}</div>}
@@ -474,6 +479,9 @@ const MerchantPlan: React.FC = () => {
           </div>
         </div>
 
+        {loading ? (
+          <PlanCurrentLevelSkeleton />
+        ) : (
         <div className="merchant-plan-current merchant-plan-current--v2">
           <div className="merchant-plan-current-card">
             <div className="merchant-plan-current-top">
@@ -517,7 +525,9 @@ const MerchantPlan: React.FC = () => {
             )}
           </div>
         </div>
+        )}
 
+        {!loading ? (
         <ul className="merchant-plan-levels-list merchant-plan-levels-list--v2">
           {LEVELS.map((level, index) => {
             const isCurrent = level.key === currentLevel
@@ -568,6 +578,7 @@ const MerchantPlan: React.FC = () => {
             )
           })}
         </ul>
+        ) : null}
       </section>
     </div>
   )

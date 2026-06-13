@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import type { Lang } from '../context/LangContext'
+import { DashboardChartSkeletonShell } from '../components/McLoadingSkeletons'
 
 export type ChartDataItem = { name: string; 评分: number; 访客: number; 订单: number }
 type ActiveChart = 'shop' | 'traffic' | 'orders'
@@ -10,6 +11,7 @@ interface MerchantDashboardChartsProps {
   setActiveChart: (v: ActiveChart) => void
   formatXAxisLabel: (value: string | number) => string
   lang: Lang
+  dataLoading?: boolean
 }
 
 const formatXAxisLabelDefault = (v: string | number) => String(v)
@@ -53,12 +55,17 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
   setActiveChart,
   formatXAxisLabel = formatXAxisLabelDefault,
   lang,
+  dataLoading = false,
 }) => {
   const [Recharts, setRecharts] = useState<typeof import('recharts') | null>(null)
 
   useEffect(() => {
     import('recharts').then((m) => setRecharts(m))
   }, [])
+
+  if (dataLoading || !Recharts) {
+    return <DashboardChartSkeletonShell lang={lang} />
+  }
 
   const tabs = [
     { id: 'shop' as const, zh: '店铺评分', en: 'Shop score' },
@@ -89,26 +96,6 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
       theme: CHART_THEME.orders,
     },
   ]
-
-  if (!Recharts) {
-    return (
-      <div className="merchant-dashboard-charts-shell merchant-dashboard-charts-shell--animated">
-        <div className="merchant-dashboard-chart-switch">
-          <span className="merchant-dashboard-chart-tab merchant-dashboard-chart-tab--active">
-            {lang === 'zh' ? '店铺评分' : 'Shop score'}
-          </span>
-        </div>
-        <div className="merchant-dashboard-chart-card merchant-dashboard-chart-card--active">
-          <h3 className="merchant-dashboard-chart-title">
-            {lang === 'zh' ? '店铺概况趋势' : 'Shop overview trend'}
-          </h3>
-          <div className="merchant-dashboard-chart-wrap merchant-dashboard-chart-skeleton" aria-hidden>
-            <div className="merchant-dashboard-chart-skeleton-inner" />
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   const { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts
 

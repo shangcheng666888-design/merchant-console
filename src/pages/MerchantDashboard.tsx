@@ -93,6 +93,7 @@ const MerchantDashboard: React.FC = () => {
   const [chartData, setChartData] = useState(EMPTY_CHART_DATA)
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
   const [dashboardMounted, setDashboardMounted] = useState(false)
+  const [dashboardReady, setDashboardReady] = useState(false)
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setDashboardMounted(true))
@@ -189,6 +190,7 @@ const MerchantDashboard: React.FC = () => {
         if (Array.isArray(cached.chartData) && cached.chartData.length === 7) {
           setChartData(cached.chartData)
         }
+        setDashboardReady(true)
       }
     } catch {
       // ignore cache errors
@@ -316,6 +318,8 @@ const MerchantDashboard: React.FC = () => {
         }
       } catch {
         // keep defaults
+      } finally {
+        setDashboardReady(true)
       }
     }
 
@@ -387,6 +391,8 @@ const MerchantDashboard: React.FC = () => {
     goodRate,
   })
 
+  const metricsLoading = !dashboardReady
+
   return (
     <div className={`merchant-dashboard merchant-dashboard--v2${dashboardMounted ? ' merchant-dashboard--mounted' : ''}`}>
       <MerchantDashboardCommandHero
@@ -411,15 +417,18 @@ const MerchantDashboard: React.FC = () => {
         expectedProfit={expectedProfit}
         unsettledAmount={unsettledAmount}
         pendingOrders={pendingOrdersCount}
+        metricsLoading={metricsLoading}
         onNavigate={navigate}
       />
 
-      <MerchantDashboardInsight
-        storageKey="merchant-dashboard-insight-dismissed"
-        kicker={lang === 'zh' ? '智能摘要' : 'Smart insight'}
-        text={insightText}
-        lang={lang}
-      />
+      {!metricsLoading ? (
+        <MerchantDashboardInsight
+          storageKey="merchant-dashboard-insight-dismissed"
+          kicker={lang === 'zh' ? '智能摘要' : 'Smart insight'}
+          text={insightText}
+          lang={lang}
+        />
+      ) : null}
 
       <MerchantPaidPromotionBoard lang={lang} />
 
@@ -430,7 +439,7 @@ const MerchantDashboard: React.FC = () => {
           </h3>
         </header>
         <div className="merchant-dashboard-segments-panel" role="region">
-          <MerchantDashboardOverview data={overviewData} mode="single" />
+          <MerchantDashboardOverview data={overviewData} mode="single" loading={metricsLoading} />
         </div>
       </section>
 
@@ -443,7 +452,7 @@ const MerchantDashboard: React.FC = () => {
             {lang === 'zh' ? '访客趋势、转化率与智能洞察' : 'Visitor trends, conversion, and insights'}
           </p>
         </header>
-        <MerchantDashboardOverview data={overviewData} mode="grid" />
+        <MerchantDashboardOverview data={overviewData} mode="grid" loading={metricsLoading} />
       </section>
 
       <section className="merchant-dashboard-section merchant-dashboard-section--charts">
@@ -461,6 +470,7 @@ const MerchantDashboard: React.FC = () => {
           setActiveChart={setActiveChart}
           formatXAxisLabel={formatXAxisLabel}
           lang={lang}
+          dataLoading={metricsLoading}
         />
       </section>
 

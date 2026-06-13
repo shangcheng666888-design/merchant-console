@@ -621,41 +621,74 @@ const MerchantSettings: React.FC = () => {
           <h2 className="merchant-settings-group-title">{lang === 'zh' ? '店铺' : 'Shop'}</h2>
           <div className="merchant-settings-panel">
             <div className="merchant-settings-name-row">
-              <div className="merchant-settings-name-head">
-                <SettingsItemIcon src={shopNameIcon} />
-                <label className="merchant-settings-name-label" htmlFor="merchant-settings-shop-name">
-                  {lang === 'zh' ? '店铺名称' : 'Shop name'}
-                </label>
-              </div>
-              <div className="merchant-settings-name-field">
-                <input
-                  id="merchant-settings-shop-name"
-                  className="merchant-settings-name-input"
-                  value={shopNameDraft}
-                  maxLength={60}
-                  placeholder={lang === 'zh' ? '请输入店铺名称' : 'Enter shop name'}
-                  disabled={!auth?.shopId || savingShopName}
-                  onChange={(e) => {
-                    setShopNameDraft(e.target.value)
-                    if (shopNameError) setShopNameError('')
-                  }}
-                />
-                {shopNameDirty && (
-                  <button
-                    type="button"
-                    className="merchant-settings-btn merchant-settings-btn--primary merchant-settings-name-save"
-                    onClick={saveShopName}
-                    disabled={savingShopName}
+              <div className="merchant-settings-shop-name">
+                <div className="merchant-settings-shop-name-top">
+                  <span className="merchant-settings-shop-name-icon-wrap" aria-hidden="true">
+                    <SettingsItemIcon src={shopNameIcon} />
+                  </span>
+                  <div className="merchant-settings-shop-name-copy">
+                    <label className="merchant-settings-shop-name-label" htmlFor="merchant-settings-shop-name">
+                      {lang === 'zh' ? '店铺名称' : 'Shop name'}
+                    </label>
+                    <p className="merchant-settings-shop-name-hint">
+                      {lang === 'zh' ? '买家在商城中看到的名称' : 'Shown to customers in your storefront'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`merchant-settings-shop-name-compose${shopNameDirty ? ' is-dirty' : ''}`}>
+                  <div className="merchant-settings-shop-name-field">
+                    <input
+                      id="merchant-settings-shop-name"
+                      className="merchant-settings-shop-name-input"
+                      value={shopNameDraft}
+                      maxLength={60}
+                      placeholder={lang === 'zh' ? '给店铺起个名字' : 'Name your shop'}
+                      disabled={!auth?.shopId || savingShopName}
+                      onChange={(e) => {
+                        setShopNameDraft(e.target.value)
+                        if (shopNameError) setShopNameError('')
+                      }}
+                    />
+                    <span className="merchant-settings-shop-name-count" aria-live="polite">
+                      {shopNameDraft.length}
+                      <span className="merchant-settings-shop-name-count-sep">/</span>
+                      60
+                    </span>
+                  </div>
+
+                  <div
+                    className={`merchant-settings-shop-name-actions${shopNameDirty ? ' is-visible' : ''}`}
+                    aria-hidden={!shopNameDirty}
                   >
-                    {savingShopName
-                      ? (lang === 'zh' ? '保存中…' : 'Saving…')
-                      : (lang === 'zh' ? '保存' : 'Save')}
-                  </button>
+                    <button
+                      type="button"
+                      className="merchant-settings-shop-name-reset"
+                      onClick={() => {
+                        setShopNameDraft(shop?.name ?? '')
+                        setShopNameError('')
+                      }}
+                      disabled={savingShopName}
+                    >
+                      {lang === 'zh' ? '还原' : 'Reset'}
+                    </button>
+                    <button
+                      type="button"
+                      className="merchant-settings-shop-name-save"
+                      onClick={saveShopName}
+                      disabled={savingShopName}
+                    >
+                      {savingShopName
+                        ? (lang === 'zh' ? '保存中…' : 'Saving…')
+                        : (lang === 'zh' ? '保存更改' : 'Save changes')}
+                    </button>
+                  </div>
+                </div>
+
+                {shopNameError && (
+                  <p className="merchant-settings-field-error merchant-settings-shop-name-error">{shopNameError}</p>
                 )}
               </div>
-              {shopNameError && (
-                <p className="merchant-settings-field-error">{shopNameError}</p>
-              )}
             </div>
 
             <div className="merchant-settings-location-row merchant-settings-location-row--globe-only">

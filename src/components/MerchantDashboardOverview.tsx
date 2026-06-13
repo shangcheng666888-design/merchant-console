@@ -2,6 +2,7 @@ import React from 'react'
 import AnimatedMetric, { type AnimatedMetricFormat } from './AnimatedMetric'
 import MerchantDashboardInsight from './MerchantDashboardInsight'
 import MiniSparkline from './MiniSparkline'
+import { DashboardOverviewSkeleton } from './McLoadingSkeletons'
 import liulianggaikuang from '../assets/liulianggaikuang.png'
 import jinrufangke from '../assets/jinrufangke.png'
 import qirifangke from '../assets/qirifangke.png'
@@ -331,12 +332,24 @@ export function OverviewCard({
 interface MerchantDashboardOverviewProps {
   data: OverviewDashboardData
   mode: 'grid' | 'single'
+  loading?: boolean
 }
 
 export const MerchantDashboardOverview: React.FC<MerchantDashboardOverviewProps> = ({
   data,
   mode,
+  loading = false,
 }) => {
+  if (loading) {
+    return mode === 'single' ? (
+      <DashboardOverviewSkeleton compact />
+    ) : (
+      <div className="merchant-dashboard-overview-grid merchant-dashboard-overview-grid--animated">
+        <DashboardOverviewSkeleton />
+      </div>
+    )
+  }
+
   const config = buildTrafficOverviewCard(data)
 
   if (mode === 'single') {

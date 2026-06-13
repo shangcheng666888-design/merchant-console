@@ -14,6 +14,7 @@ import MerchantPaidPromoAudiencePicker, {
   parseAudienceValues,
   serializeAudienceValues,
 } from './MerchantPaidPromoAudiencePicker'
+import { PaidPromoBoardSkeleton } from './McLoadingSkeletons'
 
 type PaidChannel = 'tiktok' | 'meta' | 'google' | 'other'
 type TargetType = 'shop' | 'product'
@@ -678,7 +679,7 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
     />
   ) : null
 
-  if (loading) return null
+  if (loading) return <PaidPromoBoardSkeleton lang={lang} />
   if (!activePromotion && history.length === 0 && !historyLoading) return null
 
   const historyOverflow = history.length > historyPreviewLimit
