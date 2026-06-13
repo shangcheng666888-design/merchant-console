@@ -13,7 +13,7 @@ import viFlagIcon from '../assets/lang-vi.png'
 import frFlagIcon from '../assets/lang-fr.png'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
-import { tr, pickBilingual, convertStringRecord, type Lang } from '../i18n'
+import { tr, pickBilingual, convertStringRecord, SUPPORTED_LANGS, LANG_LABELS, type Lang } from '../i18n'
 import loginBrandLogo from '../assets/login-brand-logo.png'
 import loginIconTraffic from '../assets/login-icon-traffic.png'
 import loginIconTrafficMobile from '../assets/login-icon-traffic-mobile.png'
@@ -647,146 +647,27 @@ const MerchantLogin: React.FC = () => {
       </button>
       {langDropdownOpen && (
         <div className="merchant-login-lang-dropdown" role="listbox">
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'zh'}
-            onClick={() => {
-              setLang('zh')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={zhFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>简体中文</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'tw'}
-            onClick={() => {
-              setLang('tw')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={zhFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>繁體中文</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'en'}
-            onClick={() => {
-              setLang('en')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={enFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>English</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'de'}
-            onClick={() => {
-              setLang('de')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={deFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>Deutsch</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'ja'}
-            onClick={() => {
-              setLang('ja')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={jaFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>日本語</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'ko'}
-            onClick={() => {
-              setLang('ko')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={koFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>한국어</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'es'}
-            onClick={() => {
-              setLang('es')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={esFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>Español</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'it'}
-            onClick={() => {
-              setLang('it')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={itFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>Italiano</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'vi'}
-            onClick={() => {
-              setLang('vi')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={viFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>Tiếng Việt</span>
-          </button>
-          <button
-            type="button"
-            className="merchant-login-lang-option"
-            aria-selected={lang === 'fr'}
-            onClick={() => {
-              setLang('fr')
-              setLangDropdownOpen(false)
-            }}
-          >
-            <span className="merchant-login-lang-option-flag" aria-hidden="true">
-              <img src={frFlagIcon} alt="" className="merchant-login-lang-flag-img" />
-            </span>
-            <span>Français</span>
-          </button>
+          {SUPPORTED_LANGS.map((code) => (
+            <button
+              key={code}
+              type="button"
+              className="merchant-login-lang-option"
+              aria-selected={lang === code}
+              onClick={() => {
+                setLang(code)
+                setLangDropdownOpen(false)
+              }}
+            >
+              <span className="merchant-login-lang-option-flag" aria-hidden="true">
+                <img
+                  src={LOGIN_LANG_FLAGS[code] ?? enFlagIcon}
+                  alt=""
+                  className="merchant-login-lang-flag-img"
+                />
+              </span>
+              <span>{LANG_LABELS[code]}</span>
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 export type Lang = 'zh' | 'tw' | 'en' | 'de' | 'ja' | 'ko' | 'es' | 'it' | 'vi' | 'fr'
 
-export const SUPPORTED_LANGS: Lang[] = ['zh', 'tw', 'en', 'de', 'ja', 'ko', 'es', 'it', 'vi', 'fr']
+export const SUPPORTED_LANGS: Lang[] = ['zh', 'en', 'de', 'ja', 'ko', 'es', 'it', 'vi', 'fr', 'tw']
 
 export const LANG_LABELS: Record<Lang, string> = {
   zh: '简体中文',

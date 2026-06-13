@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
-import { tr } from '../i18n'
+import { tr, SUPPORTED_LANGS, type Lang } from '../i18n'
 import { useMerchantSync } from '../hooks/useMerchantSync'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { useToast } from '../components/ToastProvider'
@@ -16,6 +16,19 @@ import accountIcon from '../assets/account-icon.png'
 import loginTrustSupport from '../assets/login-trust-support.png'
 import settingsLangIcon from '../assets/settings-lang-icon.png'
 import MerchantSettingsLocationMap from '../components/MerchantSettingsLocationMap'
+
+const SETTINGS_LANG_SHORT: Record<Lang, string> = {
+  zh: '简',
+  tw: '繁',
+  en: 'EN',
+  de: 'DE',
+  ja: 'JA',
+  ko: 'KO',
+  es: 'ES',
+  it: 'IT',
+  vi: 'VI',
+  fr: 'FR',
+}
 
 const LOGIN_PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,22}$/
 
@@ -1223,28 +1236,15 @@ const MerchantSettings: React.FC = () => {
                 role="group"
                 aria-label={tr(lang, { zh: '语言', en: 'Language', de: 'Sprache', ja: '言語', ko: '언어', es: 'Idioma', it: 'Lingua', vi: 'Ngôn ngữ', fr: 'Langue'})}
               >
-                {(
-                  [
-                    { code: 'zh' as const, label: '简' },
-                    { code: 'tw' as const, label: '繁' },
-                    { code: 'en' as const, label: 'EN' },
-                    { code: 'de' as const, label: 'DE' },
-                    { code: 'ja' as const, label: 'JA' },
-                    { code: 'ko' as const, label: 'KO' },
-                    { code: 'es' as const, label: 'ES' },
-                    { code: 'it' as const, label: 'IT' },
-                    { code: 'vi' as const, label: 'VI' },
-                    { code: 'fr' as const, label: 'FR' },
-                  ] as const
-                ).map((opt) => (
+                {SUPPORTED_LANGS.map((code) => (
                   <button
-                    key={opt.code}
+                    key={code}
                     type="button"
-                    className={`merchant-settings-lang-option${lang === opt.code ? ' merchant-settings-lang-option--active' : ''}`}
-                    aria-pressed={lang === opt.code}
-                    onClick={() => setLang(opt.code)}
+                    className={`merchant-settings-lang-option${lang === code ? ' merchant-settings-lang-option--active' : ''}`}
+                    aria-pressed={lang === code}
+                    onClick={() => setLang(code)}
                   >
-                    {opt.label}
+                    {SETTINGS_LANG_SHORT[code]}
                   </button>
                 ))}
               </div>
