@@ -47,7 +47,6 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
   const [debouncedCountry, setDebouncedCountry] = useState('')
   const [resolved, setResolved] = useState<ResolvedLocation | null>(null)
   const [geocoding, setGeocoding] = useState(false)
-  const [usedFallback, setUsedFallback] = useState(false)
 
   const liveQuery = useMemo(() => buildLocationQuery(address, country), [address, country])
   const hasInput = liveQuery.length > 0
@@ -64,13 +63,11 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
     if (!hasInput) {
       setResolved(null)
       setGeocoding(false)
-      setUsedFallback(false)
       return
     }
 
     let cancelled = false
     setGeocoding(true)
-    setUsedFallback(false)
 
     const resolve = async () => {
       const countryParam = debouncedCountry
@@ -106,7 +103,6 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
       const fallback = resolveLocalFallback(debouncedQuery, debouncedCountry)
       if (fallback) {
         setResolved(fallback)
-        setUsedFallback(true)
         return
       }
 
@@ -174,13 +170,6 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
           <div className="merchant-settings-loc-panel-main">
             <p className="merchant-settings-loc-region">{region.headline}</p>
             <p className="merchant-settings-loc-country">{region.subtitle}</p>
-            {usedFallback ? (
-              <p className="merchant-settings-loc-fallback-hint">
-                {lang === 'zh'
-                  ? '精确地址服务暂不可用，已显示大致区域'
-                  : 'Precise geocoding unavailable; showing approximate region'}
-              </p>
-            ) : null}
           </div>
           <div className="merchant-settings-loc-panel-side">
             <span className="merchant-settings-loc-coords-line">{formatLatLabel(resolved.lat, lang)}</span>

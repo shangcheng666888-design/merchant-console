@@ -666,13 +666,6 @@
   margin: -2.5rem 1rem 1rem;
 }
 
-.merchant-settings-loc-fallback-hint {
-  margin: 0.35rem 0 0;
-  font-size: 0.68rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.55);
-}
-
 .merchant-settings-lang-segment {
   display: inline-flex;
   flex-shrink: 0;
