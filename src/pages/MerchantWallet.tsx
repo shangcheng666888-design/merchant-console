@@ -468,7 +468,7 @@ const MerchantWallet: React.FC = () => {
                         {lang === 'zh' ? '充值' : 'Deposit'}
                       </span>
                       <time className="merchant-wallet-row-date" dateTime={r.createdAt}>
-                        {formatRecordDate(r.createdAt)}
+                        {formatRecordDate(r.createdAt, lang)}
                       </time>
                     </div>
                     <div className="merchant-wallet-row-amount-row">
@@ -527,7 +527,7 @@ const MerchantWallet: React.FC = () => {
                   <tbody>
                     {rechargeRecords.map((r) => (
                       <tr key={r.id}>
-                        <td className="merchant-wallet-cell-date">{formatRecordDate(r.createdAt)}</td>
+                        <td className="merchant-wallet-cell-date">{formatRecordDate(r.createdAt, lang)}</td>
                         <td className="merchant-wallet-cell-order">
                           <button
                             type="button"
@@ -578,7 +578,7 @@ const MerchantWallet: React.FC = () => {
                         {lang === 'zh' ? '提现' : 'Withdraw'}
                       </span>
                       <time className="merchant-wallet-row-date" dateTime={w.createdAt}>
-                        {formatRecordDate(w.createdAt)}
+                        {formatRecordDate(w.createdAt, lang)}
                       </time>
                     </div>
                     <div className="merchant-wallet-row-amount-row">
@@ -628,7 +628,7 @@ const MerchantWallet: React.FC = () => {
                   <tbody>
                     {withdrawRecords.map((w) => (
                       <tr key={w.id}>
-                        <td className="merchant-wallet-cell-date">{formatRecordDate(w.createdAt)}</td>
+                        <td className="merchant-wallet-cell-date">{formatRecordDate(w.createdAt, lang)}</td>
                         <td className="merchant-wallet-cell-order">
                           <button
                             type="button"

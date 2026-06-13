@@ -1,29 +1,13 @@
 import React from 'react'
 import { useLang } from '../context/LangContext'
 import { openCrispChat } from '../utils/crispChat'
+import { formatDateTime } from '../utils/datetime'
 import type { MerchantShop } from '../context/MerchantShopContext'
 import loginTrustSupport from '../assets/login-trust-support.png'
 
 interface ShopBanScreenProps {
   shop: MerchantShop
   onLogout: () => void
-}
-
-function formatBanTime(value: string | null, lang: 'zh' | 'en'): string {
-  if (!value) return lang === 'zh' ? '—' : '—'
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return value
-  try {
-    return new Intl.DateTimeFormat(lang === 'zh' ? 'zh-CN' : 'en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(d)
-  } catch {
-    return value
-  }
 }
 
 const ShopBanScreen: React.FC<ShopBanScreenProps> = ({ shop, onLogout }) => {
@@ -83,7 +67,7 @@ const ShopBanScreen: React.FC<ShopBanScreenProps> = ({ shop, onLogout }) => {
           )}
           <div className="mc-shop-ban-meta-row">
             <dt>{lang === 'zh' ? '封禁时间' : 'Suspended at'}</dt>
-            <dd>{formatBanTime(shop.bannedAt, lang)}</dd>
+            <dd>{shop.bannedAt ? formatDateTime(shop.bannedAt, lang) : '—'}</dd>
           </div>
         </dl>
 

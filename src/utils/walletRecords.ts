@@ -95,6 +95,6 @@ export const STATUS_TEXT: Record<string, string> = {
   failed: '失败',
 }
 
-export function formatRecordDate(iso: string): string {
-  return formatDateTime(iso)
+export function formatRecordDate(iso: string, lang?: 'zh' | 'en'): string {
+  return formatDateTime(iso, lang)
 }

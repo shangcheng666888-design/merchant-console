@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { useMerchantSync } from '../hooks/useMerchantSync'
+import { appendTimezoneQuery } from '../utils/merchantTimezone'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
 import MerchantDashboardCommandHero from '../components/MerchantDashboardCommandHero'
 import { MerchantDashboardOverview } from '../components/MerchantDashboardOverview'
@@ -200,7 +201,9 @@ const MerchantDashboard: React.FC = () => {
 
     const fetchDashboard = async () => {
       try {
-        const res = await api.get<DashboardData>(`/api/shops/${encodeURIComponent(auth.shopId)}/dashboard`)
+        const res = await api.get<DashboardData>(
+          appendTimezoneQuery(`/api/shops/${encodeURIComponent(auth.shopId)}/dashboard`),
+        )
         const nextProductCount = res.productCount ?? 0
         const nextOrderCount = res.orderCount ?? 0
         const nextTotalProfit = Number(res.totalProfit ?? 0)

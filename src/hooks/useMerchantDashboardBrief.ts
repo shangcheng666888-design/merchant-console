@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api/client'
 import { useMerchantSync } from './useMerchantSync'
+import { appendTimezoneQuery } from '../utils/merchantTimezone'
 
 export interface MerchantDashboardBrief {
   pendingOrders: number
@@ -55,7 +56,7 @@ export function useMerchantDashboardBrief(enabled: boolean): MerchantDashboardBr
         pendingOrders?: number
         todaySales?: number
         todayOrders?: number
-      }>(`/api/shops/${encodeURIComponent(shopId)}/dashboard`)
+      }>(appendTimezoneQuery(`/api/shops/${encodeURIComponent(shopId)}/dashboard`))
       const next = {
         pendingOrders: res.pendingOrders ?? 0,
         todaySales: Number(res.todaySales ?? 0),

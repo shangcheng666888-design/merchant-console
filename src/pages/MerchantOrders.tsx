@@ -12,6 +12,7 @@ import ordersHeaderIcon from '../assets/dianpudingdan.png'
 import ordersTotalIcon from '../assets/zongdingdan.png'
 import ordersPendingIcon from '../assets/daifahuo.png'
 import ordersTransitIcon from '../assets/jinridingdan.png'
+import { formatDateTime } from '../utils/datetime'
 
 type OrderStatus =
   | 'all'
@@ -86,7 +87,7 @@ const API_STATUS_TO_TAB: Record<string, Exclude<OrderStatus, 'all'>> = {
 interface OrderItem {
   id: string
   orderNo: string
-  orderTime: string
+  createdAt: string
   buyer: string
   productCodes: string
   amount: number
@@ -473,7 +474,7 @@ const MerchantOrders: React.FC = () => {
         return {
           id: o.id,
           orderNo: o.orderNumber,
-          orderTime: o.createdAt.replace('T', ' ').slice(0, 19),
+          createdAt: o.createdAt,
           buyer: buyerLabel,
           productCodes:
             items
@@ -896,7 +897,7 @@ const MerchantOrders: React.FC = () => {
                               <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.8" />
                               <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                             </svg>
-                            {order.orderTime}
+                            {formatDateTime(order.createdAt, lang)}
                           </span>
                           <span className="merchant-orders-card-meta-chip">
                             <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
@@ -1046,7 +1047,7 @@ const MerchantOrders: React.FC = () => {
                   <dt>{lang === 'zh' ? '订单号' : 'Order No.'}</dt>
                   <dd>{orderDetail.orderNo}</dd>
                   <dt>{lang === 'zh' ? '下单时间' : 'Order time'}</dt>
-                  <dd>{orderDetail.orderTime}</dd>
+                  <dd>{formatDateTime(orderDetail.createdAt, lang)}</dd>
                   <dt>{lang === 'zh' ? '订单状态' : 'Order status'}</dt>
                   <dd>
                     <span className={`merchant-orders-status merchant-orders-status--${orderDetail.status}`}>

@@ -8,6 +8,7 @@ import {
   MerchantRechargeFlowIcon,
   MerchantWithdrawFlowIcon,
 } from '../components/MerchantWalletFlowIcons'
+import { formatDateTime } from '../utils/datetime'
 
 type RangeKey = '7d' | '30d' | '90d'
 type RawType = 'recharge' | 'withdraw' | 'consume' | 'refund'
@@ -48,17 +49,6 @@ function readAuthShopId(): string | null {
 function formatMoney(value: number): string {
   const n = Number.isFinite(value) ? value : 0
   return `$${n.toFixed(2)}`
-}
-
-function formatDateTime(iso: string): string {
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return iso
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  const h = String(date.getHours()).padStart(2, '0')
-  const min = String(date.getMinutes()).padStart(2, '0')
-  return `${y}-${m}-${d} ${h}:${min}`
 }
 
 function typeLabel(rawType: RawType, lang: 'zh' | 'en'): string {
@@ -429,7 +419,7 @@ const MerchantFinance: React.FC = () => {
                           {typeLabel(row.rawType, lang)}
                         </span>
                         <time className="merchant-finance-row-date" dateTime={row.createdAt}>
-                          {formatDateTime(row.createdAt)}
+                          {formatDateTime(row.createdAt, lang)}
                         </time>
                       </div>
                       <div className="merchant-finance-row-amount-row">
@@ -475,7 +465,7 @@ const MerchantFinance: React.FC = () => {
                       const isIncome = row.amount >= 0
                       return (
                         <tr key={row.id}>
-                          <td className="merchant-finance-cell-date">{formatDateTime(row.createdAt)}</td>
+                          <td className="merchant-finance-cell-date">{formatDateTime(row.createdAt, lang)}</td>
                           <td>
                             <span
                               className={`merchant-finance-type-badge merchant-finance-type-badge--${row.rawType}`}

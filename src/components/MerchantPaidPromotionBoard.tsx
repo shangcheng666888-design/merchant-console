@@ -16,6 +16,7 @@ import MerchantPaidPromoAudiencePicker, {
   serializeAudienceValues,
 } from './MerchantPaidPromoAudiencePicker'
 import { PaidPromoBoardSkeleton } from './McLoadingSkeletons'
+import { formatCalendarDateKey, formatDateTime } from '../utils/datetime'
 
 type PaidChannel = 'tiktok' | 'meta' | 'google' | 'other'
 type TargetType = 'shop' | 'product'
@@ -163,17 +164,6 @@ function formatHistoryStatus(status: PromoStatus, lang: 'zh' | 'en') {
   return status
 }
 
-function formatHistoryDate(value: string | null | undefined, lang: 'zh' | 'en') {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
-  return date.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
 function HistoryChannelLogo({ channel }: { channel: PaidChannel }) {
   const icon = CHANNEL_META[channel]?.icon ?? liulianggaikuang
   return (
@@ -271,9 +261,9 @@ function MerchantPaidPromoHistoryDetailModal({
         <div className="merchant-paid-promo-history-modal-body">
           <div className="merchant-paid-promo-history-modal-meta">
             <span>
-              {formatHistoryDate(promo.campaignStartAt, lang)}
+              {formatDateTime(promo.campaignStartAt, lang) || '—'}
               <span aria-hidden="true"> → </span>
-              {formatHistoryDate(promo.campaignEndAt, lang)}
+              {formatDateTime(promo.campaignEndAt, lang) || '—'}
             </span>
             <span>{formatDurationLabel(promo.campaignDurationValue, promo.campaignDurationUnit, lang)}</span>
           </div>
@@ -390,7 +380,7 @@ function MerchantPaidPromoHistoryDetailModal({
                   <tbody>
                     {series.map((row) => (
                       <tr key={row.date}>
-                        <td>{row.date}</td>
+                        <td>{formatCalendarDateKey(row.date, lang)}</td>
                         <td>{row.impressions.toLocaleString()}</td>
                         <td>{row.clicks.toLocaleString()}</td>
                         <td>{row.visits.toLocaleString()}</td>
@@ -754,9 +744,9 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
                       </span>
                     </div>
                     <p className="merchant-paid-promo-history-dates">
-                      {formatHistoryDate(promo.campaignStartAt, lang)}
+                      {formatDateTime(promo.campaignStartAt, lang) || '—'}
                       <span aria-hidden="true"> → </span>
-                      {formatHistoryDate(promo.campaignEndAt, lang)}
+                      {formatDateTime(promo.campaignEndAt, lang) || '—'}
                     </p>
                     <div className="merchant-paid-promo-history-chips">
                       <span className="merchant-paid-promo-history-chip">
