@@ -6,6 +6,10 @@ export interface CrispChatOptions {
   shopName?: string
   /** 店铺 ID，会传给 Crisp 会话数据，客服端可见 */
   shopId?: string
+  /** 封禁原因（申诉场景） */
+  banReason?: string
+  /** 预填申诉消息 */
+  appealMessage?: string
 }
 
 /**
@@ -27,8 +31,16 @@ export function openCrispChat(options?: CrispChatOptions): boolean {
   const sessionData: Record<string, string> = {}
   if (shopName) sessionData.shop_name = shopName
   if (shopId) sessionData.shop_id = shopId
+  const banReason = options?.banReason != null ? String(options.banReason).trim() : ''
+  if (banReason) sessionData.ban_reason = banReason
+  if (options?.appealMessage) sessionData.appeal_type = 'shop_ban'
   if (Object.keys(sessionData).length > 0) {
     Crisp.session.setData(sessionData)
+  }
+
+  const appealMessage = options?.appealMessage != null ? String(options.appealMessage).trim() : ''
+  if (appealMessage) {
+    Crisp.message.setMessageText(appealMessage)
   }
 
   // chat:hide 后必须先 show 再 open，否则窗口不可见

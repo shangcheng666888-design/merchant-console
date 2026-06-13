@@ -4,6 +4,7 @@ import MerchantBackendSidebar, { MERCHANT_NAV_ITEMS } from './MerchantBackendSid
 import MerchantMobileSummary from './MerchantMobileSummary'
 import MerchantQuickMenu from './MerchantQuickMenu'
 import { MerchantNavIcon } from './MerchantNavIcon'
+import ShopBanScreen from './ShopBanScreen'
 import { openCrispChat } from '../utils/crispChat'
 import { MerchantShopProvider, useMerchantShop } from '../context/MerchantShopContext'
 import { useLang } from '../context/LangContext'
@@ -38,7 +39,7 @@ const MerchantBackendLayoutInner: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { lang, setLang } = useLang()
-  const { shop } = useMerchantShop()
+  const { shop, loading: shopLoading, isBanned } = useMerchantShop()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [langDropdownOpen, setLangDropdownOpen] = useState(false)
   const [authOk, setAuthOk] = useState<boolean | null>(null)
@@ -61,6 +62,13 @@ const MerchantBackendLayoutInner: React.FC = () => {
     }
   }, [navigate])
 
+  const handleLogout = () => {
+    try {
+      window.localStorage.removeItem(AUTH_USER_KEY)
+    } catch {}
+    navigate('/login')
+  }
+
   if (authOk !== true) {
     return (
       <div className="merchant-backend mc-app-loading">
@@ -72,6 +80,21 @@ const MerchantBackendLayoutInner: React.FC = () => {
     )
   }
 
+  if (shopLoading && !shop) {
+    return (
+      <div className="merchant-backend mc-app-loading">
+        <div className="mc-app-loading-inner">
+          <span className="mc-app-loading-spinner" aria-hidden="true" />
+          <span className="mc-app-loading-text">{lang === 'zh' ? '加载店铺信息…' : 'Loading shop…'}</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (isBanned && shop) {
+    return <ShopBanScreen shop={shop} onLogout={handleLogout} />
+  }
+
   const mobileNavItems = [
     { path: '/dashboard' as const, labelZh: '首页', labelEn: 'Home', icon: 'home' as const },
     { path: '/orders' as const, labelZh: '订单', labelEn: 'Orders', icon: 'orders' as const, badge: pendingOrders },
@@ -79,13 +102,6 @@ const MerchantBackendLayoutInner: React.FC = () => {
     { path: '/warehouse' as const, labelZh: '仓库', labelEn: 'Stock', icon: 'warehouse' as const },
     { path: '/settings' as const, labelZh: '我的', labelEn: 'Me', icon: 'settings' as const },
   ]
-
-  const handleLogout = () => {
-    try {
-      window.localStorage.removeItem(AUTH_USER_KEY)
-    } catch {}
-    navigate('/login')
-  }
 
   const isMobile =
     typeof window !== 'undefined' &&

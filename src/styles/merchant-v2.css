@@ -10843,3 +10843,167 @@ body.mc-overlay-open .merchant-backend-bottom-nav {
     height: 38px;
   }
 }
+
+/* ========== Shop ban screen ========== */
+.mc-shop-ban-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(239, 68, 68, 0.08) 0%, transparent 42%),
+    radial-gradient(circle at 88% 92%, rgba(79, 70, 229, 0.06) 0%, transparent 40%),
+    linear-gradient(165deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.mc-shop-ban-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 1.75rem 1.5rem 1.35rem;
+  border-radius: 18px;
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1);
+}
+
+.mc-shop-ban-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.mc-shop-ban-title {
+  margin: 0 0 0.55rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.mc-shop-ban-lead {
+  margin: 0 0 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: #4b5563;
+}
+
+.mc-shop-ban-meta {
+  margin: 0 0 1rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.mc-shop-ban-meta-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.mc-shop-ban-meta-row + .mc-shop-ban-meta-row {
+  margin-top: 0.55rem;
+}
+
+.mc-shop-ban-meta-row dt {
+  margin: 0;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.mc-shop-ban-meta-row dd {
+  margin: 0;
+  color: #1f2937;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.mc-shop-ban-effects {
+  margin-bottom: 1.15rem;
+}
+
+.mc-shop-ban-effects-title {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mc-shop-ban-effects-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: #374151;
+}
+
+.mc-shop-ban-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.mc-shop-ban-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.72rem 1rem;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.92rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.mc-shop-ban-btn--primary {
+  background: var(--mc-gradient-brand, linear-gradient(135deg, #6366f1 0%, #4f46e5 100%));
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.32);
+}
+
+.mc-shop-ban-btn--primary:hover {
+  transform: translateY(-1px);
+}
+
+.mc-shop-ban-btn--secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.mc-shop-ban-btn--secondary:hover {
+  background: #e5e7eb;
+}
+
+.mc-shop-ban-footnote {
+  margin: 0.85rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: #9ca3af;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .mc-shop-ban-card {
+    padding: 1.35rem 1.1rem 1.1rem;
+    border-radius: 16px;
+  }
+
+  .mc-shop-ban-meta-row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}

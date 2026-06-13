@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { api } from '../api/client'
 
-interface MerchantShop {
+export type ShopStatus = 'normal' | 'banned'
+
+export interface MerchantShop {
   id: string
   name: string
   logo: string | null
@@ -12,6 +14,10 @@ interface MerchantShop {
   followers: number
   sales: number
   visits: number
+  status: ShopStatus
+  banReason: string | null
+  banNotice: string | null
+  bannedAt: string | null
 }
 
 interface MerchantShopContextValue {
@@ -19,9 +25,12 @@ interface MerchantShopContextValue {
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
+  isBanned: boolean
 }
 
 const MerchantShopContext = createContext<MerchantShopContextValue | undefined>(undefined)
+
+const SHOP_STATUS_POLL_MS = 60_000
 
 function readAuthShopId(): string | null {
   try {
@@ -32,6 +41,40 @@ function readAuthShopId(): string | null {
     return shopId || null
   } catch {
     return null
+  }
+}
+
+function mapShopResponse(res: {
+  id: string
+  name: string
+  logo?: string | null
+  level: number
+  creditScore: number
+  walletBalance: number
+  goodRate: number
+  followers: number
+  sales: number
+  visits: number
+  status?: ShopStatus
+  banReason?: string | null
+  banNotice?: string | null
+  bannedAt?: string | null
+}): MerchantShop {
+  return {
+    id: res.id,
+    name: res.name,
+    logo: res.logo ?? null,
+    level: res.level ?? 1,
+    creditScore: Number(res.creditScore ?? 0),
+    walletBalance: Number(res.walletBalance ?? 0),
+    goodRate: Number(res.goodRate ?? 0),
+    followers: Number(res.followers ?? 0),
+    sales: Number(res.sales ?? 0),
+    visits: Number(res.visits ?? 0),
+    status: res.status === 'banned' ? 'banned' : 'normal',
+    banReason: res.banReason ?? null,
+    banNotice: res.banNotice ?? null,
+    bannedAt: res.bannedAt ?? null,
   }
 }
 
@@ -53,38 +96,18 @@ export const MerchantShopProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setError(null)
     }
     try {
-      const res = await api.get<{
-        id: string
-        name: string
-        logo?: string | null
-        level: number
-        creditScore: number
-        walletBalance: number
-        goodRate: number
-        followers: number
-        sales: number
-        visits: number
-      }>(`/api/shops/${encodeURIComponent(shopId)}`)
-      setShop({
-        id: res.id,
-        name: res.name,
-        logo: res.logo ?? null,
-        level: res.level ?? 1,
-        creditScore: Number(res.creditScore ?? 0),
-        walletBalance: Number(res.walletBalance ?? 0),
-        goodRate: Number(res.goodRate ?? 0),
-        followers: Number(res.followers ?? 0),
-        sales: Number(res.sales ?? 0),
-        visits: Number(res.visits ?? 0),
-      })
+      const res = await api.get<Parameters<typeof mapShopResponse>[0]>(
+        `/api/shops/${encodeURIComponent(shopId)}`,
+      )
+      setShop(mapShopResponse(res))
       setError(null)
-    } catch (e: any) {
+    } catch (e: unknown) {
       const msg =
-        e && typeof e.message === 'string' && e.message.trim()
-          ? e.message.trim()
+        e && typeof e === 'object' && 'message' in e && typeof (e as { message?: unknown }).message === 'string'
+          ? String((e as { message: string }).message).trim()
           : '无法加载店铺信息'
-      setError(msg)
-      setShop(null)
+      setError(msg || '无法加载店铺信息')
+      if (!silent) setShop(null)
     } finally {
       if (!silent) setLoading(false)
     }
@@ -94,6 +117,15 @@ export const MerchantShopProvider: React.FC<{ children: React.ReactNode }> = ({ 
     fetchShop(false)
   }, [fetchShop])
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      fetchShop(true)
+    }, SHOP_STATUS_POLL_MS)
+    return () => window.clearInterval(timer)
+  }, [fetchShop])
+
+  const isBanned = shop?.status === 'banned'
+
   return (
     <MerchantShopContext.Provider
       value={{
@@ -101,6 +133,7 @@ export const MerchantShopProvider: React.FC<{ children: React.ReactNode }> = ({ 
         loading,
         error,
         refresh: () => fetchShop(true),
+        isBanned,
       }}
     >
       {children}
@@ -115,4 +148,3 @@ export function useMerchantShop(): MerchantShopContextValue {
   }
   return ctx
 }
-
