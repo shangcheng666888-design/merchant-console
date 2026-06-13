@@ -1,12 +1,12 @@
-import React, { useEffect, useId } from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/LangContext'
 import { openCrispChat } from '../utils/crispChat'
 import { useMerchantShop } from '../context/MerchantShopContext'
-import {
-  MerchantSidebarNavIcon,
-  type MerchantSidebarIconName,
-} from './MerchantSidebarNavIcon'
+import loginIconFinance from '../assets/login-icon-finance.png'
+import loginIconPromoMobile from '../assets/login-icon-promo-mobile.png'
+import loginIconWalletMobile from '../assets/login-icon-wallet-mobile.png'
+import loginTrustSupport from '../assets/login-trust-support.png'
 
 interface MerchantQuickMenuProps {
   open: boolean
@@ -21,7 +21,7 @@ const QUICK_LINKS: {
   labelEn: string
   descZh: string
   descEn: string
-  icon: MerchantSidebarIconName
+  iconSrc: string
   tone: QuickTone
 }[] = [
   {
@@ -30,7 +30,7 @@ const QUICK_LINKS: {
     labelEn: 'Finance',
     descZh: '收支明细与对账',
     descEn: 'Revenue & reconciliation',
-    icon: 'finance',
+    iconSrc: loginIconFinance,
     tone: 'finance',
   },
   {
@@ -39,7 +39,7 @@ const QUICK_LINKS: {
     labelEn: 'Growth plan',
     descZh: '推广投放与增长',
     descEn: 'Promotion & growth',
-    icon: 'plan',
+    iconSrc: loginIconPromoMobile,
     tone: 'plan',
   },
   {
@@ -48,36 +48,10 @@ const QUICK_LINKS: {
     labelEn: 'Wallet',
     descZh: '充值、提现与余额',
     descEn: 'Balance, top-up & withdraw',
-    icon: 'wallet',
+    iconSrc: loginIconWalletMobile,
     tone: 'wallet',
   },
 ]
-
-function QuickMenuChatIcon({ className }: { className?: string }) {
-  const uid = useId().replace(/:/g, '')
-  return (
-    <svg className={className} viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none">
-      <defs>
-        <linearGradient id={`${uid}-g`} x1="5" y1="5" x2="19" y2="19" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6b7dff" />
-          <stop offset="1" stopColor="#4f46e5" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M5.5 6.8h13c.8 0 1.5.7 1.5 1.5v6.2c0 .8-.7 1.5-1.5 1.5H9.2L5.5 18.8V8.3c0-.8.7-1.5 1.5-1.5z"
-        fill={`url(#${uid}-g)`}
-        opacity="0.15"
-      />
-      <path
-        d="M5.5 6.8h13c.8 0 1.5.7 1.5 1.5v6.2c0 .8-.7 1.5-1.5 1.5H9.2L5.5 18.8V8.3c0-.8.7-1.5 1.5-1.5z"
-        stroke={`url(#${uid}-g)`}
-        strokeWidth="1.65"
-        strokeLinejoin="round"
-      />
-      <path d="M8.2 10.8h7.6M8.2 13.4h4.8" stroke={`url(#${uid}-g)`} strokeWidth="1.45" strokeLinecap="round" />
-    </svg>
-  )
-}
 
 function QuickMenuChevron() {
   return (
@@ -153,7 +127,14 @@ const MerchantQuickMenu: React.FC<MerchantQuickMenuProps> = ({ open, onClose }) 
               onClick={onClose}
             >
               <span className="mc-quick-menu-row-icon" aria-hidden="true">
-                <MerchantSidebarNavIcon name={item.icon} variant="light" className="mc-quick-menu-row-icon-svg" />
+                <img
+                  src={item.iconSrc}
+                  alt=""
+                  className="mc-quick-menu-row-icon-img"
+                  width={30}
+                  height={30}
+                  decoding="async"
+                />
               </span>
               <span className="mc-quick-menu-row-copy">
                 <span className="mc-quick-menu-row-title">
@@ -176,7 +157,14 @@ const MerchantQuickMenu: React.FC<MerchantQuickMenuProps> = ({ open, onClose }) 
             }}
           >
             <span className="mc-quick-menu-row-icon" aria-hidden="true">
-              <QuickMenuChatIcon className="mc-quick-menu-row-icon-svg" />
+              <img
+                src={loginTrustSupport}
+                alt=""
+                className="mc-quick-menu-row-icon-img mc-quick-menu-row-icon-img--support"
+                width={30}
+                height={30}
+                decoding="async"
+              />
             </span>
             <span className="mc-quick-menu-row-copy">
               <span className="mc-quick-menu-row-title">

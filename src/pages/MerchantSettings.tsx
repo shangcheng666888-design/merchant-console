@@ -1,25 +1,50 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
-import { MerchantSidebarNavIcon } from '../components/MerchantSidebarNavIcon'
 import { useLang } from '../context/LangContext'
+import { useMerchantShop } from '../context/MerchantShopContext'
 import { useToast } from '../components/ToastProvider'
-import shopBannerIcon from '../assets/shop-banner-icon.png'
+import { openCrispChat } from '../utils/crispChat'
+import { getMerchantShopLevel } from '../constants/merchantShopLevels'
+import shopNameIcon from '../assets/shop-name-icon.png'
 import shopLogoIcon from '../assets/shop-logo-icon.png'
+import shopBannerIcon from '../assets/shop-banner-icon.png'
 import withdrawPinIcon from '../assets/withdraw-pin-icon.png'
 import accountIcon from '../assets/account-icon.png'
+import loginTrustSupport from '../assets/login-trust-support.png'
+import settingsLangIcon from '../assets/settings-lang-icon.png'
+import MerchantSettingsLocationMap from '../components/MerchantSettingsLocationMap'
+
+const LOGIN_PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,22}$/
 
 const AUTH_USER_KEY = 'authUser'
 
-function getAuth(): { id: string; shopId: string } | null {
+function SettingsItemIcon({ src }: { src: string }) {
+  return (
+    <span className="merchant-settings-item-icon" aria-hidden="true">
+      <img src={src} alt="" className="merchant-settings-item-icon-img" />
+    </span>
+  )
+}
+
+function SettingsRowChevron() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function getAuth(): { id: string; shopId: string; account: string } | null {
   try {
     const raw = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_USER_KEY) : null
     if (!raw) return null
-    const parsed = JSON.parse(raw) as { id?: string; shopId?: string }
+    const parsed = JSON.parse(raw) as { id?: string; shopId?: string; account?: string }
     const id = typeof parsed.id === 'string' ? parsed.id.trim() : ''
     const shopId = typeof parsed.shopId === 'string' ? parsed.shopId.trim() : ''
+    const account = typeof parsed.account === 'string' ? parsed.account.trim() : ''
     if (!id || !shopId) return null
-    return { id, shopId }
+    return { id, shopId, account }
   } catch {
     return null
   }
@@ -28,13 +53,21 @@ function getAuth(): { id: string; shopId: string } | null {
 interface ShopBasic {
   logo: string | null
   banner: string | null
+  address: string | null
+  country: string | null
 }
 
 const MerchantSettings: React.FC = () => {
-  const { lang } = useLang()
+  const { lang, setLang } = useLang()
+  const { shop, refresh: refreshShop } = useMerchantShop()
   const navigate = useNavigate()
   const { showToast } = useToast()
   const auth = getAuth()
+  const [shopNameDraft, setShopNameDraft] = useState('')
+  const [savingShopName, setSavingShopName] = useState(false)
+  const [shopNameError, setShopNameError] = useState('')
+  const [savedAddress, setSavedAddress] = useState('')
+  const [savedCountry, setSavedCountry] = useState('')
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [bannerUrl, setBannerUrl] = useState<string | null>(null)
   const [loadOk, setLoadOk] = useState(false)
@@ -56,6 +89,54 @@ const MerchantSettings: React.FC = () => {
   const [shopTradeShowConfirm, setShopTradeShowConfirm] = useState(false)
   const [shopTradeErrors, setShopTradeErrors] = useState({ old: '', new: '', confirm: '' })
 
+  const [loginPwdMode, setLoginPwdMode] = useState<'summary' | 'edit'>('summary')
+  const [loginPwdOld, setLoginPwdOld] = useState('')
+  const [loginPwdNew, setLoginPwdNew] = useState('')
+  const [loginPwdConfirm, setLoginPwdConfirm] = useState('')
+  const [loginPwdShowOld, setLoginPwdShowOld] = useState(false)
+  const [loginPwdShowNew, setLoginPwdShowNew] = useState(false)
+  const [loginPwdShowConfirm, setLoginPwdShowConfirm] = useState(false)
+  const [loginPwdErrors, setLoginPwdErrors] = useState({ old: '', new: '', confirm: '' })
+  const [savingLoginPwd, setSavingLoginPwd] = useState(false)
+
+  useEffect(() => {
+    setShopNameDraft(shop?.name ?? '')
+    setShopNameError('')
+  }, [shop?.name])
+
+  const shopNameDirty =
+    shopNameDraft.trim() !== (shop?.name ?? '').trim() && shopNameDraft.trim().length > 0
+
+  const saveShopName = () => {
+    if (!auth?.shopId || !auth?.id) {
+      showToast(lang === 'zh' ? '未登录商家账号' : 'Not logged in to merchant account', 'error')
+      return
+    }
+    const trimmed = shopNameDraft.trim()
+    if (trimmed.length < 1 || trimmed.length > 60) {
+      setShopNameError(lang === 'zh' ? '店铺名称需在 1-60 字之间' : 'Shop name must be 1-60 characters')
+      return
+    }
+    if (trimmed === (shop?.name ?? '').trim()) return
+    setSavingShopName(true)
+    setShopNameError('')
+    api
+      .patch<{ success?: boolean }>(`/api/shops/${encodeURIComponent(auth.shopId)}`, {
+        userId: auth.id,
+        name: trimmed,
+      })
+      .then(() => {
+        setShopNameDraft(trimmed)
+        showToast(lang === 'zh' ? '店铺名称已更新' : 'Shop name updated')
+        return refreshShop()
+      })
+      .catch((err: unknown) => {
+        const fallback = lang === 'zh' ? '保存失败' : 'Failed to save'
+        showToast(err instanceof Error ? err.message : fallback, 'error')
+      })
+      .finally(() => setSavingShopName(false))
+  }
+
   useEffect(() => {
     if (!auth?.shopId) {
       setLoadOk(true)
@@ -72,6 +153,8 @@ const MerchantSettings: React.FC = () => {
           const cached = JSON.parse(raw) as ShopBasic
           setLogoUrl(cached.logo ?? null)
           setBannerUrl(cached.banner ?? null)
+          setSavedAddress(cached.address ?? '')
+          setSavedCountry(cached.country ?? '')
           setLoadOk(true)
         }
       }
@@ -99,13 +182,22 @@ const MerchantSettings: React.FC = () => {
           if (cancelled) return
           const nextLogo = (res as ShopBasic).logo ?? null
           const nextBanner = (res as ShopBasic).banner ?? null
+          const nextAddress = (res as ShopBasic).address ?? ''
+          const nextCountry = (res as ShopBasic).country ?? ''
           setLogoUrl(nextLogo)
           setBannerUrl(nextBanner)
+          setSavedAddress(nextAddress)
+          setSavedCountry(nextCountry)
           try {
             if (typeof window !== 'undefined') {
               window.localStorage.setItem(
                 cacheKey,
-                JSON.stringify({ logo: nextLogo, banner: nextBanner }),
+                JSON.stringify({
+                  logo: nextLogo,
+                  banner: nextBanner,
+                  address: nextAddress,
+                  country: nextCountry,
+                }),
               )
             }
           } catch {
@@ -260,6 +352,76 @@ const MerchantSettings: React.FC = () => {
     setShopTradeErrors({ old: '', new: '', confirm: '' })
   }
 
+  const resetLoginPwdForm = () => {
+    setLoginPwdOld('')
+    setLoginPwdNew('')
+    setLoginPwdConfirm('')
+    setLoginPwdShowOld(false)
+    setLoginPwdShowNew(false)
+    setLoginPwdShowConfirm(false)
+    setLoginPwdErrors({ old: '', new: '', confirm: '' })
+  }
+
+  const validateLoginPwdEdit = (): boolean => {
+    const next = { old: '', new: '', confirm: '' }
+    if (!loginPwdOld) {
+      next.old = lang === 'zh' ? '请输入当前登录密码' : 'Please enter your current password'
+    }
+    if (!LOGIN_PASSWORD_REGEX.test(loginPwdNew)) {
+      next.new =
+        lang === 'zh'
+          ? '新密码需为 6-22 位字母和数字组合'
+          : 'New password must be 6-22 letters and digits'
+    }
+    if (!loginPwdConfirm) {
+      next.confirm =
+        lang === 'zh' ? '请再次输入新密码' : 'Please confirm your new password'
+    } else if (loginPwdNew !== loginPwdConfirm) {
+      next.confirm =
+        lang === 'zh' ? '两次输入的密码不一致' : 'The two passwords do not match'
+    }
+    setLoginPwdErrors(next)
+    return !next.old && !next.new && !next.confirm
+  }
+
+  const handleLoginPwdSubmit = () => {
+    if (!auth?.id) {
+      showToast(lang === 'zh' ? '未登录商家账号' : 'Not logged in to merchant account', 'error')
+      return
+    }
+    if (!validateLoginPwdEdit()) return
+    setSavingLoginPwd(true)
+    api
+      .post(`/api/users/${encodeURIComponent(auth.id)}/change-password`, {
+        oldPassword: loginPwdOld,
+        newPassword: loginPwdNew,
+      })
+      .then(() => {
+        showToast(lang === 'zh' ? '登录密码已修改' : 'Login password updated')
+        resetLoginPwdForm()
+        setLoginPwdMode('summary')
+      })
+      .catch((err: unknown) => {
+        const fallback = lang === 'zh' ? '修改失败' : 'Failed to update password'
+        showToast(err instanceof Error ? err.message : fallback, 'error')
+      })
+      .finally(() => setSavingLoginPwd(false))
+  }
+
+  const openTradePwdEditor = () => {
+    resetLoginPwdForm()
+    setLoginPwdMode('summary')
+    resetShopTradeForm()
+    setShopTradeMode(shopHasTradePwd ? 'edit' : 'set')
+  }
+
+  const openLoginPwdEditor = () => {
+    resetShopTradeForm()
+    setShopTradeMode('summary')
+    resetLoginPwdForm()
+    setLoginPwdMode('edit')
+  }
+
   const handleShopTradeSetSubmit = () => {
     if (!auth?.shopId || !auth?.id) {
       showToast(
@@ -408,176 +570,232 @@ const MerchantSettings: React.FC = () => {
     </span>
   )
 
+  const shopLevelMeta = shop ? getMerchantShopLevel(shop.level) : null
+  const shopLevelLabel = shopLevelMeta
+    ? (lang === 'zh' ? shopLevelMeta.nameZh : shopLevelMeta.nameEn)
+    : '—'
+
+  const handleOpenSupport = () => {
+    openCrispChat({ shopName: shop?.name ?? undefined, shopId: shop?.id ?? auth?.shopId })
+  }
+
   return (
     <div className="merchant-settings-page merchant-settings-page--v2">
       <header className="merchant-settings-header merchant-settings-header--v2">
-        <div className="merchant-settings-header-main">
-          <span className="merchant-settings-header-icon" aria-hidden="true">
-            <MerchantSidebarNavIcon name="settings" variant="light" className="merchant-settings-header-icon-svg" />
-          </span>
-          <div className="merchant-settings-header-copy">
-            <h1 className="merchant-settings-title">
-              {lang === 'zh' ? '布局排版设置' : 'Layout & settings'}
-            </h1>
-            <p className="merchant-settings-subtitle">
-              {lang === 'zh'
-                ? '管理店铺视觉形象、提现密码与账户安全，修改后自动生效。'
-                : 'Manage shop branding, payment PIN and account security. Changes apply automatically.'}
-            </p>
-          </div>
-        </div>
+        <h1 className="merchant-settings-title">
+          {lang === 'zh' ? '设置' : 'Settings'}
+        </h1>
       </header>
 
       {!auth?.shopId && loadOk && (
         <div className="merchant-settings-alert merchant-settings-alert--error">
-          {lang === 'zh'
-            ? '未获取到店铺信息，请重新登录商家后台。'
-            : 'Shop information not found, please log in to the merchant backend again.'}
+          {lang === 'zh' ? '未获取到店铺信息，请重新登录。' : 'Shop not found. Please sign in again.'}
         </div>
       )}
 
       <div className="merchant-settings-stack">
-      <section className="merchant-settings-card">
-        <div className="merchant-settings-card-head">
-          <span className="merchant-settings-card-icon" aria-hidden="true">
-            <img src={shopLogoIcon} alt="" className="merchant-settings-card-icon-img" />
-          </span>
-          <div>
-            <h2 className="merchant-settings-card-title">
-              {lang === 'zh' ? '店铺 Logo' : 'Shop logo'}
-            </h2>
-            <p className="merchant-settings-card-desc">
-              {lang === 'zh'
-                ? '建议 200×200 像素，支持 JPG、PNG、WebP，将作为店铺头像展示。'
-                : 'Recommended 200×200 px, JPG/PNG/WebP. Shown as your shop avatar.'}
-            </p>
-          </div>
-        </div>
-        <div className="merchant-settings-block merchant-settings-block--logo">
-          <div
-            className="merchant-settings-preview merchant-settings-preview--logo"
-            onClick={() => (logoUrl || loadingLogo) ? undefined : logoInputRef.current?.click()}
-            role={(logoUrl || loadingLogo) ? undefined : 'button'}
-            tabIndex={(logoUrl || loadingLogo) ? undefined : 0}
-            onKeyDown={e => { if (!logoUrl && !loadingLogo && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); logoInputRef.current?.click() } }}
-          >
-            {logoUrl && loadOk && !loadingLogo ? (
-              <img
-                src={logoUrl}
-                alt={lang === 'zh' ? '店铺 Logo' : 'Shop logo'}
-                className="merchant-settings-preview-img"
-              />
-            ) : (
-              renderPreviewPlaceholder(
-                loadingLogo,
-                lang === 'zh' ? '上传中…' : 'Uploading…',
-                lang === 'zh' ? '点击上传' : 'Click to upload',
-              )
-            )}
-          </div>
-          <div className="merchant-settings-actions">
-            <input
-              ref={logoInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="merchant-settings-file-input"
-              aria-label={lang === 'zh' ? '上传 Logo' : 'Upload logo'}
-              onChange={onLogoChange}
-            />
-            <button
-              type="button"
-              className="merchant-settings-btn merchant-settings-btn--primary"
-              onClick={() => logoInputRef.current?.click()}
-              disabled={!loadOk || loadingLogo}
-            >
-              {lang === 'zh' ? '上传 Logo' : 'Upload logo'}
-            </button>
-            {logoUrl && (
-              <button type="button" className="merchant-settings-btn merchant-settings-btn--ghost" onClick={removeLogo} disabled={loadingLogo}>
-                {lang === 'zh' ? '移除' : 'Remove'}
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="merchant-settings-card">
-        <div className="merchant-settings-card-head">
-          <span className="merchant-settings-card-icon" aria-hidden="true">
-            <img src={withdrawPinIcon} alt="" className="merchant-settings-card-icon-img" />
-          </span>
-          <div>
-            <h2 className="merchant-settings-card-title">
-              {lang === 'zh' ? '提现密码' : 'Payment PIN'}
-            </h2>
-            <p className="merchant-settings-card-desc">
-              {lang === 'zh'
-                ? '用于钱包充值与提现校验，仅店铺本人可设置，请使用 6 位数字。'
-                : 'Verifies wallet top-ups and withdrawals. 6-digit PIN, shop owner only.'}
-            </p>
-          </div>
-        </div>
-        <div className="merchant-settings-block merchant-settings-block--pin">
-          {!auth?.shopId || !auth?.id ? (
-            <div className="merchant-settings-alert merchant-settings-alert--error">
-              {lang === 'zh'
-                ? '未获取到店铺信息，请重新登录商家后台后再设置提现密码。'
-                : 'Shop information not found. Please log in to the merchant backend again before setting the payment PIN.'}
+        <section className="merchant-settings-group">
+          <h2 className="merchant-settings-group-title">{lang === 'zh' ? '账户' : 'Account'}</h2>
+          <div className="merchant-settings-panel">
+            <div className="merchant-settings-info-row">
+              <span className="merchant-settings-info-label">{lang === 'zh' ? '登录账号' : 'Login account'}</span>
+              <span className="merchant-settings-info-value">{auth?.account || '—'}</span>
             </div>
-          ) : shopTradeMode === 'summary' ? (
-            <div className="merchant-settings-pin-summary">
-              <span
-                className={`merchant-settings-status-pill${
-                  shopHasTradePwd
-                    ? ' merchant-settings-status-pill--ok'
-                    : ' merchant-settings-status-pill--warn'
-                }`}
-              >
-                {shopHasTradePwd
-                  ? lang === 'zh'
-                    ? '已设置'
-                    : 'Configured'
-                  : lang === 'zh'
-                    ? '未设置'
-                    : 'Not set'}
+            <div className="merchant-settings-info-row">
+              <span className="merchant-settings-info-label">{lang === 'zh' ? '店铺 ID' : 'Shop ID'}</span>
+              <span className="merchant-settings-info-value merchant-settings-info-value--mono">
+                {auth?.shopId || shop?.id || '—'}
               </span>
-              <p className="merchant-settings-pin-summary-text">
-                {shopHasTradePwd
-                  ? (lang === 'zh'
-                    ? '已设置店铺提现密码，可用于店铺钱包充值与提现校验。'
-                    : 'Shop payment PIN is set and will be used to verify wallet top‑ups and withdrawals.')
-                  : (lang === 'zh'
-                    ? '当前尚未设置店铺提现密码，为保障资金安全，请先设置。'
-                    : 'Shop payment PIN is not set yet. For security, please set it before using wallet withdrawals.')}
-              </p>
-              <div className="merchant-settings-pin-summary-actions">
-                {shopHasTradePwd ? (
+            </div>
+            <Link to="/plan" className="merchant-settings-info-row merchant-settings-info-row--link merchant-settings-info-row--last">
+              <span className="merchant-settings-info-label">{lang === 'zh' ? '店铺等级' : 'Shop level'}</span>
+              <span className="merchant-settings-info-value merchant-settings-info-value--link">
+                {shopLevelLabel}
+                <SettingsRowChevron />
+              </span>
+            </Link>
+          </div>
+        </section>
+
+        <section className="merchant-settings-group">
+          <h2 className="merchant-settings-group-title">{lang === 'zh' ? '店铺' : 'Shop'}</h2>
+          <div className="merchant-settings-panel">
+            <div className="merchant-settings-name-row">
+              <div className="merchant-settings-name-head">
+                <SettingsItemIcon src={shopNameIcon} />
+                <label className="merchant-settings-name-label" htmlFor="merchant-settings-shop-name">
+                  {lang === 'zh' ? '店铺名称' : 'Shop name'}
+                </label>
+              </div>
+              <div className="merchant-settings-name-field">
+                <input
+                  id="merchant-settings-shop-name"
+                  className="merchant-settings-name-input"
+                  value={shopNameDraft}
+                  maxLength={60}
+                  placeholder={lang === 'zh' ? '请输入店铺名称' : 'Enter shop name'}
+                  disabled={!auth?.shopId || savingShopName}
+                  onChange={(e) => {
+                    setShopNameDraft(e.target.value)
+                    if (shopNameError) setShopNameError('')
+                  }}
+                />
+                {shopNameDirty && (
                   <button
                     type="button"
-                    className="merchant-settings-btn merchant-settings-btn--primary"
-                    onClick={() => {
-                      resetShopTradeForm()
-                      setShopTradeMode('edit')
-                    }}
+                    className="merchant-settings-btn merchant-settings-btn--primary merchant-settings-name-save"
+                    onClick={saveShopName}
+                    disabled={savingShopName}
                   >
-                    {lang === 'zh' ? '修改提现密码' : 'Change payment PIN'}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="merchant-settings-btn merchant-settings-btn--primary"
-                    onClick={() => {
-                      resetShopTradeForm()
-                      setShopTradeMode('set')
-                    }}
-                  >
-                    {lang === 'zh' ? '设置提现密码' : 'Set payment PIN'}
+                    {savingShopName
+                      ? (lang === 'zh' ? '保存中…' : 'Saving…')
+                      : (lang === 'zh' ? '保存' : 'Save')}
                   </button>
                 )}
               </div>
+              {shopNameError && (
+                <p className="merchant-settings-field-error">{shopNameError}</p>
+              )}
             </div>
-          ) : (
-            <div className="merchant-settings-pin-form">
+
+            <div className="merchant-settings-location-row merchant-settings-location-row--globe-only">
+              <MerchantSettingsLocationMap address={savedAddress} country={savedCountry} lang={lang} />
+            </div>
+
+            <div className="merchant-settings-media-row">
+              <div className="merchant-settings-media-head">
+                <div className="merchant-settings-media-title">
+                  <SettingsItemIcon src={shopLogoIcon} />
+                  <span className="merchant-settings-media-label">{lang === 'zh' ? '店铺 Logo' : 'Shop logo'}</span>
+                </div>
+                <div className="merchant-settings-media-actions">
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="merchant-settings-file-input"
+                    aria-label={lang === 'zh' ? '上传 Logo' : 'Upload logo'}
+                    onChange={onLogoChange}
+                  />
+                  <button
+                    type="button"
+                    className="merchant-settings-link-btn"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={!loadOk || loadingLogo}
+                  >
+                    {loadingLogo ? (lang === 'zh' ? '上传中…' : 'Uploading…') : (lang === 'zh' ? '更换' : 'Change')}
+                  </button>
+                  {logoUrl && (
+                    <button
+                      type="button"
+                      className="merchant-settings-link-btn merchant-settings-link-btn--muted"
+                      onClick={removeLogo}
+                      disabled={loadingLogo}
+                    >
+                      {lang === 'zh' ? '移除' : 'Remove'}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div
+                className="merchant-settings-preview merchant-settings-preview--logo merchant-settings-preview--compact"
+                onClick={() => (logoUrl || loadingLogo) ? undefined : logoInputRef.current?.click()}
+                role={(logoUrl || loadingLogo) ? undefined : 'button'}
+                tabIndex={(logoUrl || loadingLogo) ? undefined : 0}
+                onKeyDown={(e) => {
+                  if (!logoUrl && !loadingLogo && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    logoInputRef.current?.click()
+                  }
+                }}
+              >
+                {logoUrl && loadOk && !loadingLogo ? (
+                  <img src={logoUrl} alt="" className="merchant-settings-preview-img" />
+                ) : (
+                  renderPreviewPlaceholder(
+                    loadingLogo,
+                    lang === 'zh' ? '上传中…' : 'Uploading…',
+                    lang === 'zh' ? '点击上传' : 'Tap to upload',
+                  )
+                )}
+              </div>
+            </div>
+
+            <div className="merchant-settings-media-row merchant-settings-media-row--last">
+              <div className="merchant-settings-media-head">
+                <div className="merchant-settings-media-title">
+                  <SettingsItemIcon src={shopBannerIcon} />
+                  <span className="merchant-settings-media-label">{lang === 'zh' ? '店铺横幅' : 'Shop banner'}</span>
+                </div>
+                <div className="merchant-settings-media-actions">
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="merchant-settings-file-input"
+                    aria-label={lang === 'zh' ? '上传横幅' : 'Upload banner'}
+                    onChange={onBannerChange}
+                  />
+                  <button
+                    type="button"
+                    className="merchant-settings-link-btn"
+                    onClick={() => bannerInputRef.current?.click()}
+                    disabled={!loadOk || loadingBanner}
+                  >
+                    {loadingBanner ? (lang === 'zh' ? '上传中…' : 'Uploading…') : (lang === 'zh' ? '更换' : 'Change')}
+                  </button>
+                  {bannerUrl && (
+                    <button
+                      type="button"
+                      className="merchant-settings-link-btn merchant-settings-link-btn--muted"
+                      onClick={removeBanner}
+                      disabled={loadingBanner}
+                    >
+                      {lang === 'zh' ? '移除' : 'Remove'}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div
+                className="merchant-settings-preview merchant-settings-preview--banner merchant-settings-preview--compact"
+                onClick={() => (bannerUrl || loadingBanner) ? undefined : bannerInputRef.current?.click()}
+                role={(bannerUrl || loadingBanner) ? undefined : 'button'}
+                tabIndex={(bannerUrl || loadingBanner) ? undefined : 0}
+                onKeyDown={(e) => {
+                  if (!bannerUrl && !loadingBanner && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    bannerInputRef.current?.click()
+                  }
+                }}
+              >
+                {bannerUrl && loadOk && !loadingBanner ? (
+                  <img src={bannerUrl} alt="" className="merchant-settings-preview-img" />
+                ) : (
+                  renderPreviewPlaceholder(
+                    loadingBanner,
+                    lang === 'zh' ? '上传中…' : 'Uploading…',
+                    lang === 'zh' ? '点击上传' : 'Tap to upload',
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="merchant-settings-group">
+          <h2 className="merchant-settings-group-title">{lang === 'zh' ? '安全' : 'Security'}</h2>
+          <div className="merchant-settings-panel">
+            {!auth?.shopId || !auth?.id ? (
+              <p className="merchant-settings-inline-note">
+                {lang === 'zh' ? '请重新登录后再设置。' : 'Please sign in again.'}
+              </p>
+            ) : shopTradeMode !== 'summary' ? (
+              <>
+              <div className="merchant-settings-pin-head">
+                <SettingsItemIcon src={withdrawPinIcon} />
+                <span className="merchant-settings-row-label">{lang === 'zh' ? '提现密码' : 'Payment PIN'}</span>
+              </div>
+              <div className="merchant-settings-pin-form">
               {shopTradeMode === 'edit' && (
                 <div className="merchant-settings-pin-field">
                   <label className="merchant-settings-pin-label">
@@ -738,102 +956,273 @@ const MerchantSettings: React.FC = () => {
                 </button>
               </div>
             </div>
-          )}
-        </div>
-      </section>
+              </>
+            ) : loginPwdMode !== 'summary' ? (
+              <>
+              <div className="merchant-settings-pin-head">
+                <SettingsItemIcon src={accountIcon} />
+                <span className="merchant-settings-row-label">{lang === 'zh' ? '登录密码' : 'Login password'}</span>
+              </div>
+              <div className="merchant-settings-pin-form">
+                <div className="merchant-settings-pin-field">
+                  <label className="merchant-settings-pin-label">
+                    <span className="merchant-settings-pin-required">*</span>
+                    {lang === 'zh' ? '当前密码' : 'Current password'}
+                  </label>
+                  <div className="merchant-settings-pin-input-wrap">
+                    <input
+                      type={loginPwdShowOld ? 'text' : 'password'}
+                      className="merchant-settings-pin-input"
+                      placeholder={
+                        lang === 'zh' ? '请输入当前登录密码' : 'Enter your current password'
+                      }
+                      value={loginPwdOld}
+                      onChange={(e) => setLoginPwdOld(e.target.value)}
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      className="merchant-settings-pin-pwd-toggle"
+                      aria-label={
+                        loginPwdShowOld
+                          ? (lang === 'zh' ? '隐藏密码' : 'Hide password')
+                          : (lang === 'zh' ? '显示密码' : 'Show password')
+                      }
+                      onClick={() => setLoginPwdShowOld((v) => !v)}
+                    >
+                      {loginPwdShowOld ? (
+                        <svg className="merchant-settings-pin-pwd-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+                          <path fill="currentColor" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l1.66 1.66c.57-.23 1.18-.36 1.83-.36zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 21 21 19.73 4.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                        </svg>
+                      ) : (
+                        <svg className="merchant-settings-pin-pwd-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+                          <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {loginPwdErrors.old && (
+                    <p className="merchant-settings-field-error">{loginPwdErrors.old}</p>
+                  )}
+                </div>
 
-      <section className="merchant-settings-card">
-        <div className="merchant-settings-card-head">
-          <span className="merchant-settings-card-icon" aria-hidden="true">
-            <img src={shopBannerIcon} alt="" className="merchant-settings-card-icon-img" />
-          </span>
-          <div>
-            <h2 className="merchant-settings-card-title">
-              {lang === 'zh' ? '店铺横幅' : 'Shop banner'}
-            </h2>
-            <p className="merchant-settings-card-desc">
-              {lang === 'zh'
-                ? '建议 1200×300 或同比例，展示在店铺首页顶部。'
-                : 'Recommended 1200×300 or same ratio, shown at shop homepage top.'}
-            </p>
-          </div>
-        </div>
-        <div className="merchant-settings-block merchant-settings-block--banner">
-          <div
-            className="merchant-settings-preview merchant-settings-preview--banner"
-            onClick={() => (bannerUrl || loadingBanner) ? undefined : bannerInputRef.current?.click()}
-            role={(bannerUrl || loadingBanner) ? undefined : 'button'}
-            tabIndex={(bannerUrl || loadingBanner) ? undefined : 0}
-            onKeyDown={e => { if (!bannerUrl && !loadingBanner && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); bannerInputRef.current?.click() } }}
-          >
-            {bannerUrl && loadOk && !loadingBanner ? (
-              <img
-                src={bannerUrl}
-                alt={lang === 'zh' ? '店铺横幅' : 'Shop banner'}
-                className="merchant-settings-preview-img"
-              />
+                <div className="merchant-settings-pin-field">
+                  <label className="merchant-settings-pin-label">
+                    <span className="merchant-settings-pin-required">*</span>
+                    {lang === 'zh' ? '新密码' : 'New password'}
+                  </label>
+                  <div className="merchant-settings-pin-input-wrap">
+                    <input
+                      type={loginPwdShowNew ? 'text' : 'password'}
+                      className="merchant-settings-pin-input"
+                      placeholder={
+                        lang === 'zh'
+                          ? '6-22 位字母和数字组合'
+                          : '6-22 letters and digits'
+                      }
+                      value={loginPwdNew}
+                      onChange={(e) =>
+                        setLoginPwdNew(e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 22))
+                      }
+                      maxLength={22}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="merchant-settings-pin-pwd-toggle"
+                      aria-label={
+                        loginPwdShowNew
+                          ? (lang === 'zh' ? '隐藏密码' : 'Hide password')
+                          : (lang === 'zh' ? '显示密码' : 'Show password')
+                      }
+                      onClick={() => setLoginPwdShowNew((v) => !v)}
+                    >
+                      {loginPwdShowNew ? (
+                        <svg className="merchant-settings-pin-pwd-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+                          <path fill="currentColor" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l1.66 1.66c.57-.23 1.18-.36 1.83-.36zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 21 21 19.73 4.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                        </svg>
+                      ) : (
+                        <svg className="merchant-settings-pin-pwd-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+                          <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {loginPwdErrors.new && (
+                    <p className="merchant-settings-field-error">{loginPwdErrors.new}</p>
+                  )}
+                </div>
+
+                <div className="merchant-settings-pin-field">
+                  <label className="merchant-settings-pin-label">
+                    <span className="merchant-settings-pin-required">*</span>
+                    {lang === 'zh' ? '确认密码' : 'Confirm password'}
+                  </label>
+                  <div className="merchant-settings-pin-input-wrap">
+                    <input
+                      type={loginPwdShowConfirm ? 'text' : 'password'}
+                      className="merchant-settings-pin-input"
+                      placeholder={
+                        lang === 'zh' ? '请再次输入新密码' : 'Confirm your new password'
+                      }
+                      value={loginPwdConfirm}
+                      onChange={(e) =>
+                        setLoginPwdConfirm(e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 22))
+                      }
+                      maxLength={22}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="merchant-settings-pin-pwd-toggle"
+                      aria-label={
+                        loginPwdShowConfirm
+                          ? (lang === 'zh' ? '隐藏密码' : 'Hide password')
+                          : (lang === 'zh' ? '显示密码' : 'Show password')
+                      }
+                      onClick={() => setLoginPwdShowConfirm((v) => !v)}
+                    >
+                      {loginPwdShowConfirm ? (
+                        <svg className="merchant-settings-pin-pwd-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+                          <path fill="currentColor" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l1.66 1.66c.57-.23 1.18-.36 1.83-.36zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 21 21 19.73 4.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                        </svg>
+                      ) : (
+                        <svg className="merchant-settings-pin-pwd-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+                          <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {loginPwdErrors.confirm && (
+                    <p className="merchant-settings-field-error">{loginPwdErrors.confirm}</p>
+                  )}
+                </div>
+
+                <div className="merchant-settings-pin-actions">
+                  <button
+                    type="button"
+                    className="merchant-settings-btn merchant-settings-btn--primary"
+                    onClick={handleLoginPwdSubmit}
+                    disabled={savingLoginPwd}
+                  >
+                    {savingLoginPwd
+                      ? (lang === 'zh' ? '保存中…' : 'Saving…')
+                      : (lang === 'zh' ? '确认' : 'Confirm')}
+                  </button>
+                  <button
+                    type="button"
+                    className="merchant-settings-btn merchant-settings-btn--ghost"
+                    onClick={() => {
+                      resetLoginPwdForm()
+                      setLoginPwdMode('summary')
+                    }}
+                  >
+                    {lang === 'zh' ? '取消' : 'Cancel'}
+                  </button>
+                </div>
+              </div>
+              </>
             ) : (
-              renderPreviewPlaceholder(
-                loadingBanner,
-                lang === 'zh' ? '上传中…' : 'Uploading…',
-                lang === 'zh' ? '点击上传横幅' : 'Click to upload banner',
-              )
+              <>
+              <div className="merchant-settings-row merchant-settings-row--action">
+                <div className="merchant-settings-row-main">
+                  <SettingsItemIcon src={accountIcon} />
+                  <span className="merchant-settings-row-label">{lang === 'zh' ? '登录密码' : 'Login password'}</span>
+                </div>
+                <button
+                  type="button"
+                  className="merchant-settings-link-btn"
+                  onClick={openLoginPwdEditor}
+                >
+                  {lang === 'zh' ? '修改' : 'Change'}
+                </button>
+              </div>
+              <div className="merchant-settings-row merchant-settings-row--action">
+                <div className="merchant-settings-row-main">
+                  <SettingsItemIcon src={withdrawPinIcon} />
+                  <span className="merchant-settings-row-label">{lang === 'zh' ? '提现密码' : 'Payment PIN'}</span>
+                  <span
+                    className={`merchant-settings-status-pill${
+                      shopHasTradePwd
+                        ? ' merchant-settings-status-pill--ok'
+                        : ' merchant-settings-status-pill--warn'
+                    }`}
+                  >
+                    {shopHasTradePwd
+                      ? (lang === 'zh' ? '已设置' : 'Set')
+                      : (lang === 'zh' ? '未设置' : 'Not set')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="merchant-settings-link-btn"
+                  onClick={openTradePwdEditor}
+                >
+                  {shopHasTradePwd
+                    ? (lang === 'zh' ? '修改' : 'Change')
+                    : (lang === 'zh' ? '设置' : 'Set up')}
+                </button>
+              </div>
+              </>
             )}
           </div>
-          <div className="merchant-settings-actions">
-            <input
-              ref={bannerInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="merchant-settings-file-input"
-              aria-label={lang === 'zh' ? '上传横幅' : 'Upload banner'}
-              onChange={onBannerChange}
-            />
+        </section>
+
+        <section className="merchant-settings-group">
+          <h2 className="merchant-settings-group-title">{lang === 'zh' ? '通用' : 'General'}</h2>
+          <div className="merchant-settings-panel">
+            <div className="merchant-settings-row merchant-settings-row--action">
+              <div className="merchant-settings-row-main">
+                <SettingsItemIcon src={settingsLangIcon} />
+                <span className="merchant-settings-row-label">{lang === 'zh' ? '语言' : 'Language'}</span>
+              </div>
+              <div
+                className="merchant-settings-lang-segment"
+                role="group"
+                aria-label={lang === 'zh' ? '语言' : 'Language'}
+              >
+                <button
+                  type="button"
+                  className={`merchant-settings-lang-option${lang === 'zh' ? ' merchant-settings-lang-option--active' : ''}`}
+                  aria-pressed={lang === 'zh'}
+                  onClick={() => setLang('zh')}
+                >
+                  中文
+                </button>
+                <button
+                  type="button"
+                  className={`merchant-settings-lang-option${lang === 'en' ? ' merchant-settings-lang-option--active' : ''}`}
+                  aria-pressed={lang === 'en'}
+                  onClick={() => setLang('en')}
+                >
+                  EN
+                </button>
+              </div>
+            </div>
             <button
               type="button"
-              className="merchant-settings-btn merchant-settings-btn--primary"
-              onClick={() => bannerInputRef.current?.click()}
-              disabled={!loadOk || loadingBanner}
+              className="merchant-settings-row"
+              onClick={handleOpenSupport}
             >
-              {lang === 'zh' ? '上传横幅' : 'Upload banner'}
+              <span className="merchant-settings-row-main">
+                <SettingsItemIcon src={loginTrustSupport} />
+                <span>{lang === 'zh' ? '联系客服' : 'Contact support'}</span>
+              </span>
+              <SettingsRowChevron />
             </button>
-            {bannerUrl && (
-              <button type="button" className="merchant-settings-btn merchant-settings-btn--ghost" onClick={removeBanner} disabled={loadingBanner}>
-                {lang === 'zh' ? '移除' : 'Remove'}
-              </button>
-            )}
+            <button
+              type="button"
+              className="merchant-settings-row merchant-settings-row--danger"
+              onClick={() => setLogoutConfirmOpen(true)}
+            >
+              <span className="merchant-settings-row-main">
+                <SettingsItemIcon src={accountIcon} />
+                <span>{lang === 'zh' ? '退出登录' : 'Log out'}</span>
+              </span>
+              <SettingsRowChevron />
+            </button>
           </div>
-        </div>
-      </section>
-
-      <section className="merchant-settings-card merchant-settings-card--account">
-        <div className="merchant-settings-card-head">
-          <span className="merchant-settings-card-icon" aria-hidden="true">
-            <img src={accountIcon} alt="" className="merchant-settings-card-icon-img" />
-          </span>
-          <div>
-            <h2 className="merchant-settings-card-title">
-              {lang === 'zh' ? '账户' : 'Account'}
-            </h2>
-            <p className="merchant-settings-card-desc">
-              {lang === 'zh'
-                ? '退出后需重新登录才能继续管理店铺。'
-                : 'You will need to sign in again to manage your shop.'}
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          className="merchant-settings-logout-btn"
-          onClick={() => setLogoutConfirmOpen(true)}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" strokeLinecap="round" />
-            <path d="M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span>{lang === 'zh' ? '退出登录' : 'Log out'}</span>
-        </button>
-      </section>
+        </section>
       </div>
 
       {logoutConfirmOpen && (
@@ -849,9 +1238,7 @@ const MerchantSettings: React.FC = () => {
               {lang === 'zh' ? '确认退出登录？' : 'Log out of this shop?'}
             </h2>
             <p className="merchant-backend-logout-subtitle">
-              {lang === 'zh'
-                ? '退出后需要重新登录才能管理店铺。'
-                : 'You will need to log in again to manage your shop.'}
+              {lang === 'zh' ? '退出后需重新登录。' : 'You will need to sign in again.'}
             </p>
             <div className="merchant-backend-logout-actions">
               <button
