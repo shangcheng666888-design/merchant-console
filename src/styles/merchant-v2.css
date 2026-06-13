@@ -284,6 +284,9 @@
   border-bottom: 1px solid var(--mc-border);
   box-shadow: 0 4px 18px rgba(26, 31, 54, 0.03);
   padding-inline: 1.1rem;
+  position: relative;
+  z-index: 40;
+  overflow: visible;
 }
 
 .merchant-backend-menu-btn {
@@ -381,7 +384,8 @@
 .merchant-backend-lang-dropdown {
   border-radius: 12px;
   border-color: #e2e8f8;
-  box-shadow: 0 12px 28px rgba(26, 31, 54, 0.1);
+  box-shadow: 0 12px 28px rgba(26, 31, 54, 0.14);
+  z-index: 1201;
 }
 
 .merchant-backend-header-logout {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom'
 import MerchantBackendSidebar, { MERCHANT_NAV_ITEMS } from './MerchantBackendSidebar'
 import MerchantMobileSummary from './MerchantMobileSummary'
@@ -47,7 +47,20 @@ const MerchantBackendLayoutInner: React.FC = () => {
   const [mobileShopInfoOpen, setMobileShopInfoOpen] = useState(false)
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
   const [quickMenuOpen, setQuickMenuOpen] = useState(false)
+  const langSwitcherRef = useRef<HTMLDivElement>(null)
   const { pendingOrders } = useMerchantDashboardBrief(authOk === true)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langSwitcherRef.current && !langSwitcherRef.current.contains(e.target as Node)) {
+        setLangDropdownOpen(false)
+      }
+    }
+    if (langDropdownOpen) {
+      document.addEventListener('click', handleClickOutside)
+    }
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [langDropdownOpen])
 
   useEffect(() => {
     try {
@@ -172,7 +185,7 @@ const MerchantBackendLayoutInner: React.FC = () => {
                 aria-hidden="true"
               />
             </button>
-            <div className="merchant-backend-lang-wrap">
+            <div className="merchant-backend-lang-wrap" ref={langSwitcherRef}>
               <button
                 type="button"
                 className="merchant-backend-lang-btn"
