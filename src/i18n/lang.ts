@@ -1,6 +1,6 @@
-export type Lang = 'zh' | 'tw' | 'en' | 'de' | 'ja' | 'ko' | 'es' | 'it' | 'vi'
+export type Lang = 'zh' | 'tw' | 'en' | 'de' | 'ja' | 'ko' | 'es' | 'it' | 'vi' | 'fr'
 
-export const SUPPORTED_LANGS: Lang[] = ['zh', 'tw', 'en', 'de', 'ja', 'ko', 'es', 'it', 'vi']
+export const SUPPORTED_LANGS: Lang[] = ['zh', 'tw', 'en', 'de', 'ja', 'ko', 'es', 'it', 'vi', 'fr']
 
 export const LANG_LABELS: Record<Lang, string> = {
   zh: '简体中文',
@@ -12,6 +12,7 @@ export const LANG_LABELS: Record<Lang, string> = {
   es: 'Español',
   it: 'Italiano',
   vi: 'Tiếng Việt',
+  fr: 'Français',
 }
 
 export function isLang(value: unknown): value is Lang {
@@ -24,12 +25,14 @@ export function isLang(value: unknown): value is Lang {
     value === 'ko' ||
     value === 'es' ||
     value === 'it' ||
-    value === 'vi'
+    value === 'vi' ||
+    value === 'fr'
   )
 }
 
 /** Crisp 客服 locale */
 export function crispLocale(lang: Lang): string {
+  if (lang === 'fr') return 'fr'
   if (lang === 'vi') return 'vi'
   if (lang === 'it') return 'it'
   if (lang === 'es') return 'es'
@@ -43,6 +46,7 @@ export function crispLocale(lang: Lang): string {
 
 /** Intl 日期/时间 locale */
 export function intlLocale(lang: Lang): string {
+  if (lang === 'fr') return 'fr-FR'
   if (lang === 'vi') return 'vi-VN'
   if (lang === 'it') return 'it-IT'
   if (lang === 'es') return 'es-ES'

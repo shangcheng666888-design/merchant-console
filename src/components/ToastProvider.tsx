@@ -29,7 +29,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { lang } = useLang()
   const [toast, setToast] = useState<ToastState | null>(null)
   const timerRef = useRef<number | null>(null)
-  const toastSeparator = tr(lang, { zh: '：', en: ': ', de: ': ', ja: ': ', ko: ': ', es: ': ', it: ': ', vi: ': ' })
+  const toastSeparator = tr(lang, { zh: '：', en: ': ', de: ': ', ja: ': ', ko: ': ', es: ': ', it: ': ', vi: ': ', fr: ': ' })
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {

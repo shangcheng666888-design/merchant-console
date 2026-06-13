@@ -8,13 +8,13 @@ import { getMerchantBrand } from '../constants/merchantBrand'
 import { pickLabel, tr } from '../i18n'
 
 export const MERCHANT_NAV_ITEMS = [
-  { path: '/dashboard', labelZh: '仪表盘', labelEn: 'Dashboard', labelDe: 'Dashboard', labelJa: 'ダッシュボード', labelKo: '대시보드', labelEs: 'Panel', labelIt: 'Dashboard', labelVi: 'Bảng điều khiển', icon: 'dashboard' as const },
-  { path: '/orders', labelZh: '店铺订单', labelEn: 'Orders', labelDe: 'Bestellungen', labelJa: '注文', labelKo: '매장 주문', labelEs: 'Pedidos', labelIt: 'Ordini', labelVi: 'Đơn hàng', icon: 'orders' as const },
-  { path: '/warehouse', labelZh: '商品仓库', labelEn: 'Warehouse', labelDe: 'Lager', labelJa: '商品倉庫', labelKo: '상품 창고', labelEs: 'Almacén', labelIt: 'Magazzino', labelVi: 'Kho hàng', icon: 'warehouse' as const },
-  { path: '/plan', labelZh: '运营计划', labelEn: 'Growth plan', labelDe: 'Wachstumsplan', labelJa: '運営プラン', labelKo: '운영 플랜', labelEs: 'Plan de crecimiento', labelIt: 'Piano di crescita', labelVi: 'Kế hoạch tăng trưởng', icon: 'plan' as const },
-  { path: '/finance', labelZh: '财务报表', labelEn: 'Finance', labelDe: 'Finanzen', labelJa: '財務レポート', labelKo: '재무 보고서', labelEs: 'Finanzas', labelIt: 'Finanze', labelVi: 'Tài chính', icon: 'finance' as const },
-  { path: '/wallet', labelZh: '我的钱包', labelEn: 'Wallet', labelDe: 'Wallet', labelJa: 'ウォレット', labelKo: '내 지갑', labelEs: 'Cartera', labelIt: 'Portafoglio', labelVi: 'Ví', icon: 'wallet' as const },
-  { path: '/settings', labelZh: '设置', labelEn: 'Settings', labelDe: 'Einstellungen', labelJa: '設定', labelKo: '설정', labelEs: 'Ajustes', labelIt: 'Impostazioni', labelVi: 'Cài đặt', icon: 'settings' as const },
+  { path: '/dashboard', labelZh: '仪表盘', labelEn: 'Dashboard', labelDe: 'Dashboard', labelJa: 'ダッシュボード', labelKo: '대시보드', labelEs: 'Panel', labelIt: 'Dashboard', labelVi: 'Bảng điều khiển', labelFr: 'Tableau de bord', icon: 'dashboard' as const },
+  { path: '/orders', labelZh: '店铺订单', labelEn: 'Orders', labelDe: 'Bestellungen', labelJa: '注文', labelKo: '매장 주문', labelEs: 'Pedidos', labelIt: 'Ordini', labelVi: 'Đơn hàng', labelFr: 'Commandes', icon: 'orders' as const },
+  { path: '/warehouse', labelZh: '商品仓库', labelEn: 'Warehouse', labelDe: 'Lager', labelJa: '商品倉庫', labelKo: '상품 창고', labelEs: 'Almacén', labelIt: 'Magazzino', labelVi: 'Kho hàng', labelFr: 'Entrepôt', icon: 'warehouse' as const },
+  { path: '/plan', labelZh: '运营计划', labelEn: 'Growth plan', labelDe: 'Wachstumsplan', labelJa: '運営プラン', labelKo: '운영 플랜', labelEs: 'Plan de crecimiento', labelIt: 'Piano di crescita', labelVi: 'Kế hoạch tăng trưởng', labelFr: 'Plan de croissance', icon: 'plan' as const },
+  { path: '/finance', labelZh: '财务报表', labelEn: 'Finance', labelDe: 'Finanzen', labelJa: '財務レポート', labelKo: '재무 보고서', labelEs: 'Finanzas', labelIt: 'Finanze', labelVi: 'Tài chính', labelFr: 'Finances', icon: 'finance' as const },
+  { path: '/wallet', labelZh: '我的钱包', labelEn: 'Wallet', labelDe: 'Wallet', labelJa: 'ウォレット', labelKo: '내 지갑', labelEs: 'Cartera', labelIt: 'Portafoglio', labelVi: 'Ví', labelFr: 'Portefeuille', icon: 'wallet' as const },
+  { path: '/settings', labelZh: '设置', labelEn: 'Settings', labelDe: 'Einstellungen', labelJa: '設定', labelKo: '설정', labelEs: 'Ajustes', labelIt: 'Impostazioni', labelVi: 'Cài đặt', labelFr: 'Paramètres', icon: 'settings' as const },
 ] as const satisfies ReadonlyArray<{
   path: string
   labelZh: string
@@ -25,6 +25,7 @@ export const MERCHANT_NAV_ITEMS = [
   labelEs: string
   labelIt: string
   labelVi: string
+  labelFr: string
   icon: MerchantSidebarIconName
 }>
 
@@ -59,7 +60,7 @@ const MerchantBackendSidebar: React.FC<MerchantBackendSidebarProps> = ({ collaps
       </div>
       <nav
         className="merchant-backend-nav"
-        aria-label={tr(lang, { zh: '店铺后台导航', en: 'Seller navigation', de: 'Händlernavigation', ja: '店舗管理ナビゲーション', ko: '판매자 내비게이션', es: 'Navegación del vendedor', it: 'Navigazione venditore', vi: 'Điều hướng người bán' })}
+        aria-label={tr(lang, { zh: '店铺后台导航', en: 'Seller navigation', de: 'Händlernavigation', ja: '店舗管理ナビゲーション', ko: '판매자 내비게이션', es: 'Navegación del vendedor', it: 'Navigazione venditore', vi: 'Điều hướng người bán', fr: 'Navigation vers le vendeur' })}
       >
         {MERCHANT_NAV_ITEMS.map((item) => {
           const isActive = item.path === '/wallet'

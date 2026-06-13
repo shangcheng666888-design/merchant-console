@@ -53,11 +53,12 @@ function formatMoney(value: number): string {
 }
 
 function typeLabel(rawType: RawType, lang: Lang): string {
-  const map: Record<RawType, { zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string }> = {
-    recharge: { zh: '充值', en: 'Recharge', de: 'Aufladung', ja: 'チャージ', ko: '충전', es: 'Recarga', it: 'Ricarica', vi: 'Nạp tiền' },
-    withdraw: { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retiro', it: 'Prelievo', vi: 'Rút tiền' },
-    consume: { zh: '消费', en: 'Spend', de: 'Ausgabe', ja: '利用', ko: '사용', es: 'Gasto', it: 'Spesa', vi: 'Chi tiêu' },
-    refund: { zh: '退款', en: 'Refund', de: 'Erstattung', ja: '返金', ko: '환불', es: 'Reembolso', it: 'Rimborso', vi: 'Hoàn tiền' },
+  const map: Record<RawType, { zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string
+  fr: string }> = {
+    recharge: { zh: '充值', en: 'Recharge', de: 'Aufladung', ja: 'チャージ', ko: '충전', es: 'Recarga', it: 'Ricarica', vi: 'Nạp tiền', fr: 'Recharger' },
+    withdraw: { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retiro', it: 'Prelievo', vi: 'Rút tiền', fr: 'Retirer' },
+    consume: { zh: '消费', en: 'Spend', de: 'Ausgabe', ja: '利用', ko: '사용', es: 'Gasto', it: 'Spesa', vi: 'Chi tiêu', fr: 'Dépenser' },
+    refund: { zh: '退款', en: 'Refund', de: 'Erstattung', ja: '返金', ko: '환불', es: 'Reembolso', it: 'Rimborso', vi: 'Hoàn tiền', fr: 'Remboursement' },
   }
   return pickBilingual(lang, map[rawType] ?? { zh: rawType, en: rawType, de: rawType, ja: rawType, es: rawType, it: rawType })
 }
@@ -217,18 +218,20 @@ const MerchantFinance: React.FC = () => {
     return records.filter((row) => row.rawType === typeFilter)
   }, [records, typeFilter])
 
-  const rangeLabels: Record<RangeKey, { zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string }> = {
-    '7d': { zh: '近7天', en: '7 days', de: '7 Tage', ja: '過去7日', ko: '최근 7일', es: '7 días', it: '7 giorni', vi: '7 ngày' },
-    '30d': { zh: '近30天', en: '30 days', de: '30 Tage', ja: '過去30日', ko: '최근 30일', es: '30 días', it: '30 giorni', vi: '30 ngày' },
-    '90d': { zh: '近90天', en: '90 days', de: '90 Tage', ja: '過去90日', ko: '최근 90일', es: '90 días', it: '90 giorni', vi: '90 ngày' },
+  const rangeLabels: Record<RangeKey, { zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string
+  fr: string }> = {
+    '7d': { zh: '近7天', en: '7 days', de: '7 Tage', ja: '過去7日', ko: '최근 7일', es: '7 días', it: '7 giorni', vi: '7 ngày', fr: '7 jours' },
+    '30d': { zh: '近30天', en: '30 days', de: '30 Tage', ja: '過去30日', ko: '최근 30일', es: '30 días', it: '30 giorni', vi: '30 ngày', fr: '30 jours' },
+    '90d': { zh: '近90天', en: '90 days', de: '90 Tage', ja: '過去90日', ko: '최근 90일', es: '90 días', it: '90 giorni', vi: '90 ngày', fr: '90 jours' },
   }
 
-  const typeFilters: { key: TypeFilter; zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string }[] = [
-    { key: 'all', zh: '全部', en: 'All', de: 'Alle', ja: 'すべて', ko: '전체', es: 'Todos', it: 'Tutti', vi: 'Tất cả' },
-    { key: 'recharge', zh: '充值', en: 'Recharge', de: 'Aufladung', ja: 'チャージ', ko: '충전', es: 'Recarga', it: 'Ricarica', vi: 'Nạp tiền' },
-    { key: 'withdraw', zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retiro', it: 'Prelievo', vi: 'Rút tiền' },
-    { key: 'consume', zh: '消费', en: 'Spend', de: 'Ausgabe', ja: '利用', ko: '사용', es: 'Gasto', it: 'Spesa', vi: 'Chi tiêu' },
-    { key: 'refund', zh: '退款', en: 'Refund', de: 'Erstattung', ja: '返金', ko: '환불', es: 'Reembolso', it: 'Rimborso', vi: 'Hoàn tiền' },
+  const typeFilters: { key: TypeFilter; zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string
+  fr: string }[] = [
+    { key: 'all', zh: '全部', en: 'All', de: 'Alle', ja: 'すべて', ko: '전체', es: 'Todos', it: 'Tutti', vi: 'Tất cả', fr: 'Tous' },
+    { key: 'recharge', zh: '充值', en: 'Recharge', de: 'Aufladung', ja: 'チャージ', ko: '충전', es: 'Recarga', it: 'Ricarica', vi: 'Nạp tiền', fr: 'Recharger' },
+    { key: 'withdraw', zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retiro', it: 'Prelievo', vi: 'Rút tiền', fr: 'Retirer' },
+    { key: 'consume', zh: '消费', en: 'Spend', de: 'Ausgabe', ja: '利用', ko: '사용', es: 'Gasto', it: 'Spesa', vi: 'Chi tiêu', fr: 'Dépenser' },
+    { key: 'refund', zh: '退款', en: 'Refund', de: 'Erstattung', ja: '返金', ko: '환불', es: 'Reembolso', it: 'Rimborso', vi: 'Hoàn tiền', fr: 'Remboursement' },
   ]
 
   const incomeRatio = totalIncome + totalExpense > 0 ? (totalIncome / (totalIncome + totalExpense)) * 100 : 50
@@ -244,7 +247,7 @@ const MerchantFinance: React.FC = () => {
             </span>
             <div className="merchant-finance-header-copy">
               <h1 className="merchant-finance-title">
-                {tr(lang, { zh: '财务报表', en: 'Finance report', de: 'Finanzbericht', ja: '財務レポート', ko: '재무 보고서', es: 'Informe financiero', it: 'Report finanziario', vi: 'Báo cáo tài chính'})}
+                {tr(lang, { zh: '财务报表', en: 'Finance report', de: 'Finanzbericht', ja: '財務レポート', ko: '재무 보고서', es: 'Informe financiero', it: 'Report finanziario', vi: 'Báo cáo tài chính', fr: 'Rapport financier'})}
               </h1>
               <p className="merchant-finance-subtitle">
                 {tr(lang, {
@@ -259,14 +262,14 @@ const MerchantFinance: React.FC = () => {
             className="merchant-finance-wallet-link"
             onClick={() => navigate('/wallet')}
           >
-            {tr(lang, { zh: '我的钱包', en: 'My wallet', de: 'Meine Wallet', ja: 'マイウォレット', ko: '내 지갑', es: 'Mi billetera', it: 'Il mio portafoglio', vi: 'Ví của tôi'})}
+            {tr(lang, { zh: '我的钱包', en: 'My wallet', de: 'Meine Wallet', ja: 'マイウォレット', ko: '내 지갑', es: 'Mi billetera', it: 'Il mio portafoglio', vi: 'Ví của tôi', fr: 'Mon portefeuille'})}
           </button>
         </div>
 
         <div
           className="merchant-finance-stats"
           role="group"
-          aria-label={tr(lang, { zh: '财务汇总', en: 'Finance summary', de: 'Finanzübersicht', ja: '財務サマリー', ko: '재무 요약', es: 'Resumen financiero', it: 'Riepilogo finanziario', vi: 'Tóm tắt tài chính'})}
+          aria-label={tr(lang, { zh: '财务汇总', en: 'Finance summary', de: 'Finanzübersicht', ja: '財務サマリー', ko: '재무 요약', es: 'Resumen financiero', it: 'Riepilogo finanziario', vi: 'Tóm tắt tài chính', fr: 'Résumé financier'})}
         >
           {showSkeleton ? (
             <>
@@ -282,7 +285,7 @@ const MerchantFinance: React.FC = () => {
                 </span>
                 <div className="merchant-finance-stat-body">
                   <span className="merchant-finance-stat-value">{formatMoney(totalIncome)}</span>
-                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '收入', en: 'Income', de: 'Einnahmen', ja: '収入', ko: '수입', es: 'Ingresos', it: 'Entrate', vi: 'Thu nhập'})}</span>
+                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '收入', en: 'Income', de: 'Einnahmen', ja: '収入', ko: '수입', es: 'Ingresos', it: 'Entrate', vi: 'Thu nhập', fr: 'Revenu'})}</span>
                 </div>
               </div>
               <div className="merchant-finance-stat merchant-finance-stat--expense">
@@ -291,7 +294,7 @@ const MerchantFinance: React.FC = () => {
                 </span>
                 <div className="merchant-finance-stat-body">
                   <span className="merchant-finance-stat-value">{formatMoney(totalExpense)}</span>
-                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '支出', en: 'Expense', de: 'Ausgaben', ja: '支出', ko: '지출', es: 'Gastos', it: 'Spese', vi: 'Chi tiêu'})}</span>
+                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '支出', en: 'Expense', de: 'Ausgaben', ja: '支出', ko: '지출', es: 'Gastos', it: 'Spese', vi: 'Chi tiêu', fr: 'Frais'})}</span>
                 </div>
               </div>
               <div className="merchant-finance-stat merchant-finance-stat--net">
@@ -309,7 +312,7 @@ const MerchantFinance: React.FC = () => {
                   >
                     {formatMoney(netTotal)}
                   </span>
-                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '结余', en: 'Net', de: 'Saldo', ja: '収支', ko: '순수익', es: 'Balance neto', it: 'Saldo netto', vi: 'Số dư ròng'})}</span>
+                  <span className="merchant-finance-stat-label">{tr(lang, { zh: '结余', en: 'Net', de: 'Saldo', ja: '収支', ko: '순수익', es: 'Balance neto', it: 'Saldo netto', vi: 'Số dư ròng', fr: 'Filet'})}</span>
                 </div>
               </div>
             </>
@@ -333,14 +336,14 @@ const MerchantFinance: React.FC = () => {
       <section className="merchant-finance-section--v2">
         <div className="merchant-finance-toolbar">
           <h2 className="merchant-finance-detail-title">
-            {tr(lang, { zh: '流水明细', en: 'Transactions', de: 'Transaktionen', ja: '取引明細', ko: '거래 내역', es: 'Movimientos', it: 'Movimenti', vi: 'Giao dịch'})}
+            {tr(lang, { zh: '流水明细', en: 'Transactions', de: 'Transaktionen', ja: '取引明細', ko: '거래 내역', es: 'Movimientos', it: 'Movimenti', vi: 'Giao dịch', fr: 'Transactions'})}
           </h2>
           <button
             type="button"
             className="merchant-finance-refresh-btn"
             onClick={() => fetchFinance(records.length > 0)}
             disabled={loading || refreshing}
-            aria-label={tr(lang, { zh: '刷新', en: 'Refresh', de: 'Aktualisieren', ja: '更新', ko: '새로고침', es: 'Actualizar', it: 'Aggiorna', vi: 'Làm mới'})}
+            aria-label={tr(lang, { zh: '刷新', en: 'Refresh', de: 'Aktualisieren', ja: '更新', ko: '새로고침', es: 'Actualizar', it: 'Aggiorna', vi: 'Làm mới', fr: 'Rafraîchir'})}
           >
             <svg
               width="18"
@@ -373,7 +376,7 @@ const MerchantFinance: React.FC = () => {
         <div
           className="merchant-finance-filters merchant-finance-filters--type"
           role="group"
-          aria-label={tr(lang, { zh: '流水类型', en: 'Transaction type', de: 'Transaktionstyp', ja: '取引タイプ', ko: '거래 유형', es: 'Tipo de movimiento', it: 'Tipo di movimento', vi: 'Loại giao dịch'})}
+          aria-label={tr(lang, { zh: '流水类型', en: 'Transaction type', de: 'Transaktionstyp', ja: '取引タイプ', ko: '거래 유형', es: 'Tipo de movimiento', it: 'Tipo di movimento', vi: 'Loại giao dịch', fr: 'Type d\'opération'})}
         >
           {typeFilters.map((item) => (
             <button
@@ -448,7 +451,7 @@ const MerchantFinance: React.FC = () => {
                         </span>
                         {row.balanceAfter != null && (
                           <span className="merchant-finance-row-balance">
-                            {tr(lang, { zh: '余额', en: 'Balance', de: 'Guthaben', ja: '残高', ko: '잔액', es: 'Saldo', it: 'Saldo', vi: 'Số dư'})} {formatMoney(row.balanceAfter)}
+                            {tr(lang, { zh: '余额', en: 'Balance', de: 'Guthaben', ja: '残高', ko: '잔액', es: 'Saldo', it: 'Saldo', vi: 'Số dư', fr: 'Équilibre'})} {formatMoney(row.balanceAfter)}
                           </span>
                         )}
                       </div>
@@ -466,11 +469,11 @@ const MerchantFinance: React.FC = () => {
                 <table className="merchant-finance-table">
                   <thead>
                     <tr>
-                      <th>{tr(lang, { zh: '日期', en: 'Date', de: 'Datum', ja: '日付', ko: '날짜', es: 'Fecha', it: 'Data', vi: 'Ngày'})}</th>
-                      <th>{tr(lang, { zh: '类型', en: 'Type', de: 'Typ', ja: 'タイプ', ko: '유형', es: 'Tipo', it: 'Tipo', vi: 'Loại'})}</th>
-                      <th>{tr(lang, { zh: '金额', en: 'Amount', de: 'Betrag', ja: '金額', ko: '금액', es: 'Monto', it: 'Importo', vi: 'Số tiền'})}</th>
-                      <th>{tr(lang, { zh: '余额', en: 'Balance', de: 'Guthaben', ja: '残高', ko: '잔액', es: 'Saldo', it: 'Saldo', vi: 'Số dư'})}</th>
-                      <th>{tr(lang, { zh: '备注', en: 'Note', de: 'Notiz', ja: '備考', ko: '비고', es: 'Nota', it: 'Nota', vi: 'Ghi chú'})}</th>
+                      <th>{tr(lang, { zh: '日期', en: 'Date', de: 'Datum', ja: '日付', ko: '날짜', es: 'Fecha', it: 'Data', vi: 'Ngày', fr: 'Date'})}</th>
+                      <th>{tr(lang, { zh: '类型', en: 'Type', de: 'Typ', ja: 'タイプ', ko: '유형', es: 'Tipo', it: 'Tipo', vi: 'Loại', fr: 'Taper'})}</th>
+                      <th>{tr(lang, { zh: '金额', en: 'Amount', de: 'Betrag', ja: '金額', ko: '금액', es: 'Monto', it: 'Importo', vi: 'Số tiền', fr: 'Montant'})}</th>
+                      <th>{tr(lang, { zh: '余额', en: 'Balance', de: 'Guthaben', ja: '残高', ko: '잔액', es: 'Saldo', it: 'Saldo', vi: 'Số dư', fr: 'Équilibre'})}</th>
+                      <th>{tr(lang, { zh: '备注', en: 'Note', de: 'Notiz', ja: '備考', ko: '비고', es: 'Nota', it: 'Nota', vi: 'Ghi chú', fr: 'Note'})}</th>
                     </tr>
                   </thead>
                   <tbody>

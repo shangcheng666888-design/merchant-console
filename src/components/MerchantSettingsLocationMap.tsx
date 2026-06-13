@@ -128,7 +128,7 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
       <div className="merchant-settings-loc-card merchant-settings-loc-card--idle">
         <LocationGlobeVisual mode="idle" />
         <p className="merchant-settings-loc-empty-text">
-          {tr(lang, { zh: '暂未设置店铺地址', en: 'No shop address configured yet', de: 'Noch keine Shop-Adresse hinterlegt', ja: '店舗住所がまだ設定されていません', ko: '매장 주소가 아직 설정되지 않았습니다', es: 'Aún no hay dirección de la tienda configurada', it: 'Nessun indirizzo del negozio configurato', vi: 'Chưa cấu hình địa chỉ cửa hàng' })}
+          {tr(lang, { zh: '暂未设置店铺地址', en: 'No shop address configured yet', de: 'Noch keine Shop-Adresse hinterlegt', ja: '店舗住所がまだ設定されていません', ko: '매장 주소가 아직 설정되지 않았습니다', es: 'Aún no hay dirección de la tienda configurada', it: 'Nessun indirizzo del negozio configurato', vi: 'Chưa cấu hình địa chỉ cửa hàng', fr: 'Aucune adresse de boutique configurée pour le moment' })}
         </p>
       </div>
     )
@@ -140,7 +140,7 @@ const MerchantSettingsLocationMap: React.FC<MerchantSettingsLocationMapProps> = 
         <LocationGlobeVisual mode="idle" />
         <div className="merchant-settings-loc-loading-mask">
           <span className="merchant-settings-loc-loading-ring" />
-          <span>{tr(lang, { zh: '正在定位…', en: 'Locating…', de: 'Standort wird ermittelt…', ja: '位置情報を取得中…', ko: '위치 확인 중…', es: 'Localizando…', it: 'Localizzazione…', vi: 'Đang định vị…' })}</span>
+          <span>{tr(lang, { zh: '正在定位…', en: 'Locating…', de: 'Standort wird ermittelt…', ja: '位置情報を取得中…', ko: '위치 확인 중…', es: 'Localizando…', it: 'Localizzazione…', vi: 'Đang định vị…', fr: 'Localisation…' })}</span>
         </div>
       </div>
     )

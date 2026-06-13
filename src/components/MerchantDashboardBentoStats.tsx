@@ -73,11 +73,11 @@ const MerchantDashboardBentoStats: React.FC<BentoStatsProps> = ({
       <article className="merchant-bento-card merchant-bento-card--sales merchant-dashboard-stat--sales" style={{ '--mc-stagger': '0.05s' } as React.CSSProperties}>
         <div className="merchant-bento-card-top">
           <MerchantDashboardStatIcon variant="sales" />
-          <span className="merchant-bento-card-tag">{tr(lang, { zh: '近7日走势', en: '7-day trend', de: '7-Tage-Trend', ja: '直近7日の推移', ko: '최근 7일 추이', es: 'Tendencia de 7 días', it: 'Andamento in 7 giorni', vi: 'Xu hướng 7 ngày' })}</span>
+          <span className="merchant-bento-card-tag">{tr(lang, { zh: '近7日走势', en: '7-day trend', de: '7-Tage-Trend', ja: '直近7日の推移', ko: '최근 7일 추이', es: 'Tendencia de 7 días', it: 'Andamento in 7 giorni', vi: 'Xu hướng 7 ngày', fr: 'tendance sur 7 jours' })}</span>
         </div>
         <AnimatedMetric value={totalSales} format="currency" className="merchant-bento-value merchant-dashboard-stat-value" />
         <span className="merchant-bento-label merchant-dashboard-stat-label">
-          {tr(lang, { zh: '销售总额', en: 'Total sales', de: 'Gesamtumsatz', ja: '売上合計', ko: '총 매출', es: 'Ventas totales', it: 'Vendite totali', vi: 'Tổng doanh thu' })}
+          {tr(lang, { zh: '销售总额', en: 'Total sales', de: 'Gesamtumsatz', ja: '売上合計', ko: '총 매출', es: 'Ventas totales', it: 'Vendite totali', vi: 'Tổng doanh thu', fr: 'Ventes totales' })}
         </span>
         <BentoSparkline data={salesSeries} color="#1d6fd8" />
       </article>
@@ -86,7 +86,7 @@ const MerchantDashboardBentoStats: React.FC<BentoStatsProps> = ({
         <MerchantDashboardStatIcon variant="orders" />
         <AnimatedMetric value={orderCount} format="number" className="merchant-bento-value merchant-dashboard-stat-value" />
         <span className="merchant-bento-label merchant-dashboard-stat-label">
-          {tr(lang, { zh: '总订单', en: 'Total orders', de: 'Bestellungen gesamt', ja: '注文合計', ko: '총 주문', es: 'Pedidos totales', it: 'Ordini totali', vi: 'Tổng đơn hàng' })}
+          {tr(lang, { zh: '总订单', en: 'Total orders', de: 'Bestellungen gesamt', ja: '注文合計', ko: '총 주문', es: 'Pedidos totales', it: 'Ordini totali', vi: 'Tổng đơn hàng', fr: 'Total des commandes' })}
         </span>
       </article>
 
@@ -94,7 +94,7 @@ const MerchantDashboardBentoStats: React.FC<BentoStatsProps> = ({
         <MerchantDashboardStatIcon variant="profit" />
         <AnimatedMetric value={totalProfit} format="currency" className="merchant-bento-value merchant-dashboard-stat-value" />
         <span className="merchant-bento-label merchant-dashboard-stat-label">
-          {tr(lang, { zh: '总利润', en: 'Total profit', de: 'Gesamtgewinn', ja: '利益合計', ko: '총 이익', es: 'Beneficio total', it: 'Profitto totale', vi: 'Tổng lợi nhuận' })}
+          {tr(lang, { zh: '总利润', en: 'Total profit', de: 'Gesamtgewinn', ja: '利益合計', ko: '총 이익', es: 'Beneficio total', it: 'Profitto totale', vi: 'Tổng lợi nhuận', fr: 'Bénéfice total' })}
         </span>
       </article>
 
@@ -102,7 +102,7 @@ const MerchantDashboardBentoStats: React.FC<BentoStatsProps> = ({
         <MerchantDashboardStatIcon variant="products" />
         <AnimatedMetric value={productCount} format="number" className="merchant-bento-value merchant-dashboard-stat-value" />
         <span className="merchant-bento-label merchant-dashboard-stat-label">
-          {tr(lang, { zh: '商品总数', en: 'Total products', de: 'Produkte gesamt', ja: '商品数', ko: '총 상품 수', es: 'Productos totales', it: 'Prodotti totali', vi: 'Tổng sản phẩm' })}
+          {tr(lang, { zh: '商品总数', en: 'Total products', de: 'Produkte gesamt', ja: '商品数', ko: '총 상품 수', es: 'Productos totales', it: 'Prodotti totali', vi: 'Tổng sản phẩm', fr: 'Produits totaux' })}
         </span>
       </article>
 
@@ -113,11 +113,11 @@ const MerchantDashboardBentoStats: React.FC<BentoStatsProps> = ({
         <MerchantDashboardStatIcon variant="pending" />
         <AnimatedMetric value={pendingOrders} format="number" className="merchant-bento-value merchant-dashboard-stat-value" />
         <span className="merchant-bento-label merchant-dashboard-stat-label">
-          {tr(lang, { zh: '待处理订单', en: 'Pending orders', de: 'Offene Bestellungen', ja: '未処理の注文', ko: '처리 대기 주문', es: 'Pedidos pendientes', it: 'Ordini in sospeso', vi: 'Đơn chờ xử lý' })}
+          {tr(lang, { zh: '待处理订单', en: 'Pending orders', de: 'Offene Bestellungen', ja: '未処理の注文', ko: '처리 대기 주문', es: 'Pedidos pendientes', it: 'Ordini in sospeso', vi: 'Đơn chờ xử lý', fr: 'Commandes en attente' })}
         </span>
         {pendingOrders > 0 ? (
           <button type="button" className="merchant-bento-action" onClick={onNavigateOrders}>
-            {tr(lang, { zh: '立即处理', en: 'View orders', de: 'Bestellungen anzeigen', ja: '注文を確認', ko: '지금 처리', es: 'Ver pedidos', it: 'Vedi ordini', vi: 'Xem đơn hàng' })}
+            {tr(lang, { zh: '立即处理', en: 'View orders', de: 'Bestellungen anzeigen', ja: '注文を確認', ko: '지금 처리', es: 'Ver pedidos', it: 'Vedi ordini', vi: 'Xem đơn hàng', fr: 'Afficher les commandes' })}
           </button>
         ) : null}
       </article>
@@ -126,7 +126,7 @@ const MerchantDashboardBentoStats: React.FC<BentoStatsProps> = ({
         <MerchantDashboardStatIcon variant="unsettled" />
         <AnimatedMetric value={unsettledAmount} format="currency" className="merchant-bento-value merchant-dashboard-stat-value" />
         <span className="merchant-bento-label merchant-dashboard-stat-label">
-          {tr(lang, { zh: '待结算金额', en: 'Unsettled amount', de: 'Ausstehender Betrag', ja: '未精算金額', ko: '미정산 금액', es: 'Importe pendiente de liquidar', it: 'Importo da liquidare', vi: 'Số tiền chờ thanh toán' })}
+          {tr(lang, { zh: '待结算金额', en: 'Unsettled amount', de: 'Ausstehender Betrag', ja: '未精算金額', ko: '미정산 금액', es: 'Importe pendiente de liquidar', it: 'Importo da liquidare', vi: 'Số tiền chờ thanh toán', fr: 'Montant non réglé' })}
         </span>
       </article>
     </div>

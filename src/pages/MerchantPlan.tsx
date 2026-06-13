@@ -49,6 +49,7 @@ const LEVELS: {
   benefitsEs: string[]
   benefitsIt: string[]
   benefitsVi: string[]
+  benefitsFr: string[]
 }[] = [
   {
     key: 'normal',
@@ -112,6 +113,12 @@ const LEVELS: {
       'Hỗ trợ khách hàng tiêu chuẩn',
       'Lưu lượng nền tảng cơ bản',
       'Biên lợi nhuận: 10% trên giá nhập',
+    ],
+    benefitsFr: [
+      'Visibilité de base de la boutique',
+      'Assistance client standard',
+      'Trafic de base de la plateforme',
+      'Marge : 10 % sur le prix d\'achat',
     ],
   },
   {
@@ -177,6 +184,12 @@ const LEVELS: {
       'Liên hệ vận hành riêng',
       'Biên lợi nhuận: 15% trên giá nhập',
     ],
+    benefitsFr: [
+      'Visibilité accrue dans les recherches',
+      'Accès prioritaire aux campagnes',
+      'Interlocuteur opérationnel dédié',
+      'Marge : 15 % sur le prix d\'achat',
+    ],
   },
   {
     key: 'gold',
@@ -240,6 +253,12 @@ const LEVELS: {
       'Ưu đãi tỷ lệ hoa hồng',
       'Kênh hỗ trợ riêng',
       'Biên lợi nhuận: 20% trên giá nhập',
+    ],
+    benefitsFr: [
+      'Emplacements recommandés sur la page d\'accueil',
+      'Taux de commission avantageux',
+      'Canal d\'assistance dédié',
+      'Marge : 20 % sur le prix d\'achat',
     ],
   },
   {
@@ -305,6 +324,12 @@ const LEVELS: {
       'Chứng nhận danh dự hàng năm',
       'Biên lợi nhuận: 25% trên giá nhập',
     ],
+    benefitsFr: [
+      'Soutien au trafic de premier niveau',
+      'Opportunités de collaboration avec des marques',
+      'Certification annuelle d\'excellence',
+      'Marge : 25 % sur le prix d\'achat',
+    ],
   },
 ]
 
@@ -318,6 +343,7 @@ const ORGANIC_TIPS = [
     es: 'Comparta el enlace de su tienda en redes sociales, grupos o mensajes directos para atraer visitas.',
     it: 'Condividi il link del negozio sui social, nelle community o in messaggi diretti per invitare le visite.',
     vi: 'Chia sẻ liên kết cửa hàng trên mạng xã hội, nhóm hoặc tin nhắn riêng để thu hút khách truy cập.',
+    fr: 'Partagez le lien de votre boutique sur les réseaux sociaux, les groupes ou en message privé pour attirer des visites.',
   },
   {
     zh: '可配合商品主图与优惠活动文案，提高点击率与转化。',
@@ -328,6 +354,7 @@ const ORGANIC_TIPS = [
     es: 'Combine el enlace con imágenes de productos y promociones para mejorar los clics y la conversión.',
     it: 'Abbina il link a immagini dei prodotti e promozioni per migliorare click e conversioni.',
     vi: 'Kết hợp liên kết với hình ảnh sản phẩm và nội dung khuyến mãi để tăng tỷ lệ nhấp và chuyển đổi.',
+    fr: 'Associez le lien à des images produits et des promotions pour améliorer le taux de clic et la conversion.',
   },
   {
     zh: '持续分享有助于积累自然访客，配合主推商品效果更佳。',
@@ -338,6 +365,7 @@ const ORGANIC_TIPS = [
     es: 'Compartir de forma constante genera visitantes orgánicos; destaque sus productos estrella para mejores resultados.',
     it: 'Condividere costantemente aiuta ad accumulare visitatori organici — metti in evidenza i prodotti principali per risultati migliori.',
     vi: 'Chia sẻ thường xuyên giúp tích lũy khách truy cập tự nhiên — kết hợp sản phẩm chủ lực để hiệu quả hơn.',
+    fr: 'Un partage régulier génère des visiteurs organiques — mettez en avant vos meilleurs produits pour de meilleurs résultats.',
   },
 ]
 
@@ -463,6 +491,7 @@ function pickLevelBenefits(
   if (lang === 'es') return level.benefitsEs
   if (lang === 'it') return level.benefitsIt
   if (lang === 'vi') return level.benefitsVi
+  if (lang === 'fr') return level.benefitsFr
   if (lang === 'en') return level.benefitsEn
   return level.benefitsZh
 }
@@ -521,7 +550,7 @@ const MerchantPlan: React.FC = () => {
       const auth = readAuth()
       if (!auth) {
         setError(
-          tr(lang, { zh: '未找到店铺信息，请重新登录商家后台', en: 'Shop information not found, please log in again.', de: 'Shop-Informationen nicht gefunden, bitte erneut anmelden.', ja: '店舗情報が見つかりません。再度ログインしてください。', ko: '점포 정보를 찾을 수 없습니다. 판매자 센터에 다시 로그인해 주세요.', es: 'Información de la tienda no encontrada. Vuelva a iniciar sesión.', it: 'Informazioni negozio non trovate. Accedi di nuovo.', vi: 'Không tìm thấy thông tin cửa hàng. Vui lòng đăng nhập lại.' }),
+          tr(lang, { zh: '未找到店铺信息，请重新登录商家后台', en: 'Shop information not found, please log in again.', de: 'Shop-Informationen nicht gefunden, bitte erneut anmelden.', ja: '店舗情報が見つかりません。再度ログインしてください。', ko: '점포 정보를 찾을 수 없습니다. 판매자 센터에 다시 로그인해 주세요.', es: 'Información de la tienda no encontrada. Vuelva a iniciar sesión.', it: 'Informazioni negozio non trovate. Accedi di nuovo.', vi: 'Không tìm thấy thông tin cửa hàng. Vui lòng đăng nhập lại.', fr: 'Informations sur la boutique introuvables, veuillez vous reconnecter.' }),
         )
         setLoading(false)
         return
@@ -549,7 +578,7 @@ const MerchantPlan: React.FC = () => {
         )
       } catch {
         setError(
-          tr(lang, { zh: '无法加载店铺运营计划，请稍后重试', en: 'Failed to load shop growth plan, please try again later.', de: 'Wachstumsplan konnte nicht geladen werden, bitte später erneut versuchen.', ja: '運営プランの読み込みに失敗しました。しばらくしてから再試行してください。', ko: '점포 운영 계획을 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.', es: 'No se pudo cargar el plan de crecimiento. Inténtelo de nuevo más tarde.', it: 'Impossibile caricare il piano di crescita. Riprova più tardi.', vi: 'Không tải được kế hoạch phát triển. Vui lòng thử lại sau.' }),
+          tr(lang, { zh: '无法加载店铺运营计划，请稍后重试', en: 'Failed to load shop growth plan, please try again later.', de: 'Wachstumsplan konnte nicht geladen werden, bitte später erneut versuchen.', ja: '運営プランの読み込みに失敗しました。しばらくしてから再試行してください。', ko: '점포 운영 계획을 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.', es: 'No se pudo cargar el plan de crecimiento. Inténtelo de nuevo más tarde.', it: 'Impossibile caricare il piano di crescita. Riprova più tardi.', vi: 'Không tải được kế hoạch phát triển. Vui lòng thử lại sau.', fr: 'Échec du chargement du plan de croissance de la boutique. Veuillez réessayer plus tard.' }),
         )
       } finally {
         setLoading(false)
@@ -569,14 +598,14 @@ const MerchantPlan: React.FC = () => {
 
   const copyShopLink = async () => {
     if (!shopPublicUrl) {
-      showToast(tr(lang, { zh: '暂无店铺链接', en: 'Shop link unavailable', de: 'Kein Shop-Link verfügbar', ja: 'ショップリンクがありません', ko: '점포 링크가 없습니다', es: 'Enlace de tienda no disponible', it: 'Link negozio non disponibile', vi: 'Chưa có liên kết cửa hàng' }), 'error')
+      showToast(tr(lang, { zh: '暂无店铺链接', en: 'Shop link unavailable', de: 'Kein Shop-Link verfügbar', ja: 'ショップリンクがありません', ko: '점포 링크가 없습니다', es: 'Enlace de tienda no disponible', it: 'Link negozio non disponibile', vi: 'Chưa có liên kết cửa hàng', fr: 'Lien boutique indisponible' }), 'error')
       return
     }
     try {
       await navigator.clipboard.writeText(shopPublicUrl)
-      showToast(tr(lang, { zh: '店铺链接已复制', en: 'Shop link copied', de: 'Shop-Link kopiert', ja: 'ショップリンクをコピーしました', ko: '점포 링크가 복사되었습니다', es: 'Enlace de tienda copiado', it: 'Link negozio copiato', vi: 'Đã sao chép liên kết cửa hàng' }))
+      showToast(tr(lang, { zh: '店铺链接已复制', en: 'Shop link copied', de: 'Shop-Link kopiert', ja: 'ショップリンクをコピーしました', ko: '점포 링크가 복사되었습니다', es: 'Enlace de tienda copiado', it: 'Link negozio copiato', vi: 'Đã sao chép liên kết cửa hàng', fr: 'Lien de la boutique copié' }))
     } catch {
-      showToast(tr(lang, { zh: '复制失败，请手动复制', en: 'Copy failed, please copy manually', de: 'Kopieren fehlgeschlagen, bitte manuell kopieren', ja: 'コピーに失敗しました。手動でコピーしてください', ko: '복사에 실패했습니다. 수동으로 복사해 주세요', es: 'Error al copiar. Cópielo manualmente', it: 'Copia non riuscita, copia manualmente', vi: 'Sao chép thất bại, vui lòng sao chép thủ công' }), 'error')
+      showToast(tr(lang, { zh: '复制失败，请手动复制', en: 'Copy failed, please copy manually', de: 'Kopieren fehlgeschlagen, bitte manuell kopieren', ja: 'コピーに失敗しました。手動でコピーしてください', ko: '복사에 실패했습니다. 수동으로 복사해 주세요', es: 'Error al copiar. Cópielo manualmente', it: 'Copia non riuscita, copia manualmente', vi: 'Sao chép thất bại, vui lòng sao chép thủ công', fr: 'Échec de la copie, veuillez copier manuellement' }), 'error')
     }
   }
 
@@ -609,10 +638,10 @@ const MerchantPlan: React.FC = () => {
           </span>
           <div>
             <h1 className="merchant-plan-title">
-              {tr(lang, { zh: '运营计划', en: 'Growth plan', de: 'Wachstumsplan', ja: '運営プラン', ko: '운영 계획', es: 'Plan de crecimiento', it: 'Piano di crescita', vi: 'Kế hoạch phát triển' })}
+              {tr(lang, { zh: '运营计划', en: 'Growth plan', de: 'Wachstumsplan', ja: '運営プラン', ko: '운영 계획', es: 'Plan de crecimiento', it: 'Piano di crescita', vi: 'Kế hoạch phát triển', fr: 'Plan de croissance' })}
             </h1>
             <p className="merchant-plan-subtitle">
-              {tr(lang, { zh: '通过自然分享与付费推广获取店铺流量，提升曝光与成交', en: 'Grow traffic through organic sharing and paid promotion to boost exposure and sales.', de: 'Steigern Sie Traffic durch organisches Teilen und bezahlte Werbung, um Reichweite und Umsatz zu erhöhen.', ja: '自然流入と有料プロモーションでショップのトラフィックを増やし、露出と売上を向上させましょう。', ko: '자연 공유와 유료 프로모션으로 점포 트래픽을 확보하고 노출과 거래를 늘리세요.', es: 'Aumente el tráfico mediante compartición orgánica y promoción de pago para mejorar la exposición y las ventas.', it: 'Aumenta il traffico con condivisione organica e promozione a pagamento per migliorare visibilità e vendite.', vi: 'Tăng lưu lượng bằng chia sẻ tự nhiên và quảng cáo trả phí để nâng cao hiển thị và doanh số.' })}
+              {tr(lang, { zh: '通过自然分享与付费推广获取店铺流量，提升曝光与成交', en: 'Grow traffic through organic sharing and paid promotion to boost exposure and sales.', de: 'Steigern Sie Traffic durch organisches Teilen und bezahlte Werbung, um Reichweite und Umsatz zu erhöhen.', ja: '自然流入と有料プロモーションでショップのトラフィックを増やし、露出と売上を向上させましょう。', ko: '자연 공유와 유료 프로모션으로 점포 트래픽을 확보하고 노출과 거래를 늘리세요.', es: 'Aumente el tráfico mediante compartición orgánica y promoción de pago para mejorar la exposición y las ventas.', it: 'Aumenta il traffico con condivisione organica e promozione a pagamento per migliorare visibilità e vendite.', vi: 'Tăng lưu lượng bằng chia sẻ tự nhiên và quảng cáo trả phí để nâng cao hiển thị và doanh số.', fr: 'Augmentez le trafic grâce au partage organique et à la promotion payante pour augmenter l\'exposition et les ventes.' })}
             </p>
           </div>
         </div>
@@ -625,7 +654,7 @@ const MerchantPlan: React.FC = () => {
                 ${totalSales.toLocaleString()}
               </span>
               <span className="merchant-plan-header-stat-label">
-                {tr(lang, { zh: '累计销售额', en: 'Total sales', de: 'Gesamtumsatz', ja: '累計売上', ko: '누적 매출', es: 'Ventas totales', it: 'Vendite totali', vi: 'Doanh số tích lũy' })}
+                {tr(lang, { zh: '累计销售额', en: 'Total sales', de: 'Gesamtumsatz', ja: '累計売上', ko: '누적 매출', es: 'Ventas totales', it: 'Vendite totali', vi: 'Doanh số tích lũy', fr: 'Ventes totales' })}
               </span>
             </div>
             <div className="merchant-plan-header-stat">
@@ -633,7 +662,7 @@ const MerchantPlan: React.FC = () => {
                 {pickField(lang, { zh: currentLevelInfo.nameZh, en: currentLevelInfo.nameEn, de: currentLevelInfo.nameDe, ja: currentLevelInfo.nameJa, ko: currentLevelInfo.nameKo, es: currentLevelInfo.nameEs, it: currentLevelInfo.nameIt, vi: currentLevelInfo.nameVi })}
               </span>
               <span className="merchant-plan-header-stat-label">
-                {tr(lang, { zh: '当前等级', en: 'Current level', de: 'Aktuelles Level', ja: '現在のレベル', ko: '현재 등급', es: 'Nivel actual', it: 'Livello attuale', vi: 'Cấp hiện tại' })}
+                {tr(lang, { zh: '当前等级', en: 'Current level', de: 'Aktuelles Level', ja: '現在のレベル', ko: '현재 등급', es: 'Nivel actual', it: 'Livello attuale', vi: 'Cấp hiện tại', fr: 'Niveau actuel' })}
               </span>
             </div>
           </div>
@@ -645,24 +674,24 @@ const MerchantPlan: React.FC = () => {
       <div className="merchant-plan-traffic-overview">
         <a href="#merchant-plan-organic" className="merchant-plan-traffic-overview-card merchant-plan-traffic-overview-card--organic">
           <span className="merchant-plan-traffic-overview-kicker">
-            {tr(lang, { zh: '自然流量', en: 'Organic traffic', de: 'Organischer Traffic', ja: '自然流入', ko: '자연 유입', es: 'Tráfico orgánico', it: 'Traffico organico', vi: 'Lưu lượng tự nhiên' })}
+            {tr(lang, { zh: '自然流量', en: 'Organic traffic', de: 'Organischer Traffic', ja: '自然流入', ko: '자연 유입', es: 'Tráfico orgánico', it: 'Traffico organico', vi: 'Lưu lượng tự nhiên', fr: 'Trafic organique' })}
           </span>
           <span className="merchant-plan-traffic-overview-title">
-            {tr(lang, { zh: '分享店铺链接获客', en: 'Share your shop link', de: 'Shop-Link teilen', ja: 'ショップリンクを共有して集客', ko: '점포 링크 공유로 고객 유치', es: 'Comparta el enlace de su tienda', it: 'Condividi il link del negozio', vi: 'Chia sẻ liên kết cửa hàng' })}
+            {tr(lang, { zh: '分享店铺链接获客', en: 'Share your shop link', de: 'Shop-Link teilen', ja: 'ショップリンクを共有して集客', ko: '점포 링크 공유로 고객 유치', es: 'Comparta el enlace de su tienda', it: 'Condividi il link del negozio', vi: 'Chia sẻ liên kết cửa hàng', fr: 'Partagez le lien de votre boutique' })}
           </span>
           <span className="merchant-plan-traffic-overview-desc">
-            {tr(lang, { zh: '零成本，适合社群与私域传播', en: 'Free — great for communities and direct outreach', de: 'Kostenlos – ideal für Communities und direkte Ansprache', ja: '無料。コミュニティやダイレクト配信に最適', ko: '비용 없음 — 커뮤니티 및 직접 마케팅에 적합', es: 'Gratis: ideal para comunidades y contacto directo', it: 'Gratuito — ideale per community e contatto diretto', vi: 'Miễn phí — phù hợp cộng đồng và tiếp cận trực tiếp' })}
+            {tr(lang, { zh: '零成本，适合社群与私域传播', en: 'Free — great for communities and direct outreach', de: 'Kostenlos – ideal für Communities und direkte Ansprache', ja: '無料。コミュニティやダイレクト配信に最適', ko: '비용 없음 — 커뮤니티 및 직접 마케팅에 적합', es: 'Gratis: ideal para comunidades y contacto directo', it: 'Gratuito — ideale per community e contatto diretto', vi: 'Miễn phí — phù hợp cộng đồng và tiếp cận trực tiếp', fr: 'Gratuit – idéal pour les communautés et la sensibilisation directe' })}
           </span>
         </a>
         <a href="#merchant-plan-paid" className="merchant-plan-traffic-overview-card merchant-plan-traffic-overview-card--paid">
           <span className="merchant-plan-traffic-overview-kicker">
-            {tr(lang, { zh: '付费流量', en: 'Paid traffic', de: 'Bezahlter Traffic', ja: '有料トラフィック', ko: '유료 트래픽', es: 'Tráfico de pago', it: 'Traffico a pagamento', vi: 'Lưu lượng trả phí' })}
+            {tr(lang, { zh: '付费流量', en: 'Paid traffic', de: 'Bezahlter Traffic', ja: '有料トラフィック', ko: '유료 트래픽', es: 'Tráfico de pago', it: 'Traffico a pagamento', vi: 'Lưu lượng trả phí', fr: 'Trafic payant' })}
           </span>
           <span className="merchant-plan-traffic-overview-title">
-            {tr(lang, { zh: '购买平台推广流量', en: 'Buy ad platform traffic', de: 'Werbtraffic kaufen', ja: 'プラットフォーム広告トラフィックを購入', ko: '플랫폼 프로모션 트래픽 구매', es: 'Compre tráfico de plataformas publicitarias', it: 'Acquista traffico da piattaforme pubblicitarie', vi: 'Mua lưu lượng quảng cáo nền tảng' })}
+            {tr(lang, { zh: '购买平台推广流量', en: 'Buy ad platform traffic', de: 'Werbtraffic kaufen', ja: 'プラットフォーム広告トラフィックを購入', ko: '플랫폼 프로모션 트래픽 구매', es: 'Compre tráfico de plataformas publicitarias', it: 'Acquista traffico da piattaforme pubblicitarie', vi: 'Mua lưu lượng quảng cáo nền tảng', fr: 'Acheter du trafic sur la plateforme publicitaire' })}
           </span>
           <span className="merchant-plan-traffic-overview-desc">
-            {tr(lang, { zh: 'TikTok / Meta / Google / 其他', en: 'TikTok / Meta / Google / Other', de: 'TikTok / Meta / Google / Sonstige', ja: 'TikTok / Meta / Google / その他', ko: 'TikTok / Meta / Google / 기타', es: 'TikTok / Meta / Google / Otros', it: 'TikTok / Meta / Google / Altri', vi: 'TikTok / Meta / Google / Khác' })}
+            {tr(lang, { zh: 'TikTok / Meta / Google / 其他', en: 'TikTok / Meta / Google / Other', de: 'TikTok / Meta / Google / Sonstige', ja: 'TikTok / Meta / Google / その他', ko: 'TikTok / Meta / Google / 기타', es: 'TikTok / Meta / Google / Otros', it: 'TikTok / Meta / Google / Altri', vi: 'TikTok / Meta / Google / Khác', fr: 'TikTok / Méta / Google / Autre' })}
           </span>
         </a>
       </div>
@@ -674,17 +703,17 @@ const MerchantPlan: React.FC = () => {
           </span>
           <div>
             <h2 className="merchant-plan-section-title">
-              {tr(lang, { zh: '自然流量', en: 'Organic traffic', de: 'Organischer Traffic', ja: '自然流入', ko: '자연 유입', es: 'Tráfico orgánico', it: 'Traffico organico', vi: 'Lưu lượng tự nhiên' })}
+              {tr(lang, { zh: '自然流量', en: 'Organic traffic', de: 'Organischer Traffic', ja: '自然流入', ko: '자연 유입', es: 'Tráfico orgánico', it: 'Traffico organico', vi: 'Lưu lượng tự nhiên', fr: 'Trafic organique' })}
             </h2>
             <p className="merchant-plan-section-desc">
-              {tr(lang, { zh: '使用您的专属店铺链接，分享给潜在买家，引导其进店浏览与下单。', en: 'Use your unique shop link and share it with potential buyers to drive visits and orders.', de: 'Nutzen Sie Ihren einzigartigen Shop-Link und teilen Sie ihn mit potenziellen Käufern, um Besuche und Bestellungen zu generieren.', ja: '専用ショップリンクを潜在顧客と共有し、来店・注文を促しましょう。', ko: '전용 점포 링크를 잠재 구매자와 공유하여 방문과 주문을 유도하세요.', es: 'Use su enlace exclusivo de tienda y compártalo con compradores potenciales para generar visitas y pedidos.', it: 'Usa il link esclusivo del negozio e condividilo con potenziali acquirenti per generare visite e ordini.', vi: 'Dùng liên kết cửa hàng riêng và chia sẻ với người mua tiềm năng để thu hút truy cập và đơn hàng.' })}
+              {tr(lang, { zh: '使用您的专属店铺链接，分享给潜在买家，引导其进店浏览与下单。', en: 'Use your unique shop link and share it with potential buyers to drive visits and orders.', de: 'Nutzen Sie Ihren einzigartigen Shop-Link und teilen Sie ihn mit potenziellen Käufern, um Besuche und Bestellungen zu generieren.', ja: '専用ショップリンクを潜在顧客と共有し、来店・注文を促しましょう。', ko: '전용 점포 링크를 잠재 구매자와 공유하여 방문과 주문을 유도하세요.', es: 'Use su enlace exclusivo de tienda y compártalo con compradores potenciales para generar visitas y pedidos.', it: 'Usa il link esclusivo del negozio e condividilo con potenziali acquirenti per generare visite e ordini.', vi: 'Dùng liên kết cửa hàng riêng và chia sẻ với người mua tiềm năng để thu hút truy cập và đơn hàng.', fr: 'Utilisez le lien de votre boutique unique et partagez-le avec des acheteurs potentiels pour générer des visites et des commandes.' })}
             </p>
           </div>
         </div>
 
         <div className="merchant-plan-link-card">
           <label className="merchant-plan-link-label" htmlFor="merchant-plan-shop-url">
-            {tr(lang, { zh: '店铺推广链接', en: 'Shop promotion link', de: 'Shop-Werbelink', ja: 'ショッププロモーションリンク', ko: '점포 프로모션 링크', es: 'Enlace promocional de la tienda', it: 'Link promozionale del negozio', vi: 'Liên kết quảng bá cửa hàng' })}
+            {tr(lang, { zh: '店铺推广链接', en: 'Shop promotion link', de: 'Shop-Werbelink', ja: 'ショッププロモーションリンク', ko: '점포 프로모션 링크', es: 'Enlace promocional de la tienda', it: 'Link promozionale del negozio', vi: 'Liên kết quảng bá cửa hàng', fr: 'Lien de promotion de la boutique' })}
           </label>
           <div className="merchant-plan-link-row">
             <input
@@ -692,7 +721,7 @@ const MerchantPlan: React.FC = () => {
               type="text"
               className="merchant-plan-link-input"
               readOnly
-              value={shopPublicUrl || (tr(lang, { zh: '登录并绑定店铺后显示', en: 'Available after shop is linked', de: 'Verfügbar nach Shop-Verknüpfung', ja: 'ログインしてショップを連携後に表示', ko: '로그인 및 점포 연동 후 표시', es: 'Disponible tras vincular la tienda', it: 'Disponibile dopo il collegamento del negozio', vi: 'Hiển thị sau khi liên kết cửa hàng' }))}
+              value={shopPublicUrl || (tr(lang, { zh: '登录并绑定店铺后显示', en: 'Available after shop is linked', de: 'Verfügbar nach Shop-Verknüpfung', ja: 'ログインしてショップを連携後に表示', ko: '로그인 및 점포 연동 후 표시', es: 'Disponible tras vincular la tienda', it: 'Disponibile dopo il collegamento del negozio', vi: 'Hiển thị sau khi liên kết cửa hàng', fr: 'Disponible une fois la boutique liée' }))}
             />
             <button
               type="button"
@@ -700,7 +729,7 @@ const MerchantPlan: React.FC = () => {
               onClick={copyShopLink}
               disabled={!shopPublicUrl}
             >
-              {tr(lang, { zh: '复制链接', en: 'Copy link', de: 'Link kopieren', ja: 'リンクをコピー', ko: '링크 복사', es: 'Copiar enlace', it: 'Copia link', vi: 'Sao chép liên kết' })}
+              {tr(lang, { zh: '复制链接', en: 'Copy link', de: 'Link kopieren', ja: 'リンクをコピー', ko: '링크 복사', es: 'Copiar enlace', it: 'Copia link', vi: 'Sao chép liên kết', fr: 'Copier le lien' })}
             </button>
           </div>
           {shop?.name ? (
@@ -724,10 +753,10 @@ const MerchantPlan: React.FC = () => {
         <div className="merchant-plan-section-head">
           <div className="merchant-plan-section-head-copy">
             <h2 className="merchant-plan-section-title">
-              {tr(lang, { zh: '付费流量', en: 'Paid traffic', de: 'Bezahlter Traffic', ja: '有料トラフィック', ko: '유료 트래픽', es: 'Tráfico de pago', it: 'Traffico a pagamento', vi: 'Lưu lượng trả phí' })}
+              {tr(lang, { zh: '付费流量', en: 'Paid traffic', de: 'Bezahlter Traffic', ja: '有料トラフィック', ko: '유료 트래픽', es: 'Tráfico de pago', it: 'Traffico a pagamento', vi: 'Lưu lượng trả phí', fr: 'Trafic payant' })}
             </h2>
             <p className="merchant-plan-section-desc">
-              {tr(lang, { zh: '购买 TikTok、Meta、Google 等平台推广流量，快速获取曝光。选择渠道后联系客服完成购买与投放配置。', en: 'Purchase traffic from TikTok, Meta, Google, and more. Contact support after selecting a channel to complete purchase and setup.', de: 'Kaufen Sie Traffic von TikTok, Meta, Google und mehr. Wählen Sie einen Kanal und kontaktieren Sie den Support, um Kauf und Einrichtung abzuschließen.', ja: 'TikTok、Meta、Google などの広告トラフィックを購入して露出を拡大。チャネル選択後、サポートに連絡して購入・配信設定を完了してください。', ko: 'TikTok, Meta, Google 등의 프로모션 트래픽을 구매하여 빠르게 노출을 확보하세요. 채널 선택 후 고객센터에 연락하여 구매 및 배포 설정을 완료하세요.', es: 'Compre tráfico de TikTok, Meta, Google y más. Contacte con soporte tras elegir un canal para completar la compra y la configuración.', it: 'Acquista traffico da TikTok, Meta, Google e altro. Contatta l\'assistenza dopo aver scelto un canale per completare acquisto e configurazione.', vi: 'Mua lưu lượng từ TikTok, Meta, Google và hơn thế. Liên hệ hỗ trợ sau khi chọn kênh để hoàn tất mua và cấu hình.' })}
+              {tr(lang, { zh: '购买 TikTok、Meta、Google 等平台推广流量，快速获取曝光。选择渠道后联系客服完成购买与投放配置。', en: 'Purchase traffic from TikTok, Meta, Google, and more. Contact support after selecting a channel to complete purchase and setup.', de: 'Kaufen Sie Traffic von TikTok, Meta, Google und mehr. Wählen Sie einen Kanal und kontaktieren Sie den Support, um Kauf und Einrichtung abzuschließen.', ja: 'TikTok、Meta、Google などの広告トラフィックを購入して露出を拡大。チャネル選択後、サポートに連絡して購入・配信設定を完了してください。', ko: 'TikTok, Meta, Google 등의 프로모션 트래픽을 구매하여 빠르게 노출을 확보하세요. 채널 선택 후 고객센터에 연락하여 구매 및 배포 설정을 완료하세요.', es: 'Compre tráfico de TikTok, Meta, Google y más. Contacte con soporte tras elegir un canal para completar la compra y la configuración.', it: 'Acquista traffico da TikTok, Meta, Google e altro. Contatta l\'assistenza dopo aver scelto un canale per completare acquisto e configurazione.', vi: 'Mua lưu lượng từ TikTok, Meta, Google và hơn thế. Liên hệ hỗ trợ sau khi chọn kênh để hoàn tất mua và cấu hình.', fr: 'Achetez du trafic sur TikTok, Meta, Google et plus encore. Contactez l\'assistance après avoir sélectionné un canal pour finaliser l\'achat et la configuration.' })}
             </p>
           </div>
         </div>
@@ -761,7 +790,7 @@ const MerchantPlan: React.FC = () => {
                 className="merchant-plan-paid-card-btn"
                 onClick={() => consultPaidChannel(channel.key)}
               >
-                {tr(lang, { zh: '咨询购买', en: 'Consult & buy', de: 'Beratung & Kauf', ja: '購入相談', ko: '구매 상담', es: 'Consultar y comprar', it: 'Consulta e acquista', vi: 'Tư vấn & mua' })}
+                {tr(lang, { zh: '咨询购买', en: 'Consult & buy', de: 'Beratung & Kauf', ja: '購入相談', ko: '구매 상담', es: 'Consultar y comprar', it: 'Consulta e acquista', vi: 'Tư vấn & mua', fr: 'Consulter & acheter' })}
               </button>
             </article>
           ))}
@@ -772,10 +801,10 @@ const MerchantPlan: React.FC = () => {
         <div className="merchant-plan-section-head merchant-plan-section-head--compact">
           <div>
             <h2 className="merchant-plan-section-title">
-              {tr(lang, { zh: '店铺等级与权益', en: 'Shop levels & benefits', de: 'Shop-Level & Vorteile', ja: 'ショップレベルと特典', ko: '점포 등급 및 혜택', es: 'Niveles y beneficios de la tienda', it: 'Livelli e vantaggi del negozio', vi: 'Cấp cửa hàng & quyền lợi' })}
+              {tr(lang, { zh: '店铺等级与权益', en: 'Shop levels & benefits', de: 'Shop-Level & Vorteile', ja: 'ショップレベルと特典', ko: '점포 등급 및 혜택', es: 'Niveles y beneficios de la tienda', it: 'Livelli e vantaggi del negozio', vi: 'Cấp cửa hàng & quyền lợi', fr: 'Niveaux de magasin et avantages' })}
             </h2>
             <p className="merchant-plan-section-desc">
-              {tr(lang, { zh: '完成对应销售额自动升级；提升等级可解锁更高利润比例与平台扶持', en: 'Levels upgrade automatically as sales grow — unlock better margins and platform support.', de: 'Level steigen automatisch mit dem Umsatz – schalten Sie bessere Margen und Plattform-Support frei.', ja: '売上達成で自動アップグレード。レベルアップでより高い利益率とプラットフォーム支援が解放されます。', ko: '해당 매출 달성 시 자동 업그레이드 — 등급이 올라가면 더 높은 수익률과 플랫폼 지원이 제공됩니다.', es: 'Los niveles suben automáticamente con las ventas: desbloquee mejores márgenes y apoyo de la plataforma.', it: 'I livelli aumentano automaticamente con le vendite: sblocca margini migliori e supporto della piattaforma.', vi: 'Cấp tự động nâng theo doanh số — mở khóa biên lợi nhuận cao hơn và hỗ trợ nền tảng.' })}
+              {tr(lang, { zh: '完成对应销售额自动升级；提升等级可解锁更高利润比例与平台扶持', en: 'Levels upgrade automatically as sales grow — unlock better margins and platform support.', de: 'Level steigen automatisch mit dem Umsatz – schalten Sie bessere Margen und Plattform-Support frei.', ja: '売上達成で自動アップグレード。レベルアップでより高い利益率とプラットフォーム支援が解放されます。', ko: '해당 매출 달성 시 자동 업그레이드 — 등급이 올라가면 더 높은 수익률과 플랫폼 지원이 제공됩니다.', es: 'Los niveles suben automáticamente con las ventas: desbloquee mejores márgenes y apoyo de la plataforma.', it: 'I livelli aumentano automaticamente con le vendite: sblocca margini migliori e supporto della piattaforma.', vi: 'Cấp tự động nâng theo doanh số — mở khóa biên lợi nhuận cao hơn và hỗ trợ nền tảng.', fr: 'Les niveaux s\'améliorent automatiquement à mesure que les ventes augmentent : débloquez de meilleures marges et une meilleure prise en charge de la plateforme.' })}
             </p>
           </div>
         </div>
@@ -791,7 +820,7 @@ const MerchantPlan: React.FC = () => {
               </div>
               <div className="merchant-plan-current-info">
                 <span className="merchant-plan-current-label">
-                  {tr(lang, { zh: '当前等级', en: 'Current level', de: 'Aktuelles Level', ja: '現在のレベル', ko: '현재 등급', es: 'Nivel actual', it: 'Livello attuale', vi: 'Cấp hiện tại' })}
+                  {tr(lang, { zh: '当前等级', en: 'Current level', de: 'Aktuelles Level', ja: '現在のレベル', ko: '현재 등급', es: 'Nivel actual', it: 'Livello attuale', vi: 'Cấp hiện tại', fr: 'Niveau actuel' })}
                 </span>
                 <h3 className="merchant-plan-current-name">
                   {pickField(lang, { zh: currentLevelInfo.nameZh, en: currentLevelInfo.nameEn, de: currentLevelInfo.nameDe, ja: currentLevelInfo.nameJa, ko: currentLevelInfo.nameKo, es: currentLevelInfo.nameEs, it: currentLevelInfo.nameIt, vi: currentLevelInfo.nameVi })}
@@ -805,9 +834,9 @@ const MerchantPlan: React.FC = () => {
               <div className="merchant-plan-current-progress-wrap">
                 <div className="merchant-plan-current-progress-head">
                   <span className="merchant-plan-current-progress-text">
-                    {tr(lang, { zh: '升级至 ', en: 'Upgrade to ', de: 'Upgrade auf ', ja: 'アップグレード先：', ko: '업그레이드: ', es: 'Subir a ', it: 'Passa a ', vi: 'Nâng cấp lên ' })}
+                    {tr(lang, { zh: '升级至 ', en: 'Upgrade to ', de: 'Upgrade auf ', ja: 'アップグレード先：', ko: '업그레이드: ', es: 'Subir a ', it: 'Passa a ', vi: 'Nâng cấp lên ', fr: 'Mettre à niveau vers' })}
                     {pickField(lang, { zh: nextTier.nameZh, en: nextTier.nameEn, de: nextTier.nameDe, ja: nextTier.nameJa, ko: nextTier.nameKo, es: nextTier.nameEs, it: nextTier.nameIt, vi: nextTier.nameVi })}
-                    {tr(lang, { zh: '：还需 ', en: ': need ', de: ': noch ', ja: ' あと ', ko: ' ', es: ': faltan ', it: ': servono ancora ', vi: ': còn thiếu ' })}
+                    {tr(lang, { zh: '：还需 ', en: ': need ', de: ': noch ', ja: ' あと ', ko: ' ', es: ': faltan ', it: ': servono ancora ', vi: ': còn thiếu ', fr: ': besoin' })}
                     <strong>${remain.toLocaleString()}</strong>
                   </span>
                   <span className="merchant-plan-current-progress-pct">{Math.round(progress)}%</span>
@@ -821,7 +850,7 @@ const MerchantPlan: React.FC = () => {
               </div>
             ) : (
               <div className="merchant-plan-current-max">
-                {tr(lang, { zh: '您已达到最高等级', en: 'You have reached the highest level', de: 'Sie haben das höchste Level erreicht', ja: '最高レベルに到達しました', ko: '최고 등급에 도달했습니다', es: 'Ha alcanzado el nivel máximo', it: 'Hai raggiunto il livello massimo', vi: 'Bạn đã đạt cấp cao nhất' })}
+                {tr(lang, { zh: '您已达到最高等级', en: 'You have reached the highest level', de: 'Sie haben das höchste Level erreicht', ja: '最高レベルに到達しました', ko: '최고 등급에 도달했습니다', es: 'Ha alcanzado el nivel máximo', it: 'Hai raggiunto il livello massimo', vi: 'Bạn đã đạt cấp cao nhất', fr: 'Vous avez atteint le plus haut niveau' })}
               </div>
             )}
           </div>
@@ -850,12 +879,12 @@ const MerchantPlan: React.FC = () => {
                   </span>
                   {isCurrent && (
                     <span className="merchant-plan-level-badge">
-                      {tr(lang, { zh: '当前', en: 'Current', de: 'Aktuell', ja: '現在', ko: '현재', es: 'Actual', it: 'Attuale', vi: 'Hiện tại' })}
+                      {tr(lang, { zh: '当前', en: 'Current', de: 'Aktuell', ja: '現在', ko: '현재', es: 'Actual', it: 'Attuale', vi: 'Hiện tại', fr: 'Actuel' })}
                     </span>
                   )}
                   {isPast && !isCurrent && (
                     <span className="merchant-plan-level-badge merchant-plan-level-badge--done">
-                      {tr(lang, { zh: '已达成', en: 'Achieved', de: 'Erreicht', ja: '達成済み', ko: '달성', es: 'Conseguido', it: 'Raggiunto', vi: 'Đã đạt' })}
+                      {tr(lang, { zh: '已达成', en: 'Achieved', de: 'Erreicht', ja: '達成済み', ko: '달성', es: 'Conseguido', it: 'Raggiunto', vi: 'Đã đạt', fr: 'Réalisé' })}
                     </span>
                   )}
                 </div>
@@ -872,7 +901,7 @@ const MerchantPlan: React.FC = () => {
                 </ul>
                 {isNextLevel && (
                   <button type="button" className="merchant-plan-level-upgrade-btn" onClick={scrollToPaid}>
-                    {tr(lang, { zh: '获取流量冲刺升级', en: 'Get traffic to upgrade', de: 'Traffic für Upgrade gewinnen', ja: 'トラフィックを獲得してアップグレード', ko: '트래픽 확보로 업그레이드', es: 'Obtenga tráfico para subir de nivel', it: 'Ottieni traffico per salire di livello', vi: 'Thu hút lưu lượng để nâng cấp' })}
+                    {tr(lang, { zh: '获取流量冲刺升级', en: 'Get traffic to upgrade', de: 'Traffic für Upgrade gewinnen', ja: 'トラフィックを獲得してアップグレード', ko: '트래픽 확보로 업그레이드', es: 'Obtenga tráfico para subir de nivel', it: 'Ottieni traffico per salire di livello', vi: 'Thu hút lưu lượng để nâng cấp', fr: 'Obtenez du trafic pour mettre à niveau' })}
                   </button>
                 )}
               </li>

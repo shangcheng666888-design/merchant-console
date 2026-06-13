@@ -128,7 +128,7 @@ const MerchantWalletWithdraw: React.FC = () => {
           <button
             type="button"
             className="merchant-wallet-form-back"
-            aria-label={tr(lang, { zh: '返回', en: 'Back', de: 'Zurück' , ja: '戻る', ko: '뒤로', es: 'Volver', it: 'Indietro', vi: 'Quay lại' })}
+            aria-label={tr(lang, { zh: '返回', en: 'Back', de: 'Zurück' , ja: '戻る', ko: '뒤로', es: 'Volver', it: 'Indietro', vi: 'Quay lại', fr: 'Dos' })}
             onClick={goBack}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -141,7 +141,7 @@ const MerchantWalletWithdraw: React.FC = () => {
             </span>
             <div>
               <h1 className="wallet-recharge-title merchant-wallet-form-title">
-                {tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung' , ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền' })}
+                {tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung' , ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền', fr: 'Retirer' })}
               </h1>
               <p className="merchant-wallet-form-subtitle">
                 {tr(lang, {
@@ -160,15 +160,15 @@ const MerchantWalletWithdraw: React.FC = () => {
           <div className="merchant-wallet-withdraw-grid">
             <div className="wallet-recharge-field">
               <label className="wallet-recharge-label">
-                {tr(lang, { zh: '提现方式', en: 'Withdrawal method', de: 'Auszahlungsmethode' , ja: '出金方法', ko: '출금 방식', es: 'Método de retiro', it: 'Metodo di prelievo', vi: 'Phương thức rút tiền' })}
+                {tr(lang, { zh: '提现方式', en: 'Withdrawal method', de: 'Auszahlungsmethode' , ja: '出金方法', ko: '출금 방식', es: 'Método de retiro', it: 'Metodo di prelievo', vi: 'Phương thức rút tiền', fr: 'Méthode de retrait' })}
               </label>
               <div className="wallet-withdraw-method">
-                {tr(lang, { zh: '加密货币', en: 'Cryptocurrency', de: 'Kryptowährung' , ja: '暗号資産', ko: '암호화폐', es: 'Criptomoneda', it: 'Criptovaluta', vi: 'Tiền mã hóa' })}
+                {tr(lang, { zh: '加密货币', en: 'Cryptocurrency', de: 'Kryptowährung' , ja: '暗号資産', ko: '암호화폐', es: 'Criptomoneda', it: 'Criptovaluta', vi: 'Tiền mã hóa', fr: 'Crypto-monnaie' })}
               </div>
             </div>
             <div className="wallet-recharge-field">
               <label className="wallet-recharge-label">
-                {tr(lang, { zh: '币种协议', en: 'Currency / protocol', de: 'Währung / Protokoll' , ja: '通貨 / プロトコル', ko: '통화 / 프로토콜', es: 'Moneda / protocolo', it: 'Valuta / protocollo', vi: 'Loại tiền / giao thức' })}
+                {tr(lang, { zh: '币种协议', en: 'Currency / protocol', de: 'Währung / Protokoll' , ja: '通貨 / プロトコル', ko: '통화 / 프로토콜', es: 'Moneda / protocolo', it: 'Valuta / protocollo', vi: 'Loại tiền / giao thức', fr: 'Monnaie/protocole' })}
               </label>
               <div className="wallet-recharge-select-wrap">
                 <select className="wallet-recharge-select" defaultValue="USDT">
@@ -179,12 +179,12 @@ const MerchantWalletWithdraw: React.FC = () => {
             </div>
             <div className="wallet-recharge-field">
               <label className="wallet-recharge-label">
-                {tr(lang, { zh: '区块链网络', en: 'Blockchain network', de: 'Blockchain-Netzwerk' , ja: 'ブロックチェーンネットワーク', ko: '블록체인 네트워크', es: 'Red blockchain', it: 'Rete blockchain', vi: 'Mạng blockchain' })}
+                {tr(lang, { zh: '区块链网络', en: 'Blockchain network', de: 'Blockchain-Netzwerk' , ja: 'ブロックチェーンネットワーク', ko: '블록체인 네트워크', es: 'Red blockchain', it: 'Rete blockchain', vi: 'Mạng blockchain', fr: 'Réseau blockchain' })}
               </label>
               <div
                 className="wallet-withdraw-network-row"
                 role="group"
-                aria-label={tr(lang, { zh: '区块链网络', en: 'Blockchain network', de: 'Blockchain-Netzwerk' , ja: 'ブロックチェーンネットワーク', ko: '블록체인 네트워크', es: 'Red blockchain', it: 'Rete blockchain', vi: 'Mạng blockchain' })}
+                aria-label={tr(lang, { zh: '区块链网络', en: 'Blockchain network', de: 'Blockchain-Netzwerk' , ja: 'ブロックチェーンネットワーク', ko: '블록체인 네트워크', es: 'Red blockchain', it: 'Rete blockchain', vi: 'Mạng blockchain', fr: 'Réseau blockchain' })}
               >
                 {(['TRC20', 'ERC20'] as const).map((n) => (
                   <button
@@ -201,7 +201,7 @@ const MerchantWalletWithdraw: React.FC = () => {
             </div>
             <div className="wallet-recharge-field merchant-wallet-withdraw-balance-cell">
               <label className="wallet-recharge-label">
-                {tr(lang, { zh: '当前余额', en: 'Current balance', de: 'Aktuelles Guthaben' , ja: '現在の残高', ko: '현재 잔액', es: 'Saldo actual', it: 'Saldo attuale', vi: 'Số dư hiện tại' })}
+                {tr(lang, { zh: '当前余额', en: 'Current balance', de: 'Aktuelles Guthaben' , ja: '現在の残高', ko: '현재 잔액', es: 'Saldo actual', it: 'Saldo attuale', vi: 'Số dư hiện tại', fr: 'Solde courant' })}
               </label>
               <div className="wallet-withdraw-balance-inner">
                 {balance.toFixed(2)} USDT
@@ -210,7 +210,7 @@ const MerchantWalletWithdraw: React.FC = () => {
             <div className="wallet-recharge-field merchant-wallet-withdraw-address-cell">
               <label className="wallet-recharge-label">
                 <span className="wallet-recharge-required">*</span>
-                {tr(lang, { zh: '提现地址', en: 'Withdrawal address', de: 'Auszahlungsadresse' , ja: '出金アドレス', ko: '출금 주소', es: 'Dirección de retiro', it: 'Indirizzo di prelievo', vi: 'Địa chỉ rút tiền' })}
+                {tr(lang, { zh: '提现地址', en: 'Withdrawal address', de: 'Auszahlungsadresse' , ja: '出金アドレス', ko: '출금 주소', es: 'Dirección de retiro', it: 'Indirizzo di prelievo', vi: 'Địa chỉ rút tiền', fr: 'Adresse de retrait' })}
               </label>
               <div className="wallet-recharge-address-row wallet-withdraw-address-row">
                 <input
@@ -224,22 +224,22 @@ const MerchantWalletWithdraw: React.FC = () => {
             <div className="wallet-recharge-field merchant-wallet-withdraw-amount-cell">
               <label className="wallet-recharge-label">
                 <span className="wallet-recharge-required">*</span>
-                {tr(lang, { zh: '数量', en: 'Amount', de: 'Betrag' , ja: '数量', ko: '수량', es: 'Cantidad', it: 'Importo', vi: 'Số tiền' })}
+                {tr(lang, { zh: '数量', en: 'Amount', de: 'Betrag' , ja: '数量', ko: '수량', es: 'Cantidad', it: 'Importo', vi: 'Số tiền', fr: 'Montant' })}
               </label>
               <input
                 className="wallet-recharge-input wallet-recharge-input--short"
-                placeholder={tr(lang, { zh: '请输入', en: 'Please enter', de: 'Bitte eingeben' , ja: '入力してください', ko: '입력해 주세요', es: 'Introduzca un valor', it: 'Inserisci un valore', vi: 'Vui lòng nhập' })}
+                placeholder={tr(lang, { zh: '请输入', en: 'Please enter', de: 'Bitte eingeben' , ja: '入力してください', ko: '입력해 주세요', es: 'Introduzca un valor', it: 'Inserisci un valore', vi: 'Vui lòng nhập', fr: 'Veuillez entrer' })}
                 value={amount}
                 onChange={handleAmountChange}
               />
             </div>
             <div className="wallet-recharge-field merchant-wallet-withdraw-actual-cell">
               <label className="wallet-recharge-label">
-                {tr(lang, { zh: '实际到账', en: 'Actual received', de: 'Tatsächlich erhalten' , ja: '実際の入金額', ko: '실제 입금액', es: 'Importe neto recibido', it: 'Importo netto ricevuto', vi: 'Thực nhận' })}
+                {tr(lang, { zh: '实际到账', en: 'Actual received', de: 'Tatsächlich erhalten' , ja: '実際の入金額', ko: '실제 입금액', es: 'Importe neto recibido', it: 'Importo netto ricevuto', vi: 'Thực nhận', fr: 'Réel reçu' })}
               </label>
               <div className="wallet-withdraw-actual-value">
                 {amount ? Number(amount || 0).toFixed(2) : '0.00'} USDT
-                {tr(lang, { zh: '（手续费 0.00%）', en: ' (Fee 0.00%)', de: ' (Gebühr 0,00 %)' , ja: '（手数料 0.00%）', ko: ' (수수료 0.00%)', es: ' (Comisión 0,00 %)', it: ' (Commissione 0,00 %)', vi: ' (Phí 0,00%)' })}
+                {tr(lang, { zh: '（手续费 0.00%）', en: ' (Fee 0.00%)', de: ' (Gebühr 0,00 %)' , ja: '（手数料 0.00%）', ko: ' (수수료 0.00%)', es: ' (Comisión 0,00 %)', it: ' (Commissione 0,00 %)', vi: ' (Phí 0,00%)', fr: '(Frais 0,00%)' })}
               </div>
             </div>
             <div className="wallet-recharge-field merchant-wallet-withdraw-submit-cell">
@@ -264,7 +264,7 @@ const MerchantWalletWithdraw: React.FC = () => {
                   setTradePwdModalOpen(true)
                 }}
               >
-                {tr(lang, { zh: '确定', en: 'Confirm', de: 'Bestätigen' , ja: '確定', ko: '확인', es: 'Confirmar', it: 'Conferma', vi: 'Xác nhận' })}
+                {tr(lang, { zh: '确定', en: 'Confirm', de: 'Bestätigen' , ja: '確定', ko: '확인', es: 'Confirmar', it: 'Conferma', vi: 'Xác nhận', fr: 'Confirmer' })}
               </button>
             </div>
           </div>
@@ -287,13 +287,13 @@ const MerchantWalletWithdraw: React.FC = () => {
             <button
               type="button"
               className="account-tradepwd-close"
-              aria-label={tr(lang, { zh: '关闭', en: 'Close', de: 'Schließen' , ja: '閉じる', ko: '닫기', es: 'Cerrar', it: 'Chiudi', vi: 'Đóng' })}
+              aria-label={tr(lang, { zh: '关闭', en: 'Close', de: 'Schließen' , ja: '閉じる', ko: '닫기', es: 'Cerrar', it: 'Chiudi', vi: 'Đóng', fr: 'Fermer' })}
               onClick={() => setTradePwdModalOpen(false)}
             >
               ×
             </button>
             <h2 id="merchant-wallet-withdraw-tradepwd-title" className="account-tradepwd-title">
-              {tr(lang, { zh: '输入交易密码', en: 'Enter payment PIN', de: 'Zahlungs-PIN eingeben' , ja: '取引パスワードを入力', ko: '거래 비밀번호 입력', es: 'Introduzca el PIN de pago', it: 'Inserisci PIN di pagamento', vi: 'Nhập mã PIN giao dịch' })}
+              {tr(lang, { zh: '输入交易密码', en: 'Enter payment PIN', de: 'Zahlungs-PIN eingeben' , ja: '取引パスワードを入力', ko: '거래 비밀번호 입력', es: 'Introduzca el PIN de pago', it: 'Inserisci PIN di pagamento', vi: 'Nhập mã PIN giao dịch', fr: 'Saisissez le code PIN de paiement' })}
             </h2>
             <p className="account-tradepwd-subtitle">
               {tr(lang, {
@@ -382,7 +382,7 @@ const MerchantWalletWithdraw: React.FC = () => {
                     setAmount('')
                     setAddress('')
                     showToast(
-                      tr(lang, { zh: '提交成功', en: 'Submitted successfully', de: 'Erfolgreich eingereicht' , ja: '送信しました', ko: '제출 완료', es: 'Enviado correctamente', it: 'Inviato con successo', vi: 'Gửi thành công' }),
+                      tr(lang, { zh: '提交成功', en: 'Submitted successfully', de: 'Erfolgreich eingereicht' , ja: '送信しました', ko: '제출 완료', es: 'Enviado correctamente', it: 'Inviato con successo', vi: 'Gửi thành công', fr: 'Soumis avec succès' }),
                     )
                     navigate('/wallet')
                   } catch (e) {
@@ -399,7 +399,7 @@ const MerchantWalletWithdraw: React.FC = () => {
                 void submit()
               }}
             >
-              {tr(lang, { zh: '确认密码', en: 'Confirm PIN', de: 'PIN bestätigen' , ja: 'パスワードを確認', ko: '비밀번호 확인', es: 'Confirmar PIN', it: 'Conferma PIN', vi: 'Xác nhận mã PIN' })}
+              {tr(lang, { zh: '确认密码', en: 'Confirm PIN', de: 'PIN bestätigen' , ja: 'パスワードを確認', ko: '비밀번호 확인', es: 'Confirmar PIN', it: 'Conferma PIN', vi: 'Xác nhận mã PIN', fr: 'Confirmer le code PIN' })}
             </button>
           </div>
         </div>

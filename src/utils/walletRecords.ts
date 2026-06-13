@@ -90,11 +90,11 @@ export function addWithdrawRecord(record: Omit<WalletWithdrawRecord, 'id' | 'cre
 }
 
 export const STATUS_TEXT: Record<string, TrMap> = {
-  pending: { zh: '待审核', en: 'Pending', de: 'Ausstehend', ja: '審査中', ko: '심사 중', es: 'Pendiente', it: 'In attesa', vi: 'Đang chờ duyệt' },
-  approved: { zh: '已通过', en: 'Approved', de: 'Genehmigt', ja: '承認済み', ko: '승인됨', es: 'Aprobado', it: 'Approvato', vi: 'Đã duyệt' },
-  rejected: { zh: '已拒绝', en: 'Rejected', de: 'Abgelehnt', ja: '却下', ko: '거절됨', es: 'Rechazado', it: 'Rifiutato', vi: 'Đã từ chối' },
-  completed: { zh: '已完成', en: 'Completed', de: 'Abgeschlossen', ja: '完了', ko: '완료', es: 'Completado', it: 'Completato', vi: 'Hoàn tất' },
-  failed: { zh: '失败', en: 'Failed', de: 'Fehlgeschlagen', ja: '失敗', ko: '실패', es: 'Fallido', it: 'Non riuscito', vi: 'Thất bại' },
+  pending: { zh: '待审核', en: 'Pending', de: 'Ausstehend', ja: '審査中', ko: '심사 중', es: 'Pendiente', it: 'In attesa', vi: 'Đang chờ duyệt', fr: 'En attente' },
+  approved: { zh: '已通过', en: 'Approved', de: 'Genehmigt', ja: '承認済み', ko: '승인됨', es: 'Aprobado', it: 'Approvato', vi: 'Đã duyệt', fr: 'Approuvé' },
+  rejected: { zh: '已拒绝', en: 'Rejected', de: 'Abgelehnt', ja: '却下', ko: '거절됨', es: 'Rechazado', it: 'Rifiutato', vi: 'Đã từ chối', fr: 'Refusé' },
+  completed: { zh: '已完成', en: 'Completed', de: 'Abgeschlossen', ja: '完了', ko: '완료', es: 'Completado', it: 'Completato', vi: 'Hoàn tất', fr: 'Terminé' },
+  failed: { zh: '失败', en: 'Failed', de: 'Fehlgeschlagen', ja: '失敗', ko: '실패', es: 'Fallido', it: 'Non riuscito', vi: 'Thất bại', fr: 'Échec' },
 }
 
 export function getStatusText(status: string, lang: Lang): string {

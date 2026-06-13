@@ -227,7 +227,7 @@ function formatLevelProgressLabel(
   remain: number,
 ): string {
   if (!next) {
-    return tr(lang, { zh: '已达最高等级', en: 'Max level reached', de: 'Höchstes Level erreicht', ja: '最高レベルに到達しました', ko: '최고 등급 달성', es: 'Nivel máximo alcanzado', it: 'Livello massimo raggiunto', vi: 'Đã đạt cấp cao nhất' })
+    return tr(lang, { zh: '已达最高等级', en: 'Max level reached', de: 'Höchstes Level erreicht', ja: '最高レベルに到達しました', ko: '최고 등급 달성', es: 'Nivel máximo alcanzado', it: 'Livello massimo raggiunto', vi: 'Đã đạt cấp cao nhất', fr: 'Niveau maximum atteint' })
   }
   const nextName = shopLevelDisplayName(next, lang)
   const remainText = remain.toLocaleString(undefined, { maximumFractionDigits: 0 })
@@ -286,16 +286,17 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
     weekday: 'short',
   })
 
-  const displayShopName = shopName || tr(lang, { zh: '我的店铺', en: 'My shop', de: 'Mein Shop', ja: 'マイ店舗', ko: '내 매장', es: 'Mi tienda', it: 'Il mio negozio', vi: 'Cửa hàng của tôi' })
+  const displayShopName = shopName || tr(lang, { zh: '我的店铺', en: 'My shop', de: 'Mein Shop', ja: 'マイ店舗', ko: '내 매장', es: 'Mi tienda', it: 'Il mio negozio', vi: 'Cửa hàng của tôi', fr: 'Ma boutique' })
   const shopIdLabel = shopId
-    ? `${tr(lang, { zh: '店铺 ID', en: 'Shop ID', de: 'Shop-ID', ja: '店舗 ID', ko: '매장 ID', es: 'ID de la tienda', it: 'ID negozio', vi: 'ID cửa hàng' })} · ${shopId}`
+    ? `${tr(lang, { zh: '店铺 ID', en: 'Shop ID', de: 'Shop-ID', ja: '店舗 ID', ko: '매장 ID', es: 'ID de la tienda', it: 'ID negozio', vi: 'ID cửa hàng', fr: 'Identifiant de la boutique' })} · ${shopId}`
     : ''
 
-  const quickActions: { key: CmdActionKey; path: string; zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string; badge: number; primary: boolean; iconSrc?: string }[] = [
-    { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', de: 'Versand', ja: '発送待ち', ko: '발송 대기', es: 'Envíos', it: 'Evasione ordini', vi: 'Giao hàng', badge: pendingOrders, primary: pendingOrders > 0, iconSrc: daifahuo },
-    { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', de: 'Wachstumsplan', ja: '運営プラン', ko: '운영 플랜', es: 'Plan de crecimiento', it: 'Piano di crescita', vi: 'Kế hoạch tăng trưởng', badge: 0, primary: false, iconSrc: yunyingjihua },
-    { key: 'finance', path: '/finance', zh: '财务报告', en: 'Finance', de: 'Finanzen', ja: '財務レポート', ko: '재무 보고서', es: 'Finanzas', it: 'Finanze', vi: 'Tài chính', badge: 0, primary: false, iconSrc: caiwubaogao },
-    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', de: 'Wallet', ja: 'ウォレット', ko: '내 지갑', es: 'Cartera', it: 'Portafoglio', vi: 'Ví', badge: 0, primary: false, iconSrc: walletMain },
+  const quickActions: { key: CmdActionKey; path: string; zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string
+  fr: string; badge: number; primary: boolean; iconSrc?: string }[] = [
+    { key: 'orders', path: '/orders', zh: '待发货', en: 'Fulfillment', de: 'Versand', ja: '発送待ち', ko: '발송 대기', es: 'Envíos', it: 'Evasione ordini', vi: 'Giao hàng', fr: 'Accomplissement', badge: pendingOrders, primary: pendingOrders > 0, iconSrc: daifahuo },
+    { key: 'plan', path: '/plan', zh: '运营计划', en: 'Growth plan', de: 'Wachstumsplan', ja: '運営プラン', ko: '운영 플랜', es: 'Plan de crecimiento', it: 'Piano di crescita', vi: 'Kế hoạch tăng trưởng', fr: 'Plan de croissance', badge: 0, primary: false, iconSrc: yunyingjihua },
+    { key: 'finance', path: '/finance', zh: '财务报告', en: 'Finance', de: 'Finanzen', ja: '財務レポート', ko: '재무 보고서', es: 'Finanzas', it: 'Finanze', vi: 'Tài chính', fr: 'Finances', badge: 0, primary: false, iconSrc: caiwubaogao },
+    { key: 'wallet', path: '/wallet', zh: '我的钱包', en: 'Wallet', de: 'Wallet', ja: 'ウォレット', ko: '내 지갑', es: 'Cartera', it: 'Portafoglio', vi: 'Ví', fr: 'Portefeuille', badge: 0, primary: false, iconSrc: walletMain },
   ]
 
   return (
@@ -338,7 +339,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                   {shopLevelSellerTitle(levelInfo, lang)}
                 </span>
                 <button type="button" className="merchant-cmd-level-link" onClick={() => onNavigate('/plan')}>
-                  {tr(lang, { zh: '查看等级权益', en: 'View level benefits', de: 'Level-Vorteile anzeigen', ja: 'レベル特典を見る', ko: '등급 혜택 보기', es: 'Ver beneficios del nivel', it: 'Vedi vantaggi del livello', vi: 'Xem quyền lợi cấp bậc' })}
+                  {tr(lang, { zh: '查看等级权益', en: 'View level benefits', de: 'Level-Vorteile anzeigen', ja: 'レベル特典を見る', ko: '등급 혜택 보기', es: 'Ver beneficios del nivel', it: 'Vedi vantaggi del livello', vi: 'Xem quyền lợi cấp bậc', fr: 'Afficher les avantages du niveau' })}
                 </button>
               </div>
 
@@ -379,7 +380,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
             </span>
             <div className="merchant-cmd-total-sales-body">
               <span className="merchant-cmd-total-sales-label">
-                {tr(lang, { zh: '累计销售额', en: 'Total sales', de: 'Gesamtumsatz', ja: '累計売上', ko: '누적 매출', es: 'Ventas acumuladas', it: 'Vendite totali', vi: 'Tổng doanh thu' })}
+                {tr(lang, { zh: '累计销售额', en: 'Total sales', de: 'Gesamtumsatz', ja: '累計売上', ko: '누적 매출', es: 'Ventas acumuladas', it: 'Vendite totali', vi: 'Tổng doanh thu', fr: 'Ventes totales' })}
               </span>
               {metricsLoading ? (
                 <McSkeletonBlock className="merchant-cmd-total-sales-value merchant-cmd-total-sales-value--skeleton" />
@@ -405,7 +406,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 icon="orders"
                 iconSrc={zongdingdan}
                 tone="indigo"
-                label={tr(lang, { zh: '总订单', en: 'Total orders', de: 'Bestellungen gesamt', ja: '注文合計', ko: '총 주문', es: 'Pedidos totales', it: 'Ordini totali', vi: 'Tổng đơn hàng' })}
+                label={tr(lang, { zh: '总订单', en: 'Total orders', de: 'Bestellungen gesamt', ja: '注文合計', ko: '총 주문', es: 'Pedidos totales', it: 'Ordini totali', vi: 'Tổng đơn hàng', fr: 'Total des commandes' })}
                 value={orderCount}
                 format="number"
               />
@@ -413,7 +414,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 icon="profit"
                 iconSrc={zonglirun}
                 tone="blue"
-                label={tr(lang, { zh: '总利润', en: 'Total profit', de: 'Gesamtgewinn', ja: '利益合計', ko: '총 이익', es: 'Beneficio total', it: 'Profitto totale', vi: 'Tổng lợi nhuận' })}
+                label={tr(lang, { zh: '总利润', en: 'Total profit', de: 'Gesamtgewinn', ja: '利益合計', ko: '총 이익', es: 'Beneficio total', it: 'Profitto totale', vi: 'Tổng lợi nhuận', fr: 'Bénéfice total' })}
                 value={totalProfit}
                 format="currency"
               />
@@ -421,7 +422,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 icon="products"
                 iconSrc={shangpinzongshu}
                 tone="violet"
-                label={tr(lang, { zh: '商品总数', en: 'Total products', de: 'Produkte gesamt', ja: '商品数', ko: '총 상품 수', es: 'Productos totales', it: 'Prodotti totali', vi: 'Tổng sản phẩm' })}
+                label={tr(lang, { zh: '商品总数', en: 'Total products', de: 'Produkte gesamt', ja: '商品数', ko: '총 상품 수', es: 'Productos totales', it: 'Prodotti totali', vi: 'Tổng sản phẩm', fr: 'Produits totaux' })}
                 value={productCount}
                 format="number"
               />
@@ -432,7 +433,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 iconSrc={jinrixiaoshoue}
                 tone="orange"
                 emphasis
-                label={tr(lang, { zh: '今日销售额', en: "Today's sales", de: 'Umsatz heute', ja: '本日の売上', ko: '오늘 매출', es: 'Ventas de hoy', it: 'Vendite di oggi', vi: 'Doanh thu hôm nay' })}
+                label={tr(lang, { zh: '今日销售额', en: "Today's sales", de: 'Umsatz heute', ja: '本日の売上', ko: '오늘 매출', es: 'Ventas de hoy', it: 'Vendite di oggi', vi: 'Doanh thu hôm nay', fr: 'Les ventes du jour' })}
                 value={todaySales}
                 format="currency"
               />
@@ -440,7 +441,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 icon="orders"
                 iconSrc={jinridingdan}
                 tone="green"
-                label={tr(lang, { zh: '今日订单', en: "Today's orders", de: 'Bestellungen heute', ja: '本日の注文', ko: '오늘 주문', es: 'Pedidos de hoy', it: 'Ordini di oggi', vi: 'Đơn hàng hôm nay' })}
+                label={tr(lang, { zh: '今日订单', en: "Today's orders", de: 'Bestellungen heute', ja: '本日の注文', ko: '오늘 주문', es: 'Pedidos de hoy', it: 'Ordini di oggi', vi: 'Đơn hàng hôm nay', fr: 'Les commandes du jour' })}
                 value={todayOrders}
                 format="number"
               />
@@ -448,7 +449,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 icon="profit"
                 iconSrc={yujilirun}
                 tone="lime"
-                label={tr(lang, { zh: '预计利润', en: 'Expected profit', de: 'Erwarteter Gewinn', ja: '見込み利益', ko: '예상 이익', es: 'Beneficio estimado', it: 'Profitto stimato', vi: 'Lợi nhuận dự kiến' })}
+                label={tr(lang, { zh: '预计利润', en: 'Expected profit', de: 'Erwarteter Gewinn', ja: '見込み利益', ko: '예상 이익', es: 'Beneficio estimado', it: 'Profitto stimato', vi: 'Lợi nhuận dự kiến', fr: 'Bénéfice attendu' })}
                 value={expectedProfit}
                 format="currency"
               />
@@ -456,7 +457,7 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 icon="unsettled"
                 iconSrc={daijiesuan}
                 tone="teal"
-                label={tr(lang, { zh: '待结算金额', en: 'Unsettled amount', de: 'Ausstehender Betrag', ja: '未精算金額', ko: '미정산 금액', es: 'Importe pendiente de liquidar', it: 'Importo da liquidare', vi: 'Số tiền chờ thanh toán' })}
+                label={tr(lang, { zh: '待结算金额', en: 'Unsettled amount', de: 'Ausstehender Betrag', ja: '未精算金額', ko: '미정산 금액', es: 'Importe pendiente de liquidar', it: 'Importo da liquidare', vi: 'Số tiền chờ thanh toán', fr: 'Montant non réglé' })}
                 value={unsettledAmount}
                 format="currency"
               />
@@ -466,16 +467,16 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
           <div className="merchant-cmd-side-board">
             <div className="merchant-cmd-health-row">
               <HealthFactor
-                label={tr(lang, { zh: '好评率', en: 'Rating', de: 'Bewertung', ja: '評価', ko: '좋은 평가율', es: 'Valoración', it: 'Valutazione', vi: 'Đánh giá' })}
+                label={tr(lang, { zh: '好评率', en: 'Rating', de: 'Bewertung', ja: '評価', ko: '좋은 평가율', es: 'Valoración', it: 'Valutazione', vi: 'Đánh giá', fr: 'Notation' })}
                 value={goodRate}
                 format="percent"
                 decimals={1}
                 tone="emerald"
                 iconSrc={haopinglv}
               />
-              <HealthRing value={healthIndex} label={tr(lang, { zh: '健康综合分', en: 'Health score', de: 'Gesundheitswert', ja: '健全性スコア', ko: '건강 종합 점수', es: 'Puntuación de salud', it: 'Punteggio salute', vi: 'Điểm sức khỏe' })} />
+              <HealthRing value={healthIndex} label={tr(lang, { zh: '健康综合分', en: 'Health score', de: 'Gesundheitswert', ja: '健全性スコア', ko: '건강 종합 점수', es: 'Puntuación de salud', it: 'Punteggio salute', vi: 'Điểm sức khỏe', fr: 'Bilan de santé' })} />
               <HealthFactor
-                label={tr(lang, { zh: '信用分', en: 'Credit', de: 'Kreditwert', ja: '信用スコア', ko: '신용 점수', es: 'Puntuación de crédito', it: 'Credito', vi: 'Điểm tín dụng' })}
+                label={tr(lang, { zh: '信用分', en: 'Credit', de: 'Kreditwert', ja: '信用スコア', ko: '신용 점수', es: 'Puntuación de crédito', it: 'Credito', vi: 'Điểm tín dụng', fr: 'Crédit' })}
                 value={creditScore}
                 format="number"
                 tone="blue"
@@ -487,19 +488,19 @@ const MerchantDashboardCommandHero: React.FC<CommandHeroProps> = ({
                 <span className="merchant-cmd-followers-pill-icon merchant-cmd-followers-pill-icon--img" aria-hidden="true">
                   <img src={guanzhu} alt="" className="merchant-cmd-followers-pill-icon-img" />
                 </span>
-                <span className="merchant-cmd-followers-pill-label">{tr(lang, { zh: '关注', en: 'Followers', de: 'Follower', ja: 'フォロワー', ko: '팔로워', es: 'Seguidores', it: 'Follower', vi: 'Người theo dõi' })}</span>
+                <span className="merchant-cmd-followers-pill-label">{tr(lang, { zh: '关注', en: 'Followers', de: 'Follower', ja: 'フォロワー', ko: '팔로워', es: 'Seguidores', it: 'Follower', vi: 'Người theo dõi', fr: 'Abonnés' })}</span>
                 <AnimatedMetric value={followers} format="compact" className="merchant-cmd-followers-pill-value" />
               </div>
               <div className="merchant-cmd-followers-trend">
                 <div className="merchant-cmd-followers-trend-head">
                   <span className="merchant-cmd-followers-trend-title">
-                    {tr(lang, { zh: '7日关注趋势', en: '7-day follower trend', de: '7-Tage-Follower-Trend', ja: '7日間のフォロワー推移', ko: '7일 팔로워 추이', es: 'Tendencia de seguidores en 7 días', it: 'Andamento follower in 7 giorni', vi: 'Xu hướng người theo dõi 7 ngày' })}
+                    {tr(lang, { zh: '7日关注趋势', en: '7-day follower trend', de: '7-Tage-Follower-Trend', ja: '7日間のフォロワー推移', ko: '7일 팔로워 추이', es: 'Tendencia de seguidores en 7 días', it: 'Andamento follower in 7 giorni', vi: 'Xu hướng người theo dõi 7 ngày', fr: 'Tendance des abonnés sur 7 jours' })}
                   </span>
                   <span className="merchant-cmd-followers-trend-delta">
-                    {followerWeekGain > 0 ? `+${followerWeekGain}` : followerWeekGain === 0 ? tr(lang, { zh: '持平', en: 'Flat', de: 'Unverändert', ja: '横ばい', ko: '변동 없음', es: 'Sin cambios', it: 'Stabile', vi: 'Ổn định' }) : followerWeekGain}
+                    {followerWeekGain > 0 ? `+${followerWeekGain}` : followerWeekGain === 0 ? tr(lang, { zh: '持平', en: 'Flat', de: 'Unverändert', ja: '横ばい', ko: '변동 없음', es: 'Sin cambios', it: 'Stabile', vi: 'Ổn định', fr: 'Plat' }) : followerWeekGain}
                     {followerWeekGain > 0 ? (
                       <span className="merchant-cmd-followers-trend-delta-label">
-                        {tr(lang, { zh: ' 本周', en: ' this week', de: ' diese Woche', ja: ' 今週', ko: ' 이번 주', es: ' esta semana', it: ' questa settimana', vi: ' tuần này' })}
+                        {tr(lang, { zh: ' 本周', en: ' this week', de: ' diese Woche', ja: ' 今週', ko: ' 이번 주', es: ' esta semana', it: ' questa settimana', vi: ' tuần này', fr: 'cette semaine' })}
                       </span>
                     ) : null}
                   </span>

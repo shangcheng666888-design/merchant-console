@@ -111,12 +111,12 @@ const MerchantSettings: React.FC = () => {
 
   const saveShopName = () => {
     if (!auth?.shopId || !auth?.id) {
-      showToast(tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán'}), 'error')
+      showToast(tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán', fr: 'Non connecté au compte marchand'}), 'error')
       return
     }
     const trimmed = shopNameDraft.trim()
     if (trimmed.length < 1 || trimmed.length > 60) {
-      setShopNameError(tr(lang, { zh: '店铺名称需在 1-60 字之间', en: 'Shop name must be 1-60 characters', de: 'Shop-Name muss 1–60 Zeichen lang sein', ja: 'ショップ名は1〜60文字で入力してください', ko: '쇼핑몰 이름은 1~60자여야 합니다', es: 'El nombre debe tener entre 1 y 60 caracteres', it: 'Il nome del negozio deve avere 1-60 caratteri', vi: 'Tên cửa hàng phải từ 1-60 ký tự'}))
+      setShopNameError(tr(lang, { zh: '店铺名称需在 1-60 字之间', en: 'Shop name must be 1-60 characters', de: 'Shop-Name muss 1–60 Zeichen lang sein', ja: 'ショップ名は1〜60文字で入力してください', ko: '쇼핑몰 이름은 1~60자여야 합니다', es: 'El nombre debe tener entre 1 y 60 caracteres', it: 'Il nome del negozio deve avere 1-60 caratteri', vi: 'Tên cửa hàng phải từ 1-60 ký tự', fr: 'Le nom de la boutique doit comporter entre 1 et 60 caractères'}))
       return
     }
     if (trimmed === (shop?.name ?? '').trim()) return
@@ -129,11 +129,11 @@ const MerchantSettings: React.FC = () => {
       })
       .then(() => {
         setShopNameDraft(trimmed)
-        showToast(tr(lang, { zh: '店铺名称已更新', en: 'Shop name updated', de: 'Shop-Name aktualisiert', ja: 'ショップ名を更新しました', ko: '쇼핑몰 이름이 업데이트되었습니다', es: 'Nombre de tienda actualizado', it: 'Nome negozio aggiornato', vi: 'Đã cập nhật tên cửa hàng'}))
+        showToast(tr(lang, { zh: '店铺名称已更新', en: 'Shop name updated', de: 'Shop-Name aktualisiert', ja: 'ショップ名を更新しました', ko: '쇼핑몰 이름이 업데이트되었습니다', es: 'Nombre de tienda actualizado', it: 'Nome negozio aggiornato', vi: 'Đã cập nhật tên cửa hàng', fr: 'Nom de la boutique mis à jour'}))
         return refreshShop()
       })
       .catch((err: unknown) => {
-        const fallback = tr(lang, { zh: '保存失败', en: 'Failed to save', de: 'Speichern fehlgeschlagen', ja: '保存に失敗しました', ko: '저장에 실패했습니다', es: 'Error al guardar', it: 'Salvataggio non riuscito', vi: 'Lưu thất bại'})
+        const fallback = tr(lang, { zh: '保存失败', en: 'Failed to save', de: 'Speichern fehlgeschlagen', ja: '保存に失敗しました', ko: '저장에 실패했습니다', es: 'Error al guardar', it: 'Salvataggio non riuscito', vi: 'Lưu thất bại', fr: 'Échec de l\'enregistrement'})
         showToast(err instanceof Error ? err.message : fallback, 'error')
       })
       .finally(() => setSavingShopName(false))
@@ -302,7 +302,7 @@ const MerchantSettings: React.FC = () => {
   const patchLogo = (url: string | null) => {
     if (!auth?.shopId || !auth?.id) {
       return Promise.reject(
-        new Error(tr(lang, { zh: '未登录', en: 'Not logged in', de: 'Nicht angemeldet', ja: '未ログイン', ko: '로그인되지 않음', es: 'Sin iniciar sesión', it: 'Non connesso', vi: 'Chưa đăng nhập'})),
+        new Error(tr(lang, { zh: '未登录', en: 'Not logged in', de: 'Nicht angemeldet', ja: '未ログイン', ko: '로그인되지 않음', es: 'Sin iniciar sesión', it: 'Non connesso', vi: 'Chưa đăng nhập', fr: 'Non connecté'})),
       )
     }
     return api.patch<{ success?: boolean }>(`/api/shops/${encodeURIComponent(auth.shopId)}`, {
@@ -314,7 +314,7 @@ const MerchantSettings: React.FC = () => {
   const patchBanner = (url: string | null) => {
     if (!auth?.shopId || !auth?.id) {
       return Promise.reject(
-        new Error(tr(lang, { zh: '未登录', en: 'Not logged in', de: 'Nicht angemeldet', ja: '未ログイン', ko: '로그인되지 않음', es: 'Sin iniciar sesión', it: 'Non connesso', vi: 'Chưa đăng nhập'})),
+        new Error(tr(lang, { zh: '未登录', en: 'Not logged in', de: 'Nicht angemeldet', ja: '未ログイン', ko: '로그인되지 않음', es: 'Sin iniciar sesión', it: 'Non connesso', vi: 'Chưa đăng nhập', fr: 'Non connecté'})),
       )
     }
     return api.patch<{ success?: boolean }>(`/api/shops/${encodeURIComponent(auth.shopId)}`, {
@@ -328,14 +328,14 @@ const MerchantSettings: React.FC = () => {
     const pinRegex = /^\d{6}$/
     if (!pinRegex.test(shopTradeNew)) {
       next.new =
-        tr(lang, { zh: '交易密码需为 6 位数字', en: 'Payment PIN must be 6 digits', de: 'Zahlungs-PIN muss 6 Ziffern haben', ja: '取引パスワードは6桁の数字である必要があります', ko: '출금 PIN은 6자리 숫자여야 합니다', es: 'El PIN de pago debe tener 6 dígitos', it: 'Il PIN di pagamento deve avere 6 cifre', vi: 'PIN thanh toán phải gồm 6 chữ số'})
+        tr(lang, { zh: '交易密码需为 6 位数字', en: 'Payment PIN must be 6 digits', de: 'Zahlungs-PIN muss 6 Ziffern haben', ja: '取引パスワードは6桁の数字である必要があります', ko: '출금 PIN은 6자리 숫자여야 합니다', es: 'El PIN de pago debe tener 6 dígitos', it: 'Il PIN di pagamento deve avere 6 cifre', vi: 'PIN thanh toán phải gồm 6 chữ số', fr: 'Le code PIN de paiement doit être composé de 6 chiffres'})
     }
     if (!pinRegex.test(shopTradeConfirm)) {
       next.confirm =
-        tr(lang, { zh: '请再次输入 6 位数字密码', en: 'Please confirm the 6‑digit PIN', de: 'Bitte bestätigen Sie die 6-stellige PIN', ja: '6桁の数字パスワードを再入力してください', ko: '6자리 PIN을 다시 입력하세요', es: 'Confirma el PIN de 6 dígitos', it: 'Conferma il PIN a 6 cifre', vi: 'Vui lòng xác nhận PIN 6 chữ số'})
+        tr(lang, { zh: '请再次输入 6 位数字密码', en: 'Please confirm the 6‑digit PIN', de: 'Bitte bestätigen Sie die 6-stellige PIN', ja: '6桁の数字パスワードを再入力してください', ko: '6자리 PIN을 다시 입력하세요', es: 'Confirma el PIN de 6 dígitos', it: 'Conferma il PIN a 6 cifre', vi: 'Vui lòng xác nhận PIN 6 chữ số', fr: 'Veuillez confirmer le code PIN à 6 chiffres'})
     } else if (shopTradeNew !== shopTradeConfirm) {
       next.confirm =
-        tr(lang, { zh: '两次输入的密码不一致', en: 'The two PINs do not match', de: 'Die beiden PINs stimmen nicht überein', ja: '入力したパスワードが一致しません', ko: '입력한 PIN이 일치하지 않습니다', es: 'Los PIN no coinciden', it: 'I due PIN non coincidono', vi: 'Hai PIN không khớp'})
+        tr(lang, { zh: '两次输入的密码不一致', en: 'The two PINs do not match', de: 'Die beiden PINs stimmen nicht überein', ja: '入力したパスワードが一致しません', ko: '입력한 PIN이 일치하지 않습니다', es: 'Los PIN no coinciden', it: 'I due PIN non coincidono', vi: 'Hai PIN không khớp', fr: 'Les deux codes PIN ne correspondent pas'})
     }
     setShopTradeErrors(next)
     return !next.new && !next.confirm
@@ -346,18 +346,18 @@ const MerchantSettings: React.FC = () => {
     const pinRegex = /^\d{6}$/
     if (!pinRegex.test(shopTradeOld)) {
       next.old =
-        tr(lang, { zh: '请输入当前 6 位密码', en: 'Please enter your current 6‑digit PIN', de: 'Bitte geben Sie Ihre aktuelle 6-stellige PIN ein', ja: '現在の6桁パスワードを入力してください', ko: '현재 6자리 PIN을 입력하세요', es: 'Ingresa tu PIN actual de 6 dígitos', it: 'Inserisci il PIN attuale a 6 cifre', vi: 'Vui lòng nhập PIN hiện tại 6 chữ số'})
+        tr(lang, { zh: '请输入当前 6 位密码', en: 'Please enter your current 6‑digit PIN', de: 'Bitte geben Sie Ihre aktuelle 6-stellige PIN ein', ja: '現在の6桁パスワードを入力してください', ko: '현재 6자리 PIN을 입력하세요', es: 'Ingresa tu PIN actual de 6 dígitos', it: 'Inserisci il PIN attuale a 6 cifre', vi: 'Vui lòng nhập PIN hiện tại 6 chữ số', fr: 'Veuillez saisir votre code PIN actuel à 6 chiffres'})
     }
     if (!pinRegex.test(shopTradeNew)) {
       next.new =
-        tr(lang, { zh: '新密码需为 6 位数字', en: 'New PIN must be 6 digits', de: 'Neue PIN muss 6 Ziffern haben', ja: '新しいパスワードは6桁の数字である必要があります', ko: '새 PIN은 6자리 숫자여야 합니다', es: 'El PIN nuevo debe tener 6 dígitos', it: 'Il nuovo PIN deve avere 6 cifre', vi: 'PIN mới phải gồm 6 chữ số'})
+        tr(lang, { zh: '新密码需为 6 位数字', en: 'New PIN must be 6 digits', de: 'Neue PIN muss 6 Ziffern haben', ja: '新しいパスワードは6桁の数字である必要があります', ko: '새 PIN은 6자리 숫자여야 합니다', es: 'El PIN nuevo debe tener 6 dígitos', it: 'Il nuovo PIN deve avere 6 cifre', vi: 'PIN mới phải gồm 6 chữ số', fr: 'Le nouveau code PIN doit être composé de 6 chiffres'})
     }
     if (!pinRegex.test(shopTradeConfirm)) {
       next.confirm =
-        tr(lang, { zh: '请再次输入 6 位数字密码', en: 'Please confirm the 6‑digit PIN', de: 'Bitte bestätigen Sie die 6-stellige PIN', ja: '6桁の数字パスワードを再入力してください', ko: '6자리 PIN을 다시 입력하세요', es: 'Confirma el PIN de 6 dígitos', it: 'Conferma il PIN a 6 cifre', vi: 'Vui lòng xác nhận PIN 6 chữ số'})
+        tr(lang, { zh: '请再次输入 6 位数字密码', en: 'Please confirm the 6‑digit PIN', de: 'Bitte bestätigen Sie die 6-stellige PIN', ja: '6桁の数字パスワードを再入力してください', ko: '6자리 PIN을 다시 입력하세요', es: 'Confirma el PIN de 6 dígitos', it: 'Conferma il PIN a 6 cifre', vi: 'Vui lòng xác nhận PIN 6 chữ số', fr: 'Veuillez confirmer le code PIN à 6 chiffres'})
     } else if (shopTradeNew !== shopTradeConfirm) {
       next.confirm =
-        tr(lang, { zh: '两次输入的密码不一致', en: 'The two PINs do not match', de: 'Die beiden PINs stimmen nicht überein', ja: '入力したパスワードが一致しません', ko: '입력한 PIN이 일치하지 않습니다', es: 'Los PIN no coinciden', it: 'I due PIN non coincidono', vi: 'Hai PIN không khớp'})
+        tr(lang, { zh: '两次输入的密码不一致', en: 'The two PINs do not match', de: 'Die beiden PINs stimmen nicht überein', ja: '入力したパスワードが一致しません', ko: '입력한 PIN이 일치하지 않습니다', es: 'Los PIN no coinciden', it: 'I due PIN non coincidono', vi: 'Hai PIN không khớp', fr: 'Les deux codes PIN ne correspondent pas'})
     }
     setShopTradeErrors(next)
     return !next.old && !next.new && !next.confirm
@@ -386,18 +386,18 @@ const MerchantSettings: React.FC = () => {
   const validateLoginPwdEdit = (): boolean => {
     const next = { old: '', new: '', confirm: '' }
     if (!loginPwdOld) {
-      next.old = tr(lang, { zh: '请输入当前登录密码', en: 'Please enter your current password', de: 'Bitte geben Sie Ihr aktuelles Passwort ein', ja: '現在のログインパスワードを入力してください', ko: '현재 로그인 비밀번호를 입력하세요', es: 'Ingresa tu contraseña actual', it: 'Inserisci la password attuale', vi: 'Vui lòng nhập mật khẩu hiện tại'})
+      next.old = tr(lang, { zh: '请输入当前登录密码', en: 'Please enter your current password', de: 'Bitte geben Sie Ihr aktuelles Passwort ein', ja: '現在のログインパスワードを入力してください', ko: '현재 로그인 비밀번호를 입력하세요', es: 'Ingresa tu contraseña actual', it: 'Inserisci la password attuale', vi: 'Vui lòng nhập mật khẩu hiện tại', fr: 'Veuillez entrer votre mot de passe actuel'})
     }
     if (!LOGIN_PASSWORD_REGEX.test(loginPwdNew)) {
       next.new =
-        tr(lang, { zh: '新密码需为 6-22 位字母和数字组合', en: 'New password must be 6-22 letters and digits', de: 'Neues Passwort muss 6–22 Buchstaben und Ziffern enthalten', ja: '新しいパスワードは6〜22文字の英数字である必要があります', ko: '새 비밀번호는 6~22자 영문·숫자 조합이어야 합니다', es: 'La contraseña nueva debe tener 6-22 caracteres alfanuméricos', it: 'La nuova password deve avere 6-22 caratteri alfanumerici', vi: 'Mật khẩu mới phải gồm 6-22 ký tự chữ và số'})
+        tr(lang, { zh: '新密码需为 6-22 位字母和数字组合', en: 'New password must be 6-22 letters and digits', de: 'Neues Passwort muss 6–22 Buchstaben und Ziffern enthalten', ja: '新しいパスワードは6〜22文字の英数字である必要があります', ko: '새 비밀번호는 6~22자 영문·숫자 조합이어야 합니다', es: 'La contraseña nueva debe tener 6-22 caracteres alfanuméricos', it: 'La nuova password deve avere 6-22 caratteri alfanumerici', vi: 'Mật khẩu mới phải gồm 6-22 ký tự chữ và số', fr: 'Le nouveau mot de passe doit contenir 6 à 22 lettres et chiffres'})
     }
     if (!loginPwdConfirm) {
       next.confirm =
-        tr(lang, { zh: '请再次输入新密码', en: 'Please confirm your new password', de: 'Bitte bestätigen Sie Ihr neues Passwort', ja: '新しいパスワードを再入力してください', ko: '새 비밀번호를 다시 입력하세요', es: 'Confirma tu nueva contraseña', it: 'Conferma la nuova password', vi: 'Vui lòng xác nhận mật khẩu mới'})
+        tr(lang, { zh: '请再次输入新密码', en: 'Please confirm your new password', de: 'Bitte bestätigen Sie Ihr neues Passwort', ja: '新しいパスワードを再入力してください', ko: '새 비밀번호를 다시 입력하세요', es: 'Confirma tu nueva contraseña', it: 'Conferma la nuova password', vi: 'Vui lòng xác nhận mật khẩu mới', fr: 'Veuillez confirmer votre nouveau mot de passe'})
     } else if (loginPwdNew !== loginPwdConfirm) {
       next.confirm =
-        tr(lang, { zh: '两次输入的密码不一致', en: 'The two passwords do not match', de: 'Die beiden Passwörter stimmen nicht überein', ja: '入力したパスワードが一致しません', ko: '입력한 비밀번호가 일치하지 않습니다', es: 'Las contraseñas no coininciden', it: 'Le due password non coincidono', vi: 'Hai mật khẩu không khớp'})
+        tr(lang, { zh: '两次输入的密码不一致', en: 'The two passwords do not match', de: 'Die beiden Passwörter stimmen nicht überein', ja: '入力したパスワードが一致しません', ko: '입력한 비밀번호가 일치하지 않습니다', es: 'Las contraseñas no coininciden', it: 'Le due password non coincidono', vi: 'Hai mật khẩu không khớp', fr: 'Les deux mots de passe ne correspondent pas'})
     }
     setLoginPwdErrors(next)
     return !next.old && !next.new && !next.confirm
@@ -405,7 +405,7 @@ const MerchantSettings: React.FC = () => {
 
   const handleLoginPwdSubmit = () => {
     if (!auth?.id) {
-      showToast(tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán'}), 'error')
+      showToast(tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán', fr: 'Non connecté au compte marchand'}), 'error')
       return
     }
     if (!validateLoginPwdEdit()) return
@@ -416,12 +416,12 @@ const MerchantSettings: React.FC = () => {
         newPassword: loginPwdNew,
       })
       .then(() => {
-        showToast(tr(lang, { zh: '登录密码已修改', en: 'Login password updated', de: 'Anmeldepasswort aktualisiert', ja: 'ログインパスワードを変更しました', ko: '로그인 비밀번호가 변경되었습니다', es: 'Contraseña de acceso actualizada', it: 'Password di accesso aggiornata', vi: 'Đã cập nhật mật khẩu đăng nhập'}))
+        showToast(tr(lang, { zh: '登录密码已修改', en: 'Login password updated', de: 'Anmeldepasswort aktualisiert', ja: 'ログインパスワードを変更しました', ko: '로그인 비밀번호가 변경되었습니다', es: 'Contraseña de acceso actualizada', it: 'Password di accesso aggiornata', vi: 'Đã cập nhật mật khẩu đăng nhập', fr: 'Mot de passe de connexion mis à jour'}))
         resetLoginPwdForm()
         setLoginPwdMode('summary')
       })
       .catch((err: unknown) => {
-        const fallback = tr(lang, { zh: '修改失败', en: 'Failed to update password', de: 'Passwort konnte nicht aktualisiert werden', ja: '変更に失敗しました', ko: '비밀번호 변경에 실패했습니다', es: 'Error al actualizar la contraseña', it: 'Impossibile aggiornare la password', vi: 'Cập nhật mật khẩu thất bại'})
+        const fallback = tr(lang, { zh: '修改失败', en: 'Failed to update password', de: 'Passwort konnte nicht aktualisiert werden', ja: '変更に失敗しました', ko: '비밀번호 변경에 실패했습니다', es: 'Error al actualizar la contraseña', it: 'Impossibile aggiornare la password', vi: 'Cập nhật mật khẩu thất bại', fr: 'Échec de la mise à jour du mot de passe'})
         showToast(err instanceof Error ? err.message : fallback, 'error')
       })
       .finally(() => setSavingLoginPwd(false))
@@ -444,7 +444,7 @@ const MerchantSettings: React.FC = () => {
   const handleShopTradeSetSubmit = () => {
     if (!auth?.shopId || !auth?.id) {
       showToast(
-        tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán'}),
+        tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán', fr: 'Non connecté au compte marchand'}),
         'error',
       )
       return
@@ -457,14 +457,14 @@ const MerchantSettings: React.FC = () => {
       })
       .then(() => {
         showToast(
-          tr(lang, { zh: '店铺交易密码已设置', en: 'Shop payment PIN has been set', de: 'Shop-Zahlungs-PIN wurde festgelegt', ja: 'ショップ取引パスワードを設定しました', ko: '쇼핑몰 출금 PIN이 설정되었습니다', es: 'PIN de pago de la tienda configurado', it: 'PIN di pagamento del negozio impostato', vi: 'Đã đặt PIN thanh toán cửa hàng'}),
+          tr(lang, { zh: '店铺交易密码已设置', en: 'Shop payment PIN has been set', de: 'Shop-Zahlungs-PIN wurde festgelegt', ja: 'ショップ取引パスワードを設定しました', ko: '쇼핑몰 출금 PIN이 설정되었습니다', es: 'PIN de pago de la tienda configurado', it: 'PIN di pagamento del negozio impostato', vi: 'Đã đặt PIN thanh toán cửa hàng', fr: 'Le code PIN de paiement de la boutique a été défini'}),
         )
         setShopHasTradePwd(true)
         setShopTradeMode('summary')
         resetShopTradeForm()
       })
       .catch((err: unknown) => {
-        const fallback = tr(lang, { zh: '设置失败', en: 'Failed to set PIN', de: 'PIN konnte nicht festgelegt werden', ja: '設定に失敗しました', ko: 'PIN 설정에 실패했습니다', es: 'Error al configurar el PIN', it: 'Impossibile impostare il PIN', vi: 'Đặt PIN thất bại'})
+        const fallback = tr(lang, { zh: '设置失败', en: 'Failed to set PIN', de: 'PIN konnte nicht festgelegt werden', ja: '設定に失敗しました', ko: 'PIN 설정에 실패했습니다', es: 'Error al configurar el PIN', it: 'Impossibile impostare il PIN', vi: 'Đặt PIN thất bại', fr: 'Échec de la définition du code PIN'})
         showToast(err instanceof Error ? err.message : fallback, 'error')
       })
   }
@@ -472,7 +472,7 @@ const MerchantSettings: React.FC = () => {
   const handleShopTradeEditSubmit = () => {
     if (!auth?.shopId || !auth?.id) {
       showToast(
-        tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán'}),
+        tr(lang, { zh: '未登录商家账号', en: 'Not logged in to merchant account', de: 'Nicht beim Händlerkonto angemeldet', ja: 'セラーアカウントにログインしていません', ko: '셀러 계정에 로그인되지 않았습니다', es: 'No has iniciado sesión en la cuenta de vendedor', it: 'Non hai effettuato l\'accesso all\'account venditore', vi: 'Chưa đăng nhập tài khoản người bán', fr: 'Non connecté au compte marchand'}),
         'error',
       )
       return
@@ -486,14 +486,14 @@ const MerchantSettings: React.FC = () => {
       })
       .then(() => {
         showToast(
-          tr(lang, { zh: '店铺交易密码已修改', en: 'Shop payment PIN has been updated', de: 'Shop-Zahlungs-PIN wurde aktualisiert', ja: 'ショップ取引パスワードを変更しました', ko: '쇼핑몰 출금 PIN이 변경되었습니다', es: 'PIN de pago de la tienda actualizado', it: 'PIN di pagamento del negozio aggiornato', vi: 'Đã cập nhật PIN thanh toán cửa hàng'}),
+          tr(lang, { zh: '店铺交易密码已修改', en: 'Shop payment PIN has been updated', de: 'Shop-Zahlungs-PIN wurde aktualisiert', ja: 'ショップ取引パスワードを変更しました', ko: '쇼핑몰 출금 PIN이 변경되었습니다', es: 'PIN de pago de la tienda actualizado', it: 'PIN di pagamento del negozio aggiornato', vi: 'Đã cập nhật PIN thanh toán cửa hàng', fr: 'Le code PIN de paiement de la boutique a été mis à jour'}),
         )
         setShopHasTradePwd(true)
         setShopTradeMode('summary')
         resetShopTradeForm()
       })
       .catch((err: unknown) => {
-        const fallback = tr(lang, { zh: '修改失败', en: 'Failed to update PIN', de: 'PIN konnte nicht aktualisiert werden', ja: '変更に失敗しました', ko: 'PIN 변경에 실패했습니다', es: 'Error al actualizar el PIN', it: 'Impossibile aggiornare il PIN', vi: 'Cập nhật PIN thất bại'})
+        const fallback = tr(lang, { zh: '修改失败', en: 'Failed to update PIN', de: 'PIN konnte nicht aktualisiert werden', ja: '変更に失敗しました', ko: 'PIN 변경에 실패했습니다', es: 'Error al actualizar el PIN', it: 'Impossibile aggiornare il PIN', vi: 'Cập nhật PIN thất bại', fr: 'Échec de la mise à jour du code PIN'})
         showToast(err instanceof Error ? err.message : fallback, 'error')
       })
   }
@@ -508,11 +508,11 @@ const MerchantSettings: React.FC = () => {
       .then(({ url }) => patchLogo(url).then(() => url))
       .then((url) => {
         if (url) setLogoUrl(url)
-        showToast(tr(lang, { zh: 'Logo 已更新', en: 'Logo has been updated', de: 'Logo wurde aktualisiert', ja: 'ロゴを更新しました', ko: '로고가 업데이트되었습니다', es: 'Logo actualizado', it: 'Logo aggiornato', vi: 'Đã cập nhật logo'}))
+        showToast(tr(lang, { zh: 'Logo 已更新', en: 'Logo has been updated', de: 'Logo wurde aktualisiert', ja: 'ロゴを更新しました', ko: '로고가 업데이트되었습니다', es: 'Logo actualizado', it: 'Logo aggiornato', vi: 'Đã cập nhật logo', fr: 'Le logo a été mis à jour'}))
       })
       .catch((err: Error) =>
         showToast(
-          err?.message ?? (tr(lang, { zh: '上传失败', en: 'Upload failed', de: 'Upload fehlgeschlagen', ja: 'アップロードに失敗しました', ko: '업로드에 실패했습니다', es: 'Error al subir', it: 'Caricamento non riuscito', vi: 'Tải lên thất bại'})),
+          err?.message ?? (tr(lang, { zh: '上传失败', en: 'Upload failed', de: 'Upload fehlgeschlagen', ja: 'アップロードに失敗しました', ko: '업로드에 실패했습니다', es: 'Error al subir', it: 'Caricamento non riuscito', vi: 'Tải lên thất bại', fr: 'Échec du téléchargement'})),
           'error',
         ),
       )
@@ -529,11 +529,11 @@ const MerchantSettings: React.FC = () => {
       .then(({ url }) => patchBanner(url).then(() => url))
       .then((url) => {
         if (url) setBannerUrl(url)
-        showToast(tr(lang, { zh: '横幅已更新', en: 'Banner has been updated', de: 'Banner wurde aktualisiert', ja: 'バナーを更新しました', ko: '배너가 업데이트되었습니다', es: 'Banner actualizado', it: 'Banner aggiornato', vi: 'Đã cập nhật banner'}))
+        showToast(tr(lang, { zh: '横幅已更新', en: 'Banner has been updated', de: 'Banner wurde aktualisiert', ja: 'バナーを更新しました', ko: '배너가 업데이트되었습니다', es: 'Banner actualizado', it: 'Banner aggiornato', vi: 'Đã cập nhật banner', fr: 'La bannière a été mise à jour'}))
       })
       .catch((err: Error) =>
         showToast(
-          err?.message ?? (tr(lang, { zh: '上传失败', en: 'Upload failed', de: 'Upload fehlgeschlagen', ja: 'アップロードに失敗しました', ko: '업로드에 실패했습니다', es: 'Error al subir', it: 'Caricamento non riuscito', vi: 'Tải lên thất bại'})),
+          err?.message ?? (tr(lang, { zh: '上传失败', en: 'Upload failed', de: 'Upload fehlgeschlagen', ja: 'アップロードに失敗しました', ko: '업로드에 실패했습니다', es: 'Error al subir', it: 'Caricamento non riuscito', vi: 'Tải lên thất bại', fr: 'Échec du téléchargement'})),
           'error',
         ),
       )
@@ -546,11 +546,11 @@ const MerchantSettings: React.FC = () => {
     patchLogo(null)
       .then(() => {
         setLogoUrl(null)
-        showToast(tr(lang, { zh: '已移除 Logo', en: 'Logo removed', de: 'Logo removed', ja: 'ロゴを削除しました', ko: '로고가 제거되었습니다', es: 'Logo eliminado', it: 'Logo rimosso', vi: 'Đã xóa logo'}))
+        showToast(tr(lang, { zh: '已移除 Logo', en: 'Logo removed', de: 'Logo removed', ja: 'ロゴを削除しました', ko: '로고가 제거되었습니다', es: 'Logo eliminado', it: 'Logo rimosso', vi: 'Đã xóa logo', fr: 'Logo supprimé'}))
       })
       .catch((err: Error) =>
         showToast(
-          err?.message ?? (tr(lang, { zh: '移除失败', en: 'Failed to remove', de: 'Entfernen fehlgeschlagen', ja: '削除に失敗しました', ko: '제거에 실패했습니다', es: 'Error al quitar', it: 'Rimozione non riuscita', vi: 'Gỡ thất bại'})),
+          err?.message ?? (tr(lang, { zh: '移除失败', en: 'Failed to remove', de: 'Entfernen fehlgeschlagen', ja: '削除に失敗しました', ko: '제거에 실패했습니다', es: 'Error al quitar', it: 'Rimozione non riuscita', vi: 'Gỡ thất bại', fr: 'Échec de la suppression'})),
           'error',
         ),
       )
@@ -563,11 +563,11 @@ const MerchantSettings: React.FC = () => {
     patchBanner(null)
       .then(() => {
         setBannerUrl(null)
-        showToast(tr(lang, { zh: '已移除横幅', en: 'Banner removed', de: 'Banner removed', ja: 'バナーを削除しました', ko: '배너가 제거되었습니다', es: 'Banner eliminado', it: 'Banner rimosso', vi: 'Đã xóa banner'}))
+        showToast(tr(lang, { zh: '已移除横幅', en: 'Banner removed', de: 'Banner removed', ja: 'バナーを削除しました', ko: '배너가 제거되었습니다', es: 'Banner eliminado', it: 'Banner rimosso', vi: 'Đã xóa banner', fr: 'Bannière supprimée'}))
       })
       .catch((err: Error) =>
         showToast(
-          err?.message ?? (tr(lang, { zh: '移除失败', en: 'Failed to remove', de: 'Entfernen fehlgeschlagen', ja: '削除に失敗しました', ko: '제거에 실패했습니다', es: 'Error al quitar', it: 'Rimozione non riuscita', vi: 'Gỡ thất bại'})),
+          err?.message ?? (tr(lang, { zh: '移除失败', en: 'Failed to remove', de: 'Entfernen fehlgeschlagen', ja: '削除に失敗しました', ko: '제거에 실패했습니다', es: 'Error al quitar', it: 'Rimozione non riuscita', vi: 'Gỡ thất bại', fr: 'Échec de la suppression'})),
           'error',
         ),
       )
@@ -585,7 +585,7 @@ const MerchantSettings: React.FC = () => {
           <path d="M21 15l-5-5L5 21" />
         </svg>
       )}
-      <span>{!loadOk ? (tr(lang, { zh: '加载中…', en: 'Loading…', de: 'Loading…', ja: '読み込み中…', ko: '불러오는 중…', es: 'Cargando…', it: 'Caricamento…', vi: 'Đang tải…'})) : loading ? loadingLabel : emptyLabel}</span>
+      <span>{!loadOk ? (tr(lang, { zh: '加载中…', en: 'Loading…', de: 'Loading…', ja: '読み込み中…', ko: '불러오는 중…', es: 'Cargando…', it: 'Caricamento…', vi: 'Đang tải…', fr: 'Chargement…'})) : loading ? loadingLabel : emptyLabel}</span>
     </span>
   )
 
@@ -600,32 +600,32 @@ const MerchantSettings: React.FC = () => {
     <div className="merchant-settings-page merchant-settings-page--v2">
       <header className="merchant-settings-header merchant-settings-header--v2">
         <h1 className="merchant-settings-title">
-          {tr(lang, { zh: '设置', en: 'Settings', de: 'Settings', ja: '設定', ko: '설정', es: 'Configuración', it: 'Impostazioni', vi: 'Cài đặt'})}
+          {tr(lang, { zh: '设置', en: 'Settings', de: 'Settings', ja: '設定', ko: '설정', es: 'Configuración', it: 'Impostazioni', vi: 'Cài đặt', fr: 'Paramètres'})}
         </h1>
       </header>
 
       {!auth?.shopId && loadOk && (
         <div className="merchant-settings-alert merchant-settings-alert--error">
-          {tr(lang, { zh: '未获取到店铺信息，请重新登录。', en: 'Shop not found. Please sign in again.', de: 'Shop nicht gefunden. Bitte erneut anmelden.', ja: 'ショップ情報を取得できませんでした。再度ログインしてください。', ko: '쇼핑몰 정보를 찾을 수 없습니다. 다시 로그인해 주세요.', es: 'Tienda no encontrada. Vuelve a iniciar sesión.', it: 'Negozio non trovato. Accedi di nuovo.', vi: 'Không tìm thấy cửa hàng. Vui lòng đăng nhập lại.'})}
+          {tr(lang, { zh: '未获取到店铺信息，请重新登录。', en: 'Shop not found. Please sign in again.', de: 'Shop nicht gefunden. Bitte erneut anmelden.', ja: 'ショップ情報を取得できませんでした。再度ログインしてください。', ko: '쇼핑몰 정보를 찾을 수 없습니다. 다시 로그인해 주세요.', es: 'Tienda no encontrada. Vuelve a iniciar sesión.', it: 'Negozio non trovato. Accedi di nuovo.', vi: 'Không tìm thấy cửa hàng. Vui lòng đăng nhập lại.', fr: 'Boutique introuvable. Veuillez vous reconnecter.'})}
         </div>
       )}
 
       <div className="merchant-settings-stack">
         <section className="merchant-settings-group">
-          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '账户', en: 'Account', de: 'Account', ja: 'アカウント', ko: '계정', es: 'Cuenta', it: 'Account', vi: 'Tài khoản'})}</h2>
+          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '账户', en: 'Account', de: 'Account', ja: 'アカウント', ko: '계정', es: 'Cuenta', it: 'Account', vi: 'Tài khoản', fr: 'Compte'})}</h2>
           <div className="merchant-settings-panel">
             <div className="merchant-settings-info-row">
-              <span className="merchant-settings-info-label">{tr(lang, { zh: '登录账号', en: 'Login account', de: 'Login account', ja: 'ログインアカウント', ko: '로그인 계정', es: 'Cuenta de acceso', it: 'Account di accesso', vi: 'Tài khoản đăng nhập'})}</span>
+              <span className="merchant-settings-info-label">{tr(lang, { zh: '登录账号', en: 'Login account', de: 'Login account', ja: 'ログインアカウント', ko: '로그인 계정', es: 'Cuenta de acceso', it: 'Account di accesso', vi: 'Tài khoản đăng nhập', fr: 'Compte de connexion'})}</span>
               <span className="merchant-settings-info-value">{auth?.account || '—'}</span>
             </div>
             <div className="merchant-settings-info-row">
-              <span className="merchant-settings-info-label">{tr(lang, { zh: '店铺 ID', en: 'Shop ID', de: 'Shop ID', ja: 'ショップ ID', ko: '쇼핑몰 ID', es: 'ID de tienda', it: 'ID negozio', vi: 'ID cửa hàng'})}</span>
+              <span className="merchant-settings-info-label">{tr(lang, { zh: '店铺 ID', en: 'Shop ID', de: 'Shop ID', ja: 'ショップ ID', ko: '쇼핑몰 ID', es: 'ID de tienda', it: 'ID negozio', vi: 'ID cửa hàng', fr: 'Identifiant de la boutique'})}</span>
               <span className="merchant-settings-info-value merchant-settings-info-value--mono">
                 {auth?.shopId || shop?.id || '—'}
               </span>
             </div>
             <Link to="/plan" className="merchant-settings-info-row merchant-settings-info-row--link merchant-settings-info-row--last">
-              <span className="merchant-settings-info-label">{tr(lang, { zh: '店铺等级', en: 'Shop level', de: 'Shop level', ja: 'ショップランク', ko: '쇼핑몰 등급', es: 'Nivel de tienda', it: 'Livello negozio', vi: 'Cấp cửa hàng'})}</span>
+              <span className="merchant-settings-info-label">{tr(lang, { zh: '店铺等级', en: 'Shop level', de: 'Shop level', ja: 'ショップランク', ko: '쇼핑몰 등급', es: 'Nivel de tienda', it: 'Livello negozio', vi: 'Cấp cửa hàng', fr: 'Niveau boutique'})}</span>
               <span className="merchant-settings-info-value merchant-settings-info-value--link">
                 {shopLevelLabel}
                 <SettingsRowChevron />
@@ -635,7 +635,7 @@ const MerchantSettings: React.FC = () => {
         </section>
 
         <section className="merchant-settings-group">
-          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '店铺', en: 'Shop', de: 'Shop', ja: 'ショップ', ko: '쇼핑몰', es: 'Tienda', it: 'Negozio', vi: 'Cửa hàng'})}</h2>
+          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '店铺', en: 'Shop', de: 'Shop', ja: 'ショップ', ko: '쇼핑몰', es: 'Tienda', it: 'Negozio', vi: 'Cửa hàng', fr: 'Boutique'})}</h2>
           <div className="merchant-settings-panel">
             <div className="merchant-settings-name-row">
               <div className="merchant-settings-shop-name">
@@ -645,10 +645,10 @@ const MerchantSettings: React.FC = () => {
                   </span>
                   <div className="merchant-settings-shop-name-copy">
                     <label className="merchant-settings-shop-name-label" htmlFor="merchant-settings-shop-name">
-                      {tr(lang, { zh: '店铺名称', en: 'Shop name', de: 'Shop name', ja: 'ショップ名', ko: '쇼핑몰 이름', es: 'Nombre de la tienda', it: 'Nome negozio', vi: 'Tên cửa hàng'})}
+                      {tr(lang, { zh: '店铺名称', en: 'Shop name', de: 'Shop name', ja: 'ショップ名', ko: '쇼핑몰 이름', es: 'Nombre de la tienda', it: 'Nome negozio', vi: 'Tên cửa hàng', fr: 'Nom de la boutique'})}
                     </label>
                     <p className="merchant-settings-shop-name-hint">
-                      {tr(lang, { zh: '买家在商城中看到的名称', en: 'Shown to customers in your storefront', de: 'Wird Kunden in Ihrem Shop angezeigt', ja: 'モールで購入者に表示される名称', ko: '몰에서 구매자에게 표시되는 이름', es: 'Nombre visible para compradores en la tienda', it: 'Nome visibile agli acquirenti nel negozio', vi: 'Tên hiển thị với người mua trên cửa hàng'})}
+                      {tr(lang, { zh: '买家在商城中看到的名称', en: 'Shown to customers in your storefront', de: 'Wird Kunden in Ihrem Shop angezeigt', ja: 'モールで購入者に表示される名称', ko: '몰에서 구매자에게 표시되는 이름', es: 'Nombre visible para compradores en la tienda', it: 'Nome visibile agli acquirenti nel negozio', vi: 'Tên hiển thị với người mua trên cửa hàng', fr: 'Montré aux clients dans votre vitrine'})}
                     </p>
                   </div>
                 </div>
@@ -660,7 +660,7 @@ const MerchantSettings: React.FC = () => {
                       className="merchant-settings-shop-name-input"
                       value={shopNameDraft}
                       maxLength={60}
-                      placeholder={tr(lang, { zh: '给店铺起个名字', en: 'Name your shop', de: 'Name your shop', ja: 'ショップ名を入力', ko: '쇼핑몰 이름을 입력하세요', es: 'Ponle nombre a tu tienda', it: 'Dai un nome al negozio', vi: 'Đặt tên cửa hàng'})}
+                      placeholder={tr(lang, { zh: '给店铺起个名字', en: 'Name your shop', de: 'Name your shop', ja: 'ショップ名を入力', ko: '쇼핑몰 이름을 입력하세요', es: 'Ponle nombre a tu tienda', it: 'Dai un nome al negozio', vi: 'Đặt tên cửa hàng', fr: 'Nommez votre boutique'})}
                       disabled={!auth?.shopId || savingShopName}
                       onChange={(e) => {
                         setShopNameDraft(e.target.value)
@@ -687,7 +687,7 @@ const MerchantSettings: React.FC = () => {
                       }}
                       disabled={savingShopName}
                     >
-                      {tr(lang, { zh: '还原', en: 'Reset', de: 'Reset', ja: '元に戻す', ko: '되돌리기', es: 'Restablecer', it: 'Ripristina', vi: 'Khôi phục'})}
+                      {tr(lang, { zh: '还原', en: 'Reset', de: 'Reset', ja: '元に戻す', ko: '되돌리기', es: 'Restablecer', it: 'Ripristina', vi: 'Khôi phục', fr: 'Réinitialiser'})}
                     </button>
                     <button
                       type="button"
@@ -696,8 +696,8 @@ const MerchantSettings: React.FC = () => {
                       disabled={savingShopName}
                     >
                       {savingShopName
-                        ? (tr(lang, { zh: '保存中…', en: 'Saving…', de: 'Saving…', ja: '保存中…', ko: '저장 중…', es: 'Guardando…', it: 'Salvataggio…', vi: 'Đang lưu…'}))
-                        : (tr(lang, { zh: '保存更改', en: 'Save changes', de: 'Save changes', ja: '変更を保存', ko: '변경 저장', es: 'Guardar cambios', it: 'Salva modifiche', vi: 'Lưu thay đổi'}))}
+                        ? (tr(lang, { zh: '保存中…', en: 'Saving…', de: 'Saving…', ja: '保存中…', ko: '저장 중…', es: 'Guardando…', it: 'Salvataggio…', vi: 'Đang lưu…', fr: 'Économie…'}))
+                        : (tr(lang, { zh: '保存更改', en: 'Save changes', de: 'Save changes', ja: '変更を保存', ko: '변경 저장', es: 'Guardar cambios', it: 'Salva modifiche', vi: 'Lưu thay đổi', fr: 'Enregistrer les modifications'}))}
                     </button>
                   </div>
                 </div>
@@ -716,7 +716,7 @@ const MerchantSettings: React.FC = () => {
               <div className="merchant-settings-media-head">
                 <div className="merchant-settings-media-title">
                   <SettingsItemIcon src={shopLogoIcon} />
-                  <span className="merchant-settings-media-label">{tr(lang, { zh: '店铺 Logo', en: 'Shop logo', de: 'Shop logo', ja: 'ショップロゴ', ko: '쇼핑몰 로고', es: 'Logo de la tienda', it: 'Logo negozio', vi: 'Logo cửa hàng'})}</span>
+                  <span className="merchant-settings-media-label">{tr(lang, { zh: '店铺 Logo', en: 'Shop logo', de: 'Shop logo', ja: 'ショップロゴ', ko: '쇼핑몰 로고', es: 'Logo de la tienda', it: 'Logo negozio', vi: 'Logo cửa hàng', fr: 'Logo de la boutique'})}</span>
                 </div>
                 <div className="merchant-settings-media-actions">
                   <input
@@ -724,7 +724,7 @@ const MerchantSettings: React.FC = () => {
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     className="merchant-settings-file-input"
-                    aria-label={tr(lang, { zh: '上传 Logo', en: 'Upload logo', de: 'Upload logo', ja: 'ロゴをアップロード', ko: '로고 업로드', es: 'Subir logo', it: 'Carica logo', vi: 'Tải lên logo'})}
+                    aria-label={tr(lang, { zh: '上传 Logo', en: 'Upload logo', de: 'Upload logo', ja: 'ロゴをアップロード', ko: '로고 업로드', es: 'Subir logo', it: 'Carica logo', vi: 'Tải lên logo', fr: 'Télécharger le logo'})}
                     onChange={onLogoChange}
                   />
                   <button
@@ -733,7 +733,7 @@ const MerchantSettings: React.FC = () => {
                     onClick={() => logoInputRef.current?.click()}
                     disabled={!loadOk || loadingLogo}
                   >
-                    {loadingLogo ? (tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…'})) : (tr(lang, { zh: '更换', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi'}))}
+                    {loadingLogo ? (tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…', fr: 'Téléchargement…'})) : (tr(lang, { zh: '更换', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi'}))}
                   </button>
                   {logoUrl && (
                     <button
@@ -742,7 +742,7 @@ const MerchantSettings: React.FC = () => {
                       onClick={removeLogo}
                       disabled={loadingLogo}
                     >
-                      {tr(lang, { zh: '移除', en: 'Remove', de: 'Remove', ja: '削除', ko: '제거', es: 'Quitar', it: 'Rimuovi', vi: 'Gỡ'})}
+                      {tr(lang, { zh: '移除', en: 'Remove', de: 'Remove', ja: '削除', ko: '제거', es: 'Quitar', it: 'Rimuovi', vi: 'Gỡ', fr: 'Retirer'})}
                     </button>
                   )}
                 </div>
@@ -764,8 +764,8 @@ const MerchantSettings: React.FC = () => {
                 ) : (
                   renderPreviewPlaceholder(
                     loadingLogo,
-                    tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…'}),
-                    tr(lang, { zh: '点击上传', en: 'Tap to upload', de: 'Tap to upload', ja: 'タップしてアップロード', ko: '탭하여 업로드', es: 'Toca para subir', it: 'Tocca per caricare', vi: 'Chạm để tải lên'}),
+                    tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…', fr: 'Téléchargement…'}),
+                    tr(lang, { zh: '点击上传', en: 'Tap to upload', de: 'Tap to upload', ja: 'タップしてアップロード', ko: '탭하여 업로드', es: 'Toca para subir', it: 'Tocca per caricare', vi: 'Chạm để tải lên', fr: 'Appuyez pour télécharger'}),
                   )
                 )}
               </div>
@@ -775,7 +775,7 @@ const MerchantSettings: React.FC = () => {
               <div className="merchant-settings-media-head">
                 <div className="merchant-settings-media-title">
                   <SettingsItemIcon src={shopBannerIcon} />
-                  <span className="merchant-settings-media-label">{tr(lang, { zh: '店铺横幅', en: 'Shop banner', de: 'Shop banner', ja: 'ショップバナー', ko: '쇼핑몰 배너', es: 'Banner de la tienda', it: 'Banner negozio', vi: 'Banner cửa hàng'})}</span>
+                  <span className="merchant-settings-media-label">{tr(lang, { zh: '店铺横幅', en: 'Shop banner', de: 'Shop banner', ja: 'ショップバナー', ko: '쇼핑몰 배너', es: 'Banner de la tienda', it: 'Banner negozio', vi: 'Banner cửa hàng', fr: 'Bannière de boutique'})}</span>
                 </div>
                 <div className="merchant-settings-media-actions">
                   <input
@@ -783,7 +783,7 @@ const MerchantSettings: React.FC = () => {
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     className="merchant-settings-file-input"
-                    aria-label={tr(lang, { zh: '上传横幅', en: 'Upload banner', de: 'Upload banner', ja: 'バナーをアップロード', ko: '배너 업로드', es: 'Subir banner', it: 'Carica banner', vi: 'Tải lên banner'})}
+                    aria-label={tr(lang, { zh: '上传横幅', en: 'Upload banner', de: 'Upload banner', ja: 'バナーをアップロード', ko: '배너 업로드', es: 'Subir banner', it: 'Carica banner', vi: 'Tải lên banner', fr: 'Télécharger la bannière'})}
                     onChange={onBannerChange}
                   />
                   <button
@@ -792,7 +792,7 @@ const MerchantSettings: React.FC = () => {
                     onClick={() => bannerInputRef.current?.click()}
                     disabled={!loadOk || loadingBanner}
                   >
-                    {loadingBanner ? (tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…'})) : (tr(lang, { zh: '更换', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi'}))}
+                    {loadingBanner ? (tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…', fr: 'Téléchargement…'})) : (tr(lang, { zh: '更换', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi'}))}
                   </button>
                   {bannerUrl && (
                     <button
@@ -801,7 +801,7 @@ const MerchantSettings: React.FC = () => {
                       onClick={removeBanner}
                       disabled={loadingBanner}
                     >
-                      {tr(lang, { zh: '移除', en: 'Remove', de: 'Remove', ja: '削除', ko: '제거', es: 'Quitar', it: 'Rimuovi', vi: 'Gỡ'})}
+                      {tr(lang, { zh: '移除', en: 'Remove', de: 'Remove', ja: '削除', ko: '제거', es: 'Quitar', it: 'Rimuovi', vi: 'Gỡ', fr: 'Retirer'})}
                     </button>
                   )}
                 </div>
@@ -823,8 +823,8 @@ const MerchantSettings: React.FC = () => {
                 ) : (
                   renderPreviewPlaceholder(
                     loadingBanner,
-                    tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…'}),
-                    tr(lang, { zh: '点击上传', en: 'Tap to upload', de: 'Tap to upload', ja: 'タップしてアップロード', ko: '탭하여 업로드', es: 'Toca para subir', it: 'Tocca per caricare', vi: 'Chạm để tải lên'}),
+                    tr(lang, { zh: '上传中…', en: 'Uploading…', de: 'Wird hochgeladen…', ja: 'アップロード中…', ko: '업로드 중…', es: 'Subiendo…', it: 'Caricamento…', vi: 'Đang tải lên…', fr: 'Téléchargement…'}),
+                    tr(lang, { zh: '点击上传', en: 'Tap to upload', de: 'Tap to upload', ja: 'タップしてアップロード', ko: '탭하여 업로드', es: 'Toca para subir', it: 'Tocca per caricare', vi: 'Chạm để tải lên', fr: 'Appuyez pour télécharger'}),
                   )
                 )}
               </div>
@@ -833,31 +833,31 @@ const MerchantSettings: React.FC = () => {
         </section>
 
         <section className="merchant-settings-group">
-          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '安全', en: 'Security', de: 'Security', ja: 'セキュリティ', ko: '보안', es: 'Seguridad', it: 'Sicurezza', vi: 'Bảo mật'})}</h2>
+          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '安全', en: 'Security', de: 'Security', ja: 'セキュリティ', ko: '보안', es: 'Seguridad', it: 'Sicurezza', vi: 'Bảo mật', fr: 'Sécurité'})}</h2>
           <div className="merchant-settings-panel">
             {!auth?.shopId || !auth?.id ? (
               <p className="merchant-settings-inline-note">
-                {tr(lang, { zh: '请重新登录后再设置。', en: 'Please sign in again.', de: 'Bitte melden Sie sich erneut an.', ja: '再度ログインしてから設定してください。', ko: '다시 로그인해 주세요.', es: 'Vuelve a iniciar sesión.', it: 'Accedi di nuovo.', vi: 'Vui lòng đăng nhập lại.'})}
+                {tr(lang, { zh: '请重新登录后再设置。', en: 'Please sign in again.', de: 'Bitte melden Sie sich erneut an.', ja: '再度ログインしてから設定してください。', ko: '다시 로그인해 주세요.', es: 'Vuelve a iniciar sesión.', it: 'Accedi di nuovo.', vi: 'Vui lòng đăng nhập lại.', fr: 'Veuillez vous reconnecter.'})}
               </p>
             ) : shopTradeMode !== 'summary' ? (
               <>
               <div className="merchant-settings-pin-head">
                 <SettingsItemIcon src={withdrawPinIcon} />
-                <span className="merchant-settings-row-label">{tr(lang, { zh: '提现密码', en: 'Payment PIN', de: 'Payment PIN', ja: '出金パスワード', ko: '출금 PIN', es: 'PIN de pago', it: 'PIN di pagamento', vi: 'PIN thanh toán'})}</span>
+                <span className="merchant-settings-row-label">{tr(lang, { zh: '提现密码', en: 'Payment PIN', de: 'Payment PIN', ja: '出金パスワード', ko: '출금 PIN', es: 'PIN de pago', it: 'PIN di pagamento', vi: 'PIN thanh toán', fr: 'Code PIN de paiement'})}</span>
               </div>
               <div className="merchant-settings-pin-form">
               {shopTradeMode === 'edit' && (
                 <div className="merchant-settings-pin-field">
                   <label className="merchant-settings-pin-label">
                     <span className="merchant-settings-pin-required">*</span>
-                    {tr(lang, { zh: '旧密码', en: 'Current PIN', de: 'Current PIN', ja: '現在のパスワード', ko: '현재 PIN', es: 'PIN actual', it: 'PIN attuale', vi: 'PIN hiện tại'})}
+                    {tr(lang, { zh: '旧密码', en: 'Current PIN', de: 'Current PIN', ja: '現在のパスワード', ko: '현재 PIN', es: 'PIN actual', it: 'PIN attuale', vi: 'PIN hiện tại', fr: 'Code PIN actuel'})}
                   </label>
                   <div className="merchant-settings-pin-input-wrap">
                     <input
                       type={shopTradeShowOld ? 'text' : 'password'}
                       className="merchant-settings-pin-input"
                       placeholder={
-                        tr(lang, { zh: '请输入 6 位数字旧密码', en: 'Please enter your current 6‑digit PIN', de: 'Bitte geben Sie Ihre aktuelle 6-stellige PIN ein', ja: '現在の6桁パスワードを入力してください', ko: '현재 6자리 PIN을 입력하세요', es: 'Ingresa tu PIN actual de 6 dígitos', it: 'Inserisci il PIN attuale a 6 cifre', vi: 'Vui lòng nhập PIN hiện tại 6 chữ số'})
+                        tr(lang, { zh: '请输入 6 位数字旧密码', en: 'Please enter your current 6‑digit PIN', de: 'Bitte geben Sie Ihre aktuelle 6-stellige PIN ein', ja: '現在の6桁パスワードを入力してください', ko: '현재 6자리 PIN을 입력하세요', es: 'Ingresa tu PIN actual de 6 dígitos', it: 'Inserisci il PIN attuale a 6 cifre', vi: 'Vui lòng nhập PIN hiện tại 6 chữ số', fr: 'Veuillez saisir votre code PIN actuel à 6 chiffres'})
                       }
                       value={shopTradeOld}
                       onChange={(e) => setShopTradeOld(restrictToSixDigits(e.target.value))}
@@ -870,8 +870,8 @@ const MerchantSettings: React.FC = () => {
                       className="merchant-settings-pin-pwd-toggle"
                       aria-label={
                         shopTradeShowOld
-                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide PIN', de: 'Hide PIN', ja: 'パスワードを非表示', ko: 'PIN 숨기기', es: 'Ocultar PIN', it: 'Nascondi PIN', vi: 'Ẩn PIN'}))
-                          : (tr(lang, { zh: '显示密码', en: 'Show PIN', de: 'Show PIN', ja: 'パスワードを表示', ko: 'PIN 표시', es: 'Mostrar PIN', it: 'Mostra PIN', vi: 'Hiện PIN'}))
+                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide PIN', de: 'Hide PIN', ja: 'パスワードを非表示', ko: 'PIN 숨기기', es: 'Ocultar PIN', it: 'Nascondi PIN', vi: 'Ẩn PIN', fr: 'Masquer le code PIN'}))
+                          : (tr(lang, { zh: '显示密码', en: 'Show PIN', de: 'Show PIN', ja: 'パスワードを表示', ko: 'PIN 표시', es: 'Mostrar PIN', it: 'Mostra PIN', vi: 'Hiện PIN', fr: 'Afficher le code PIN'}))
                       }
                       onClick={() => setShopTradeShowOld((v) => !v)}
                     >
@@ -895,14 +895,14 @@ const MerchantSettings: React.FC = () => {
               <div className="merchant-settings-pin-field">
                 <label className="merchant-settings-pin-label">
                   <span className="merchant-settings-pin-required">*</span>
-                  {tr(lang, { zh: '新密码', en: 'New PIN', de: 'New PIN', ja: '新しいパスワード', ko: '새 PIN', es: 'PIN nuevo', it: 'Nuovo PIN', vi: 'PIN mới'})}
+                  {tr(lang, { zh: '新密码', en: 'New PIN', de: 'New PIN', ja: '新しいパスワード', ko: '새 PIN', es: 'PIN nuevo', it: 'Nuovo PIN', vi: 'PIN mới', fr: 'Nouveau code PIN'})}
                 </label>
                 <div className="merchant-settings-pin-input-wrap">
                   <input
                     type={shopTradeShowNew ? 'text' : 'password'}
                     className="merchant-settings-pin-input"
                     placeholder={
-                      tr(lang, { zh: '请输入 6 位数字密码', en: 'Please enter a new 6‑digit PIN', de: 'Bitte geben Sie eine neue 6-stellige PIN ein', ja: '6桁の数字パスワードを入力してください', ko: '새 6자리 PIN을 입력하세요', es: 'Ingresa un PIN nuevo de 6 dígitos', it: 'Inserisci un nuovo PIN a 6 cifre', vi: 'Vui lòng nhập PIN mới 6 chữ số'})
+                      tr(lang, { zh: '请输入 6 位数字密码', en: 'Please enter a new 6‑digit PIN', de: 'Bitte geben Sie eine neue 6-stellige PIN ein', ja: '6桁の数字パスワードを入力してください', ko: '새 6자리 PIN을 입력하세요', es: 'Ingresa un PIN nuevo de 6 dígitos', it: 'Inserisci un nuovo PIN a 6 cifre', vi: 'Vui lòng nhập PIN mới 6 chữ số', fr: 'Veuillez saisir un nouveau code PIN à 6 chiffres'})
                     }
                     value={shopTradeNew}
                     onChange={(e) => setShopTradeNew(restrictToSixDigits(e.target.value))}
@@ -915,8 +915,8 @@ const MerchantSettings: React.FC = () => {
                     className="merchant-settings-pin-pwd-toggle"
                     aria-label={
                       shopTradeShowNew
-                        ? (tr(lang, { zh: '隐藏密码', en: 'Hide PIN', de: 'Hide PIN', ja: 'パスワードを非表示', ko: 'PIN 숨기기', es: 'Ocultar PIN', it: 'Nascondi PIN', vi: 'Ẩn PIN'}))
-                        : (tr(lang, { zh: '显示密码', en: 'Show PIN', de: 'Show PIN', ja: 'パスワードを表示', ko: 'PIN 표시', es: 'Mostrar PIN', it: 'Mostra PIN', vi: 'Hiện PIN'}))
+                        ? (tr(lang, { zh: '隐藏密码', en: 'Hide PIN', de: 'Hide PIN', ja: 'パスワードを非表示', ko: 'PIN 숨기기', es: 'Ocultar PIN', it: 'Nascondi PIN', vi: 'Ẩn PIN', fr: 'Masquer le code PIN'}))
+                        : (tr(lang, { zh: '显示密码', en: 'Show PIN', de: 'Show PIN', ja: 'パスワードを表示', ko: 'PIN 표시', es: 'Mostrar PIN', it: 'Mostra PIN', vi: 'Hiện PIN', fr: 'Afficher le code PIN'}))
                     }
                     onClick={() => setShopTradeShowNew((v) => !v)}
                   >
@@ -939,14 +939,14 @@ const MerchantSettings: React.FC = () => {
               <div className="merchant-settings-pin-field">
                 <label className="merchant-settings-pin-label">
                   <span className="merchant-settings-pin-required">*</span>
-                  {tr(lang, { zh: '确认密码', en: 'Confirm PIN', de: 'PIN bestätigen', ja: 'パスワード確認', ko: 'PIN 확인', es: 'Confirmar PIN', it: 'Conferma PIN', vi: 'Xác nhận PIN'})}
+                  {tr(lang, { zh: '确认密码', en: 'Confirm PIN', de: 'PIN bestätigen', ja: 'パスワード確認', ko: 'PIN 확인', es: 'Confirmar PIN', it: 'Conferma PIN', vi: 'Xác nhận PIN', fr: 'Confirmer le code PIN'})}
                 </label>
                 <div className="merchant-settings-pin-input-wrap">
                   <input
                     type={shopTradeShowConfirm ? 'text' : 'password'}
                     className="merchant-settings-pin-input"
                     placeholder={
-                      tr(lang, { zh: '请再次输入 6 位数字密码', en: 'Please confirm the 6‑digit PIN', de: 'Bitte bestätigen Sie die 6-stellige PIN', ja: '6桁の数字パスワードを再入力してください', ko: '6자리 PIN을 다시 입력하세요', es: 'Confirma el PIN de 6 dígitos', it: 'Conferma il PIN a 6 cifre', vi: 'Vui lòng xác nhận PIN 6 chữ số'})
+                      tr(lang, { zh: '请再次输入 6 位数字密码', en: 'Please confirm the 6‑digit PIN', de: 'Bitte bestätigen Sie die 6-stellige PIN', ja: '6桁の数字パスワードを再入力してください', ko: '6자리 PIN을 다시 입력하세요', es: 'Confirma el PIN de 6 dígitos', it: 'Conferma il PIN a 6 cifre', vi: 'Vui lòng xác nhận PIN 6 chữ số', fr: 'Veuillez confirmer le code PIN à 6 chiffres'})
                     }
                     value={shopTradeConfirm}
                     onChange={(e) => setShopTradeConfirm(restrictToSixDigits(e.target.value))}
@@ -959,8 +959,8 @@ const MerchantSettings: React.FC = () => {
                     className="merchant-settings-pin-pwd-toggle"
                     aria-label={
                       shopTradeShowConfirm
-                        ? (tr(lang, { zh: '隐藏密码', en: 'Hide PIN', de: 'Hide PIN', ja: 'パスワードを非表示', ko: 'PIN 숨기기', es: 'Ocultar PIN', it: 'Nascondi PIN', vi: 'Ẩn PIN'}))
-                        : (tr(lang, { zh: '显示密码', en: 'Show PIN', de: 'Show PIN', ja: 'パスワードを表示', ko: 'PIN 표시', es: 'Mostrar PIN', it: 'Mostra PIN', vi: 'Hiện PIN'}))
+                        ? (tr(lang, { zh: '隐藏密码', en: 'Hide PIN', de: 'Hide PIN', ja: 'パスワードを非表示', ko: 'PIN 숨기기', es: 'Ocultar PIN', it: 'Nascondi PIN', vi: 'Ẩn PIN', fr: 'Masquer le code PIN'}))
+                        : (tr(lang, { zh: '显示密码', en: 'Show PIN', de: 'Show PIN', ja: 'パスワードを表示', ko: 'PIN 표시', es: 'Mostrar PIN', it: 'Mostra PIN', vi: 'Hiện PIN', fr: 'Afficher le code PIN'}))
                     }
                     onClick={() => setShopTradeShowConfirm((v) => !v)}
                   >
@@ -986,7 +986,7 @@ const MerchantSettings: React.FC = () => {
                   className="merchant-settings-btn merchant-settings-btn--primary"
                   onClick={shopTradeMode === 'edit' ? handleShopTradeEditSubmit : handleShopTradeSetSubmit}
                 >
-                  {tr(lang, { zh: '确认', en: 'Confirm', de: 'Confirm', ja: '確認', ko: '확인', es: 'Confirmar', it: 'Conferma', vi: 'Xác nhận'})}
+                  {tr(lang, { zh: '确认', en: 'Confirm', de: 'Confirm', ja: '確認', ko: '확인', es: 'Confirmar', it: 'Conferma', vi: 'Xác nhận', fr: 'Confirmer'})}
                 </button>
                 <button
                   type="button"
@@ -996,7 +996,7 @@ const MerchantSettings: React.FC = () => {
                     setShopTradeMode('summary')
                   }}
                 >
-                  {tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy'})}
+                  {tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy', fr: 'Annuler'})}
                 </button>
               </div>
             </div>
@@ -1005,20 +1005,20 @@ const MerchantSettings: React.FC = () => {
               <>
               <div className="merchant-settings-pin-head">
                 <SettingsItemIcon src={accountIcon} />
-                <span className="merchant-settings-row-label">{tr(lang, { zh: '登录密码', en: 'Login password', de: 'Login password', ja: 'ログインパスワード', ko: '로그인 비밀번호', es: 'Contraseña de acceso', it: 'Password di accesso', vi: 'Mật khẩu đăng nhập'})}</span>
+                <span className="merchant-settings-row-label">{tr(lang, { zh: '登录密码', en: 'Login password', de: 'Login password', ja: 'ログインパスワード', ko: '로그인 비밀번호', es: 'Contraseña de acceso', it: 'Password di accesso', vi: 'Mật khẩu đăng nhập', fr: 'Mot de passe de connexion'})}</span>
               </div>
               <div className="merchant-settings-pin-form">
                 <div className="merchant-settings-pin-field">
                   <label className="merchant-settings-pin-label">
                     <span className="merchant-settings-pin-required">*</span>
-                    {tr(lang, { zh: '当前密码', en: 'Current password', de: 'Aktuelles Passwort', ja: '現在のパスワード', ko: '현재 비밀번호', es: 'Contraseña actual', it: 'Password attuale', vi: 'Mật khẩu hiện tại'})}
+                    {tr(lang, { zh: '当前密码', en: 'Current password', de: 'Aktuelles Passwort', ja: '現在のパスワード', ko: '현재 비밀번호', es: 'Contraseña actual', it: 'Password attuale', vi: 'Mật khẩu hiện tại', fr: 'Mot de passe actuel'})}
                   </label>
                   <div className="merchant-settings-pin-input-wrap">
                     <input
                       type={loginPwdShowOld ? 'text' : 'password'}
                       className="merchant-settings-pin-input"
                       placeholder={
-                        tr(lang, { zh: '请输入当前登录密码', en: 'Enter your current password', de: 'Geben Sie Ihr aktuelles Passwort ein', ja: '現在のログインパスワードを入力してください', ko: '현재 비밀번호를 입력하세요', es: 'Ingresa tu contraseña actual', it: 'Inserisci la password attuale', vi: 'Nhập mật khẩu hiện tại'})
+                        tr(lang, { zh: '请输入当前登录密码', en: 'Enter your current password', de: 'Geben Sie Ihr aktuelles Passwort ein', ja: '現在のログインパスワードを入力してください', ko: '현재 비밀번호를 입력하세요', es: 'Ingresa tu contraseña actual', it: 'Inserisci la password attuale', vi: 'Nhập mật khẩu hiện tại', fr: 'Entrez votre mot de passe actuel'})
                       }
                       value={loginPwdOld}
                       onChange={(e) => setLoginPwdOld(e.target.value)}
@@ -1029,8 +1029,8 @@ const MerchantSettings: React.FC = () => {
                       className="merchant-settings-pin-pwd-toggle"
                       aria-label={
                         loginPwdShowOld
-                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu'}))
-                          : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu'}))
+                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu', fr: 'Masquer le mot de passe'}))
+                          : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu', fr: 'Afficher le mot de passe'}))
                       }
                       onClick={() => setLoginPwdShowOld((v) => !v)}
                     >
@@ -1053,14 +1053,14 @@ const MerchantSettings: React.FC = () => {
                 <div className="merchant-settings-pin-field">
                   <label className="merchant-settings-pin-label">
                     <span className="merchant-settings-pin-required">*</span>
-                    {tr(lang, { zh: '新密码', en: 'New password', de: 'New password', ja: '新しいパスワード', ko: '새 비밀번호', es: 'Contraseña nueva', it: 'Nuova password', vi: 'Mật khẩu mới'})}
+                    {tr(lang, { zh: '新密码', en: 'New password', de: 'New password', ja: '新しいパスワード', ko: '새 비밀번호', es: 'Contraseña nueva', it: 'Nuova password', vi: 'Mật khẩu mới', fr: 'Nouveau mot de passe'})}
                   </label>
                   <div className="merchant-settings-pin-input-wrap">
                     <input
                       type={loginPwdShowNew ? 'text' : 'password'}
                       className="merchant-settings-pin-input"
                       placeholder={
-                        tr(lang, { zh: '6-22 位字母和数字组合', en: '6-22 letters and digits', de: '6–22 Buchstaben und Ziffern', ja: '6〜22文字の英数字', ko: '6~22자 영문·숫자 조합', es: '6-22 caracteres alfanuméricos', it: '6-22 caratteri alfanumerici', vi: '6-22 ký tự chữ và số'})
+                        tr(lang, { zh: '6-22 位字母和数字组合', en: '6-22 letters and digits', de: '6–22 Buchstaben und Ziffern', ja: '6〜22文字の英数字', ko: '6~22자 영문·숫자 조합', es: '6-22 caracteres alfanuméricos', it: '6-22 caratteri alfanumerici', vi: '6-22 ký tự chữ và số', fr: '6-22 lettres et chiffres'})
                       }
                       value={loginPwdNew}
                       onChange={(e) =>
@@ -1074,8 +1074,8 @@ const MerchantSettings: React.FC = () => {
                       className="merchant-settings-pin-pwd-toggle"
                       aria-label={
                         loginPwdShowNew
-                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu'}))
-                          : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu'}))
+                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu', fr: 'Masquer le mot de passe'}))
+                          : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu', fr: 'Afficher le mot de passe'}))
                       }
                       onClick={() => setLoginPwdShowNew((v) => !v)}
                     >
@@ -1098,14 +1098,14 @@ const MerchantSettings: React.FC = () => {
                 <div className="merchant-settings-pin-field">
                   <label className="merchant-settings-pin-label">
                     <span className="merchant-settings-pin-required">*</span>
-                    {tr(lang, { zh: '确认密码', en: 'Confirm password', de: 'Passwort bestätigen', ja: 'パスワード確認', ko: '비밀번호 확인', es: 'Confirmar contraseña', it: 'Conferma password', vi: 'Xác nhận mật khẩu'})}
+                    {tr(lang, { zh: '确认密码', en: 'Confirm password', de: 'Passwort bestätigen', ja: 'パスワード確認', ko: '비밀번호 확인', es: 'Confirmar contraseña', it: 'Conferma password', vi: 'Xác nhận mật khẩu', fr: 'Confirmez le mot de passe'})}
                   </label>
                   <div className="merchant-settings-pin-input-wrap">
                     <input
                       type={loginPwdShowConfirm ? 'text' : 'password'}
                       className="merchant-settings-pin-input"
                       placeholder={
-                        tr(lang, { zh: '请再次输入新密码', en: 'Confirm your new password', de: 'Bestätigen Sie Ihr neues Passwort', ja: '新しいパスワードを再入力してください', ko: '새 비밀번호를 다시 입력하세요', es: 'Confirma tu nueva contraseña', it: 'Conferma la nuova password', vi: 'Xác nhận mật khẩu mới'})
+                        tr(lang, { zh: '请再次输入新密码', en: 'Confirm your new password', de: 'Bestätigen Sie Ihr neues Passwort', ja: '新しいパスワードを再入力してください', ko: '새 비밀번호를 다시 입력하세요', es: 'Confirma tu nueva contraseña', it: 'Conferma la nuova password', vi: 'Xác nhận mật khẩu mới', fr: 'Confirmez votre nouveau mot de passe'})
                       }
                       value={loginPwdConfirm}
                       onChange={(e) =>
@@ -1119,8 +1119,8 @@ const MerchantSettings: React.FC = () => {
                       className="merchant-settings-pin-pwd-toggle"
                       aria-label={
                         loginPwdShowConfirm
-                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu'}))
-                          : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu'}))
+                          ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu', fr: 'Masquer le mot de passe'}))
+                          : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu', fr: 'Afficher le mot de passe'}))
                       }
                       onClick={() => setLoginPwdShowConfirm((v) => !v)}
                     >
@@ -1148,8 +1148,8 @@ const MerchantSettings: React.FC = () => {
                     disabled={savingLoginPwd}
                   >
                     {savingLoginPwd
-                      ? (tr(lang, { zh: '保存中…', en: 'Saving…', de: 'Saving…', ja: '保存中…', ko: '저장 중…', es: 'Guardando…', it: 'Salvataggio…', vi: 'Đang lưu…'}))
-                      : (tr(lang, { zh: '确认', en: 'Confirm', de: 'Confirm', ja: '確認', ko: '확인', es: 'Confirmar', it: 'Conferma', vi: 'Xác nhận'}))}
+                      ? (tr(lang, { zh: '保存中…', en: 'Saving…', de: 'Saving…', ja: '保存中…', ko: '저장 중…', es: 'Guardando…', it: 'Salvataggio…', vi: 'Đang lưu…', fr: 'Économie…'}))
+                      : (tr(lang, { zh: '确认', en: 'Confirm', de: 'Confirm', ja: '確認', ko: '확인', es: 'Confirmar', it: 'Conferma', vi: 'Xác nhận', fr: 'Confirmer'}))}
                   </button>
                   <button
                     type="button"
@@ -1159,7 +1159,7 @@ const MerchantSettings: React.FC = () => {
                       setLoginPwdMode('summary')
                     }}
                   >
-                    {tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy'})}
+                    {tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy', fr: 'Annuler'})}
                   </button>
                 </div>
               </div>
@@ -1169,20 +1169,20 @@ const MerchantSettings: React.FC = () => {
               <div className="merchant-settings-row merchant-settings-row--action">
                 <div className="merchant-settings-row-main">
                   <SettingsItemIcon src={accountIcon} />
-                  <span className="merchant-settings-row-label">{tr(lang, { zh: '登录密码', en: 'Login password', de: 'Login password', ja: 'ログインパスワード', ko: '로그인 비밀번호', es: 'Contraseña de acceso', it: 'Password di accesso', vi: 'Mật khẩu đăng nhập'})}</span>
+                  <span className="merchant-settings-row-label">{tr(lang, { zh: '登录密码', en: 'Login password', de: 'Login password', ja: 'ログインパスワード', ko: '로그인 비밀번호', es: 'Contraseña de acceso', it: 'Password di accesso', vi: 'Mật khẩu đăng nhập', fr: 'Mot de passe de connexion'})}</span>
                 </div>
                 <button
                   type="button"
                   className="merchant-settings-link-btn"
                   onClick={openLoginPwdEditor}
                 >
-                  {tr(lang, { zh: '修改', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi'})}
+                  {tr(lang, { zh: '修改', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi', fr: 'Changement'})}
                 </button>
               </div>
               <div className="merchant-settings-row merchant-settings-row--action">
                 <div className="merchant-settings-row-main">
                   <SettingsItemIcon src={withdrawPinIcon} />
-                  <span className="merchant-settings-row-label">{tr(lang, { zh: '提现密码', en: 'Payment PIN', de: 'Payment PIN', ja: '出金パスワード', ko: '출금 PIN', es: 'PIN de pago', it: 'PIN di pagamento', vi: 'PIN thanh toán'})}</span>
+                  <span className="merchant-settings-row-label">{tr(lang, { zh: '提现密码', en: 'Payment PIN', de: 'Payment PIN', ja: '出金パスワード', ko: '출금 PIN', es: 'PIN de pago', it: 'PIN di pagamento', vi: 'PIN thanh toán', fr: 'Code PIN de paiement'})}</span>
                   <span
                     className={`merchant-settings-status-pill${
                       shopHasTradePwd
@@ -1191,8 +1191,8 @@ const MerchantSettings: React.FC = () => {
                     }`}
                   >
                     {shopHasTradePwd
-                      ? (tr(lang, { zh: '已设置', en: 'Set', de: 'Set', ja: '設定済み', ko: '설정', es: 'Configurado', it: 'Impostato', vi: 'Đã đặt'}))
-                      : (tr(lang, { zh: '未设置', en: 'Not set', de: 'Not set', ja: '未設定', ko: '미설정', es: 'Sin configurar', it: 'Non impostato', vi: 'Chưa đặt'}))}
+                      ? (tr(lang, { zh: '已设置', en: 'Set', de: 'Set', ja: '設定済み', ko: '설정', es: 'Configurado', it: 'Impostato', vi: 'Đã đặt', fr: 'Ensemble'}))
+                      : (tr(lang, { zh: '未设置', en: 'Not set', de: 'Not set', ja: '未設定', ko: '미설정', es: 'Sin configurar', it: 'Non impostato', vi: 'Chưa đặt', fr: 'Non défini'}))}
                   </span>
                 </div>
                 <button
@@ -1201,8 +1201,8 @@ const MerchantSettings: React.FC = () => {
                   onClick={openTradePwdEditor}
                 >
                   {shopHasTradePwd
-                    ? (tr(lang, { zh: '修改', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi'}))
-                    : (tr(lang, { zh: '设置', en: 'Set up', de: 'Set up', ja: '設定', ko: '설정하기', es: 'Configurar', it: 'Configura', vi: 'Thiết lập'}))}
+                    ? (tr(lang, { zh: '修改', en: 'Change', de: 'Change', ja: '変更', ko: '변경', es: 'Cambiar', it: 'Modifica', vi: 'Thay đổi', fr: 'Changement'}))
+                    : (tr(lang, { zh: '设置', en: 'Set up', de: 'Set up', ja: '設定', ko: '설정하기', es: 'Configurar', it: 'Configura', vi: 'Thiết lập', fr: 'Installation'}))}
                 </button>
               </div>
               </>
@@ -1211,17 +1211,17 @@ const MerchantSettings: React.FC = () => {
         </section>
 
         <section className="merchant-settings-group">
-          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '通用', en: 'General', de: 'General', ja: '一般', ko: '일반', es: 'General', it: 'Generale', vi: 'Chung'})}</h2>
+          <h2 className="merchant-settings-group-title">{tr(lang, { zh: '通用', en: 'General', de: 'General', ja: '一般', ko: '일반', es: 'General', it: 'Generale', vi: 'Chung', fr: 'Général'})}</h2>
           <div className="merchant-settings-panel">
             <div className="merchant-settings-row merchant-settings-row--action">
               <div className="merchant-settings-row-main">
                 <SettingsItemIcon src={settingsLangIcon} />
-                <span className="merchant-settings-row-label">{tr(lang, { zh: '语言', en: 'Language', de: 'Sprache', ja: '言語', ko: '언어', es: 'Idioma', it: 'Lingua', vi: 'Ngôn ngữ'})}</span>
+                <span className="merchant-settings-row-label">{tr(lang, { zh: '语言', en: 'Language', de: 'Sprache', ja: '言語', ko: '언어', es: 'Idioma', it: 'Lingua', vi: 'Ngôn ngữ', fr: 'Langue'})}</span>
               </div>
               <div
                 className="merchant-settings-lang-segment"
                 role="group"
-                aria-label={tr(lang, { zh: '语言', en: 'Language', de: 'Sprache', ja: '言語', ko: '언어', es: 'Idioma', it: 'Lingua', vi: 'Ngôn ngữ'})}
+                aria-label={tr(lang, { zh: '语言', en: 'Language', de: 'Sprache', ja: '言語', ko: '언어', es: 'Idioma', it: 'Lingua', vi: 'Ngôn ngữ', fr: 'Langue'})}
               >
                 {(
                   [
@@ -1234,6 +1234,7 @@ const MerchantSettings: React.FC = () => {
                     { code: 'es' as const, label: 'ES' },
                     { code: 'it' as const, label: 'IT' },
                     { code: 'vi' as const, label: 'VI' },
+                    { code: 'fr' as const, label: 'FR' },
                   ] as const
                 ).map((opt) => (
                   <button
@@ -1255,7 +1256,7 @@ const MerchantSettings: React.FC = () => {
             >
               <span className="merchant-settings-row-main">
                 <SettingsItemIcon src={loginTrustSupport} />
-                <span>{tr(lang, { zh: '联系客服', en: 'Contact support', de: 'Support kontaktieren', ja: 'サポートに連絡', ko: '고객센터 문의', es: 'Contactar soporte', it: 'Contatta assistenza', vi: 'Liên hệ hỗ trợ'})}</span>
+                <span>{tr(lang, { zh: '联系客服', en: 'Contact support', de: 'Support kontaktieren', ja: 'サポートに連絡', ko: '고객센터 문의', es: 'Contactar soporte', it: 'Contatta assistenza', vi: 'Liên hệ hỗ trợ', fr: 'Contacter l\'assistance'})}</span>
               </span>
               <SettingsRowChevron />
             </button>
@@ -1266,7 +1267,7 @@ const MerchantSettings: React.FC = () => {
             >
               <span className="merchant-settings-row-main">
                 <SettingsItemIcon src={accountIcon} />
-                <span>{tr(lang, { zh: '退出登录', en: 'Log out', de: 'Abmelden', ja: 'ログアウト', ko: '로그아웃', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất'})}</span>
+                <span>{tr(lang, { zh: '退出登录', en: 'Log out', de: 'Abmelden', ja: 'ログアウト', ko: '로그아웃', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất', fr: 'Se déconnecter'})}</span>
               </span>
               <SettingsRowChevron />
             </button>
@@ -1284,10 +1285,10 @@ const MerchantSettings: React.FC = () => {
         >
           <div className="merchant-backend-logout-panel" onClick={(e) => e.stopPropagation()}>
             <h2 id="merchant-settings-logout-title" className="merchant-backend-logout-title">
-              {tr(lang, { zh: '确认退出登录？', en: 'Log out of this shop?', de: 'Von diesem Shop abmelden?', ja: 'ログアウトしますか？', ko: '로그아웃하시겠습니까?', es: '¿Cerrar sesión de esta tienda?', it: 'Uscire da questo negozio?', vi: 'Đăng xuất khỏi cửa hàng này?'})}
+              {tr(lang, { zh: '确认退出登录？', en: 'Log out of this shop?', de: 'Von diesem Shop abmelden?', ja: 'ログアウトしますか？', ko: '로그아웃하시겠습니까?', es: '¿Cerrar sesión de esta tienda?', it: 'Uscire da questo negozio?', vi: 'Đăng xuất khỏi cửa hàng này?', fr: 'Vous déconnecter de cette boutique ?'})}
             </h2>
             <p className="merchant-backend-logout-subtitle">
-              {tr(lang, { zh: '退出后需重新登录。', en: 'You will need to sign in again.', de: 'Sie müssen sich erneut anmelden.', ja: 'ログアウト後、再度ログインが必要です。', ko: '로그아웃 후 다시 로그인해야 합니다.', es: 'Deberás iniciar sesión de nuevo.', it: 'Dovrai accedere di nuovo.', vi: 'Bạn cần đăng nhập lại.'})}
+              {tr(lang, { zh: '退出后需重新登录。', en: 'You will need to sign in again.', de: 'Sie müssen sich erneut anmelden.', ja: 'ログアウト後、再度ログインが必要です。', ko: '로그아웃 후 다시 로그인해야 합니다.', es: 'Deberás iniciar sesión de nuevo.', it: 'Dovrai accedere di nuovo.', vi: 'Bạn cần đăng nhập lại.', fr: 'Vous devrez vous reconnecter.'})}
             </p>
             <div className="merchant-backend-logout-actions">
               <button
@@ -1295,14 +1296,14 @@ const MerchantSettings: React.FC = () => {
                 className="merchant-backend-logout-btn merchant-backend-logout-btn--secondary"
                 onClick={() => setLogoutConfirmOpen(false)}
               >
-                {tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy'})}
+                {tr(lang, { zh: '取消', en: 'Cancel', de: 'Abbrechen', ja: 'キャンセル', ko: '취소', es: 'Cancelar', it: 'Annulla', vi: 'Hủy', fr: 'Annuler'})}
               </button>
               <button
                 type="button"
                 className="merchant-backend-logout-btn merchant-backend-logout-btn--primary"
                 onClick={handleLogout}
               >
-                {tr(lang, { zh: '确认退出', en: 'Log out', de: 'Abmelden', ja: 'ログアウトを確認', ko: '로그아웃', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất'})}
+                {tr(lang, { zh: '确认退出', en: 'Log out', de: 'Abmelden', ja: 'ログアウトを確認', ko: '로그아웃', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất', fr: 'Se déconnecter'})}
               </button>
             </div>
           </div>

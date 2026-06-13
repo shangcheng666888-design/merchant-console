@@ -17,6 +17,7 @@ export function getMerchantBrand(lang: Lang) {
       es: 'Centro de vendedores',
       it: 'Centro venditori',
       vi: 'Trung tâm người bán',
+      fr: 'Centre vendeur',
     }),
     tagline: tr(lang, {
       zh: '海外仓一键代发，速通无忧',
@@ -27,6 +28,7 @@ export function getMerchantBrand(lang: Lang) {
       es: 'Dropshipping desde almacenes en el extranjero, rápido y sin preocupaciones',
       it: 'Dropshipping da magazzini esteri, veloce e senza pensieri',
       vi: 'Dropship từ kho nước ngoài, nhanh chóng và yên tâm',
+      fr: 'Dropshipping depuis des entrepôts à l\'étranger, rapide et sans souci',
     }),
     logo: brandLogoUrl || companyLogo,
   }

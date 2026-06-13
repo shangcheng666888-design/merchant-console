@@ -469,6 +469,25 @@ const MerchantDashboard: React.FC = () => {
       周日: 'CN',
     }
 
+    const frFromEn: Record<string, string> = {
+      Mon: 'lun',
+      Tue: 'mar',
+      Wed: 'mer',
+      Thu: 'jeu',
+      Fri: 'ven',
+      Sat: 'sam',
+      Sun: 'dim',
+    }
+    const frFromZh: Record<string, string> = {
+      周一: 'lun',
+      周二: 'mar',
+      周三: 'mer',
+      周四: 'jeu',
+      周五: 'ven',
+      周六: 'sam',
+      周日: 'dim',
+    }
+
     if (lang === 'zh') return zhFromEn[v] ?? v
     if (lang === 'tw') return toTraditional(zhFromEn[v] ?? v)
     if (lang === 'de') return deFromEn[v] ?? deFromZh[v] ?? v
@@ -477,6 +496,7 @@ const MerchantDashboard: React.FC = () => {
     if (lang === 'es') return esFromEn[v] ?? esFromZh[v] ?? v
     if (lang === 'it') return itFromEn[v] ?? itFromZh[v] ?? v
     if (lang === 'vi') return viFromEn[v] ?? viFromZh[v] ?? v
+    if (lang === 'fr') return frFromEn[v] ?? frFromZh[v] ?? v
     return enFromZh[v] ?? v
   }
 
@@ -539,7 +559,7 @@ const MerchantDashboard: React.FC = () => {
       {!metricsLoading ? (
         <MerchantDashboardInsight
           storageKey="merchant-dashboard-insight-dismissed"
-          kicker={tr(lang, { zh: '智能摘要', en: 'Smart insight', de: 'Intelligente Zusammenfassung', ja: 'スマートサマリー', ko: '스마트 요약', es: 'Resumen inteligente', it: 'Sintesi intelligente', vi: 'Tóm tắt thông minh' })}
+          kicker={tr(lang, { zh: '智能摘要', en: 'Smart insight', de: 'Intelligente Zusammenfassung', ja: 'スマートサマリー', ko: '스마트 요약', es: 'Resumen inteligente', it: 'Sintesi intelligente', vi: 'Tóm tắt thông minh', fr: 'Aperçu intelligent' })}
           text={insightText}
           lang={lang}
         />
@@ -547,10 +567,10 @@ const MerchantDashboard: React.FC = () => {
 
       <MerchantPaidPromotionBoard lang={lang} />
 
-      <section className="merchant-dashboard-segments" aria-label={tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' })}>
+      <section className="merchant-dashboard-segments" aria-label={tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng', fr: 'Aperçu du trafic' })}>
         <header className="merchant-dashboard-section-head merchant-dashboard-section-head--inset">
           <h3 className="merchant-dashboard-section-title">
-            {tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' })}
+            {tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng', fr: 'Aperçu du trafic' })}
           </h3>
         </header>
         <div className="merchant-dashboard-segments-panel" role="region">
@@ -561,7 +581,7 @@ const MerchantDashboard: React.FC = () => {
       <section className="merchant-dashboard-section merchant-dashboard-overviews merchant-dashboard-overviews--desktop">
         <header className="merchant-dashboard-section-head">
           <h3 className="merchant-dashboard-section-title">
-            {tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' })}
+            {tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng', fr: 'Aperçu du trafic' })}
           </h3>
           <p className="merchant-dashboard-section-desc">
             {tr(lang, {
@@ -580,10 +600,10 @@ const MerchantDashboard: React.FC = () => {
       <section className="merchant-dashboard-section merchant-dashboard-section--charts">
         <header className="merchant-dashboard-section-head">
           <h3 className="merchant-dashboard-section-title">
-            {tr(lang, { zh: '趋势分析', en: 'Trend analysis', de: 'Trendanalyse', ja: 'トレンド分析', ko: '트렌드 분석', es: 'Análisis de tendencias', it: 'Analisi delle tendenze', vi: 'Phân tích xu hướng' })}
+            {tr(lang, { zh: '趋势分析', en: 'Trend analysis', de: 'Trendanalyse', ja: 'トレンド分析', ko: '트렌드 분석', es: 'Análisis de tendencias', it: 'Analisi delle tendenze', vi: 'Phân tích xu hướng', fr: 'Analyse des tendances' })}
           </h3>
           <p className="merchant-dashboard-section-desc">
-            {tr(lang, { zh: '近 7 日数据走势', en: 'Last 7 days at a glance', de: 'Die letzten 7 Tage im Überblick', ja: '直近7日間のデータ推移', ko: '최근 7일 데이터 추이', es: 'Evolución de los últimos 7 días', it: 'Ultimi 7 giorni a colpo d\'occhio', vi: 'Tổng quan 7 ngày gần nhất' })}
+            {tr(lang, { zh: '近 7 日数据走势', en: 'Last 7 days at a glance', de: 'Die letzten 7 Tage im Überblick', ja: '直近7日間のデータ推移', ko: '최근 7일 데이터 추이', es: 'Evolución de los últimos 7 días', it: 'Ultimi 7 giorni a colpo d\'occhio', vi: 'Tổng quan 7 ngày gần nhất', fr: 'Les 7 derniers jours en un coup d\'œil' })}
           </p>
         </header>
         <MerchantDashboardCharts
@@ -599,7 +619,7 @@ const MerchantDashboard: React.FC = () => {
       <button
         type="button"
         className="merchant-dashboard-fab merchant-dashboard-fab--chat"
-        aria-label={tr(lang, { zh: '客服', en: 'Customer service', de: 'Kundenservice', ja: 'カスタマーサポート', ko: '고객센터', es: 'Atención al cliente', it: 'Assistenza clienti', vi: 'Hỗ trợ khách hàng' })}
+        aria-label={tr(lang, { zh: '客服', en: 'Customer service', de: 'Kundenservice', ja: 'カスタマーサポート', ko: '고객센터', es: 'Atención al cliente', it: 'Assistenza clienti', vi: 'Hỗ trợ khách hàng', fr: 'Service client' })}
         onClick={() => openCrispChat({ shopName: shop?.name, shopId: shop?.id })}
       >
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">

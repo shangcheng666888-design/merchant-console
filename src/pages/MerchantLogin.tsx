@@ -10,6 +10,7 @@ import koFlagIcon from '../assets/lang-ko.png'
 import esFlagIcon from '../assets/lang-es.png'
 import itFlagIcon from '../assets/lang-it.png'
 import viFlagIcon from '../assets/lang-vi.png'
+import frFlagIcon from '../assets/lang-fr.png'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
 import { tr, pickBilingual, convertStringRecord, type Lang } from '../i18n'
@@ -39,6 +40,7 @@ const LOGIN_LANG_FLAGS: Partial<Record<Lang, string>> = {
   es: esFlagIcon,
   it: itFlagIcon,
   vi: viFlagIcon,
+  fr: frFlagIcon,
 }
 
 type LoginIconName =
@@ -468,18 +470,54 @@ const MerchantLogin: React.FC = () => {
       trustSupport: 'Hỗ trợ trực tuyến',
       signingIn: 'Đang đăng nhập…',
     },
+    fr: {
+      title: 'Connexion',
+      emailLabel: 'E-mail',
+      passwordLabel: 'Mot de passe',
+      emailPlaceholder: 'Saisissez votre e-mail',
+      passwordPlaceholder: 'Saisissez votre mot de passe',
+      loginButton: 'Se connecter',
+      forgotPassword: 'Mot de passe oublié ?',
+      langText: 'Français',
+      emailRequired: 'Veuillez saisir votre e-mail',
+      emailFormat: 'Veuillez saisir une adresse e-mail valide',
+      passwordRequired: 'Veuillez saisir votre mot de passe',
+      passwordFormat: 'Le mot de passe doit contenir 6 à 22 caractères alphanumériques',
+      onestopBadge: 'Hub tout-en-un',
+      posterExposureTitle: 'Visibilité sur la plateforme',
+      posterExposureDesc: 'Augmentez la visibilité de votre boutique',
+      posterPromoTitle: 'Promotion payante',
+      posterPromoDesc: 'Campagnes publicitaires ciblées',
+      posterGlobalTitle: 'Logistique',
+      posterGlobalDesc: 'Expédiez plus vite dans le monde entier',
+      posterWalletTitle: 'Portefeuille',
+      posterWalletDesc: 'Rechargez et retirez facilement',
+      posterOrdersTitle: 'Commandes',
+      posterOrdersDesc: 'Traitez chaque vente rapidement',
+      posterFinanceTitle: 'Finances',
+      posterFinanceDesc: 'Rapports de revenus clairs',
+      introSectionTitle: 'Services de la plateforme',
+      toolbarSubtitle: 'Centre vendeur TikTok Shop',
+      toolbarSupport: 'Assistance',
+      welcomeKicker: 'Bon retour',
+      welcomeDesc: 'Connectez-vous pour gérer votre boutique, vos commandes et vos campagnes globales',
+      trustSecure: 'Connexion sécurisée',
+      trustGlobal: 'Service mondial',
+      trustSupport: 'Assistance en direct',
+      signingIn: 'Connexion…',
+    },
 
   }
 
   const t = LOGIN_COPY[lang]
 
-  const DECO_ITEM_DEFS: { key: LoginIconName; zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string }[] = [
-    { key: 'traffic', zh: '站内曝光', en: 'On-site exposure', de: 'Sichtbarkeit', ja: 'サイト内露出', ko: '사이트 노출' , es: 'Exposición en la plataforma', it: 'Visibilità in piattaforma' , vi: 'Hiển thị trên nền tảng' },
-    { key: 'promo', zh: '付费推广', en: 'Paid promo', de: 'Bezahlte Werbung', ja: '有料プロモ', ko: '유료 프로모' , es: 'Promoción pagada', it: 'Promozione a pagamento' , vi: 'Quảng cáo trả phí' },
-    { key: 'global', zh: '海外仓代发', en: 'Fulfillment', de: 'Fulfillment', ja: '海外倉庫発送', ko: '해외 창고 발송' , es: 'Logística internacional', it: 'Logistica internazionale' , vi: 'Kho hàng quốc tế' },
-    { key: 'wallet', zh: '资金钱包', en: 'Wallet', de: 'Wallet', ja: 'ウォレット', ko: '지갑' , es: 'Billetera', it: 'Portafoglio' , vi: 'Ví' },
-    { key: 'orders', zh: '订单管理', en: 'Orders', de: 'Bestellungen', ja: '注文管理', ko: '주문 관리' , es: 'Gestión de pedidos', it: 'Gestione ordini' , vi: 'Quản lý đơn hàng' },
-    { key: 'finance', zh: '财务报表', en: 'Finance', de: 'Finanzen', ja: '財務レポート', ko: '재무 보고서' , es: 'Informes financieros', it: 'Report finanziari' , vi: 'Báo cáo tài chính' },
+  const DECO_ITEM_DEFS: { key: LoginIconName; zh: string; en: string; de: string; ja: string; ko: string; es: string; it: string; vi: string; fr: string }[] = [
+    { key: 'traffic', zh: '站内曝光', en: 'On-site exposure', de: 'Sichtbarkeit', ja: 'サイト内露出', ko: '사이트 노출' , es: 'Exposición en la plataforma', it: 'Visibilità in piattaforma' , vi: 'Hiển thị trên nền tảng', fr: 'Exposition sur site' },
+    { key: 'promo', zh: '付费推广', en: 'Paid promo', de: 'Bezahlte Werbung', ja: '有料プロモ', ko: '유료 프로모' , es: 'Promoción pagada', it: 'Promozione a pagamento' , vi: 'Quảng cáo trả phí', fr: 'Promotion payante' },
+    { key: 'global', zh: '海外仓代发', en: 'Fulfillment', de: 'Fulfillment', ja: '海外倉庫発送', ko: '해외 창고 발송' , es: 'Logística internacional', it: 'Logistica internazionale' , vi: 'Kho hàng quốc tế', fr: 'Accomplissement' },
+    { key: 'wallet', zh: '资金钱包', en: 'Wallet', de: 'Wallet', ja: 'ウォレット', ko: '지갑' , es: 'Billetera', it: 'Portafoglio' , vi: 'Ví', fr: 'Portefeuille' },
+    { key: 'orders', zh: '订单管理', en: 'Orders', de: 'Bestellungen', ja: '注文管理', ko: '주문 관리' , es: 'Gestión de pedidos', it: 'Gestione ordini' , vi: 'Quản lý đơn hàng', fr: 'Commandes' },
+    { key: 'finance', zh: '财务报表', en: 'Finance', de: 'Finanzen', ja: '財務レポート', ko: '재무 보고서' , es: 'Informes financieros', it: 'Report finanziari' , vi: 'Báo cáo tài chính', fr: 'Finances' },
   ]
 
   const decoItems: { key: LoginIconName; label: string }[] = DECO_ITEM_DEFS.map((item) => ({
@@ -576,7 +614,7 @@ const MerchantLogin: React.FC = () => {
         } catch {}
         navigate('/dashboard')
       } else {
-        setSubmitError(tr(lang, { zh: '登录失败，请重试', en: 'Login failed, please try again', de: 'Anmeldung fehlgeschlagen, bitte erneut versuchen', ja: 'ログインに失敗しました。再度お試しください', ko: '로그인에 실패했습니다. 다시 시도해 주세요.', es: 'Error al iniciar sesión, inténtalo de nuevo', it: 'Accesso non riuscito, riprova', vi: 'Đăng nhập thất bại, vui lòng thử lại'}))
+        setSubmitError(tr(lang, { zh: '登录失败，请重试', en: 'Login failed, please try again', de: 'Anmeldung fehlgeschlagen, bitte erneut versuchen', ja: 'ログインに失敗しました。再度お試しください', ko: '로그인에 실패했습니다. 다시 시도해 주세요.', es: 'Error al iniciar sesión, inténtalo de nuevo', it: 'Accesso non riuscito, riprova', vi: 'Đăng nhập thất bại, vui lòng thử lại', fr: 'La connexion a échoué, veuillez réessayer'}))
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : tr(lang, {
@@ -735,6 +773,20 @@ const MerchantLogin: React.FC = () => {
             </span>
             <span>Tiếng Việt</span>
           </button>
+          <button
+            type="button"
+            className="merchant-login-lang-option"
+            aria-selected={lang === 'fr'}
+            onClick={() => {
+              setLang('fr')
+              setLangDropdownOpen(false)
+            }}
+          >
+            <span className="merchant-login-lang-option-flag" aria-hidden="true">
+              <img src={frFlagIcon} alt="" className="merchant-login-lang-flag-img" />
+            </span>
+            <span>Français</span>
+          </button>
         </div>
       )}
     </div>
@@ -806,7 +858,7 @@ const MerchantLogin: React.FC = () => {
             </div>
             <img
               src={loginBrandLogo}
-              alt={tr(lang, { zh: 'TikTok Shop', en: 'TikTok Shop', de: 'TikTok Shop', ja: 'TikTok Shop', ko: 'TikTok Shop', es: 'TikTok Shop', it: 'TikTok Shop', vi: 'TikTok Shop'})}
+              alt={tr(lang, { zh: 'TikTok Shop', en: 'TikTok Shop', de: 'TikTok Shop', ja: 'TikTok Shop', ko: 'TikTok Shop', es: 'TikTok Shop', it: 'TikTok Shop', vi: 'TikTok Shop', fr: 'Boutique TikTok'})}
               className="merchant-login-v2-brand-bg"
               width={257}
               height={196}
@@ -927,7 +979,7 @@ const MerchantLogin: React.FC = () => {
                   <button
                     type="button"
                     className="merchant-login-password-toggle"
-                    aria-label={showPassword ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu'})) : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu'}))}
+                    aria-label={showPassword ? (tr(lang, { zh: '隐藏密码', en: 'Hide password', de: 'Passwort verbergen', ja: 'パスワードを非表示', ko: '비밀번호 숨기기', es: 'Ocultar contraseña', it: 'Nascondi password', vi: 'Ẩn mật khẩu', fr: 'Masquer le mot de passe'})) : (tr(lang, { zh: '显示密码', en: 'Show password', de: 'Passwort anzeigen', ja: 'パスワードを表示', ko: '비밀번호 표시', es: 'Mostrar contraseña', it: 'Mostra password', vi: 'Hiện mật khẩu'}))}
                     onClick={() => setShowPassword((v) => !v)}
                   >
                     {showPassword ? (
@@ -985,7 +1037,7 @@ const MerchantLogin: React.FC = () => {
                 {submitting ? t.signingIn : t.loginButton}
               </button>
 
-              <ul className="merchant-login-v2-mobile-trust" aria-label={tr(lang, { zh: '平台保障', en: 'Platform assurance', de: 'Plattform-Sicherheit', ja: 'プラットフォーム保証', ko: '플랫폼 보장', es: 'Garantía de la plataforma', it: 'Garanzia della piattaforma', vi: 'Cam kết nền tảng'})}>
+              <ul className="merchant-login-v2-mobile-trust" aria-label={tr(lang, { zh: '平台保障', en: 'Platform assurance', de: 'Plattform-Sicherheit', ja: 'プラットフォーム保証', ko: '플랫폼 보장', es: 'Garantía de la plataforma', it: 'Garanzia della piattaforma', vi: 'Cam kết nền tảng', fr: 'Assurance de la plateforme'})}>
                 <li className="merchant-login-v2-mobile-trust-item">
                   <img
                     src={loginTrustSecure}
@@ -1040,7 +1092,7 @@ const MerchantLogin: React.FC = () => {
               <span className="merchant-login-v2-mobile-footer-wing" />
             </div>
             <div className="merchant-login-v2-mobile-services-board">
-              <ul className="merchant-login-v2-deco-row" aria-label={tr(lang, { zh: '平台服务', en: 'Platform services', de: 'Plattformdienste', ja: 'プラットフォームサービス', ko: '플랫폼 서비스', es: 'Servicios de la plataforma', it: 'Servizi della piattaforma', vi: 'Dịch vụ nền tảng'})}>
+              <ul className="merchant-login-v2-deco-row" aria-label={tr(lang, { zh: '平台服务', en: 'Platform services', de: 'Plattformdienste', ja: 'プラットフォームサービス', ko: '플랫폼 서비스', es: 'Servicios de la plataforma', it: 'Servizi della piattaforma', vi: 'Dịch vụ nền tảng', fr: 'Services de plateforme'})}>
                 {decoItems.map((item) => (
                   <li key={item.key} className={`merchant-login-v2-deco-item merchant-login-v2-deco-item--${item.key}`}>
                     <span className="merchant-login-v2-deco-icon" aria-hidden="true">
@@ -1078,7 +1130,7 @@ const MerchantLogin: React.FC = () => {
       <button
         type="button"
         className="merchant-login-service-fab"
-        aria-label={tr(lang, { zh: '在线客服', en: 'Live support', de: 'Live-Support', ja: 'オンラインサポート', ko: '실시간 고객센터', es: 'Soporte en vivo', it: 'Assistenza live', vi: 'Hỗ trợ trực tuyến'})}
+        aria-label={tr(lang, { zh: '在线客服', en: 'Live support', de: 'Live-Support', ja: 'オンラインサポート', ko: '실시간 고객센터', es: 'Soporte en vivo', it: 'Assistenza live', vi: 'Hỗ trợ trực tuyến', fr: 'Assistance en direct'})}
         onClick={() => openCrispChat()}
       >
         <img src={serviceIcon} alt="" className="merchant-login-service-icon merchant-login-service-fab-icon--desktop" />

@@ -117,14 +117,14 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
 
   return {
     variant: 'traffic',
-    title: tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng' }),
+    title: tr(lang, { zh: '流量概况', en: 'Traffic overview', de: 'Traffic-Übersicht', ja: 'トラフィック概要', ko: '트래픽 개요', es: 'Resumen de tráfico', it: 'Panoramica traffico', vi: 'Tổng quan lưu lượng', fr: 'Aperçu du trafic' }),
     code: 'TRAFFIC · 7D',
     primaryNumeric: visits30d,
     primaryFormat: 'compact',
-    primaryLabel: tr(lang, { zh: '30日访客', en: '30-day visitors', de: 'Besucher (30 Tage)', ja: '30日間の訪問者', ko: '30일 방문자', es: 'Visitantes en 30 días', it: 'Visitatori in 30 giorni', vi: 'Khách truy cập 30 ngày' }),
+    primaryLabel: tr(lang, { zh: '30日访客', en: '30-day visitors', de: 'Besucher (30 Tage)', ja: '30日間の訪問者', ko: '30일 방문자', es: 'Visitantes en 30 días', it: 'Visitatori in 30 giorni', vi: 'Khách truy cập 30 ngày', fr: 'Visiteurs de 30 jours' }),
     primaryDelta: visitDelta,
     primaryDeltaMode: visitDeltaMode,
-    primaryDeltaLabel: tr(lang, { zh: '今日较昨日', en: 'today vs yesterday', de: 'heute vs. gestern', ja: '昨日比（本日）', ko: '어제 대비 오늘', es: 'hoy vs. ayer', it: 'oggi rispetto a ieri', vi: 'hôm nay so với hôm qua' }),
+    primaryDeltaLabel: tr(lang, { zh: '今日较昨日', en: 'today vs yesterday', de: 'heute vs. gestern', ja: '昨日比（本日）', ko: '어제 대비 오늘', es: 'hoy vs. ayer', it: 'oggi rispetto a ieri', vi: 'hôm nay so với hôm qua', fr: 'aujourd\'hui contre hier' }),
     sparkData: sparkVisits,
     sparkColor: '#4f9cf9',
     metrics: [
@@ -132,14 +132,14 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
         iconSrc: jinrufangke,
         numericValue: visitsToday,
         valueFormat: 'number',
-        label: tr(lang, { zh: '今日访客', en: "Today's visitors", de: 'Besucher heute', ja: '本日の訪問者', ko: '오늘 방문자', es: 'Visitantes hoy', it: 'Visitatori di oggi', vi: 'Khách truy cập hôm nay' }),
+        label: tr(lang, { zh: '今日访客', en: "Today's visitors", de: 'Besucher heute', ja: '本日の訪問者', ko: '오늘 방문자', es: 'Visitantes hoy', it: 'Visitatori di oggi', vi: 'Khách truy cập hôm nay', fr: 'Les visiteurs d\'aujourd\'hui' }),
         tone: 'blue',
       },
       {
         iconSrc: qirifangke,
         numericValue: visits7d,
         valueFormat: 'number',
-        label: tr(lang, { zh: '7日访客', en: '7-day visitors', de: 'Besucher (7 Tage)', ja: '7日間の訪問者', ko: '7일 방문자', es: 'Visitantes en 7 días', it: 'Visitatori in 7 giorni', vi: 'Khách truy cập 7 ngày' }),
+        label: tr(lang, { zh: '7日访客', en: '7-day visitors', de: 'Besucher (7 Tage)', ja: '7日間の訪問者', ko: '7일 방문자', es: 'Visitantes en 7 días', it: 'Visitatori in 7 giorni', vi: 'Khách truy cập 7 ngày', fr: 'Visiteurs de 7 jours' }),
         tone: 'indigo',
       },
       {
@@ -147,13 +147,13 @@ function buildTrafficOverviewCard(data: OverviewDashboardData): OverviewCardConf
         numericValue: conversionRate,
         valueFormat: 'percent',
         decimals: 2,
-        label: tr(lang, { zh: '转化率', en: 'Conversion', de: 'Conversion', ja: 'コンバージョン率', ko: '전환율', es: 'Conversión', it: 'Conversione', vi: 'Chuyển đổi' }),
+        label: tr(lang, { zh: '转化率', en: 'Conversion', de: 'Conversion', ja: 'コンバージョン率', ko: '전환율', es: 'Conversión', it: 'Conversione', vi: 'Chuyển đổi', fr: 'Conversion' }),
         barPercent: Math.min(100, conversionRate * 20),
         tone: 'violet',
       },
     ],
     insight: trafficInsight,
-    insightKicker: tr(lang, { zh: '智能摘要', en: 'Smart insight', de: 'Intelligente Zusammenfassung', ja: 'スマートサマリー', ko: '스마트 요약', es: 'Resumen inteligente', it: 'Riepilogo intelligente', vi: 'Tóm tắt thông minh' }),
+    insightKicker: tr(lang, { zh: '智能摘要', en: 'Smart insight', de: 'Intelligente Zusammenfassung', ja: 'スマートサマリー', ko: '스마트 요약', es: 'Resumen inteligente', it: 'Riepilogo intelligente', vi: 'Tóm tắt thông minh', fr: 'Aperçu intelligent' }),
     lang,
   }
 }

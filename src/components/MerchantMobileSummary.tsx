@@ -22,7 +22,7 @@ const MerchantMobileSummary: React.FC = () => {
           <img src={shop.logo} alt="" className="mc-mobile-summary-avatar" />
         ) : (
           <div className="mc-mobile-summary-avatar mc-mobile-summary-avatar--fallback">
-            {shop.name.slice(0, 1) || tr(lang, { zh: '店', en: 'S', de: 'S', ja: '店', ko: '매', es: 'T', it: 'N', vi: 'C' })}
+            {shop.name.slice(0, 1) || tr(lang, { zh: '店', en: 'S', de: 'S', ja: '店', ko: '매', es: 'T', it: 'N', vi: 'C', fr: 'S' })}
           </div>
         )}
         <div className="mc-mobile-summary-meta">
@@ -36,13 +36,13 @@ const MerchantMobileSummary: React.FC = () => {
       <div className="mc-mobile-summary-stats">
         <div className="mc-mobile-summary-stat">
           <span className="mc-mobile-summary-stat-label">
-            {tr(lang, { zh: '今日销售', en: 'Today', de: 'Heute', ja: '本日の売上', ko: '오늘 매출', es: 'Hoy', it: 'Oggi', vi: 'Hôm nay' })}
+            {tr(lang, { zh: '今日销售', en: 'Today', de: 'Heute', ja: '本日の売上', ko: '오늘 매출', es: 'Hoy', it: 'Oggi', vi: 'Hôm nay', fr: 'Aujourd\'hui' })}
           </span>
           <span className="mc-mobile-summary-stat-value">${todaySales.toFixed(2)}</span>
         </div>
         <Link to="/orders" className="mc-mobile-summary-stat mc-mobile-summary-stat--link">
           <span className="mc-mobile-summary-stat-label">
-            {tr(lang, { zh: '待处理', en: 'Pending', de: 'Offen', ja: '未処理', ko: '대기 중', es: 'Pendiente', it: 'In attesa', vi: 'Chờ xử lý' })}
+            {tr(lang, { zh: '待处理', en: 'Pending', de: 'Offen', ja: '未処理', ko: '대기 중', es: 'Pendiente', it: 'In attesa', vi: 'Chờ xử lý', fr: 'En attente' })}
           </span>
           <span className="mc-mobile-summary-stat-value">
             {pendingOrders}

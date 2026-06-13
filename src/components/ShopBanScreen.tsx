@@ -15,7 +15,7 @@ const ShopBanScreen: React.FC<ShopBanScreenProps> = ({ shop, onLogout }) => {
   const { lang } = useLang()
   const reason =
     shop.banReason?.trim() ||
-    tr(lang, { zh: '违反平台经营规范', en: 'Violation of platform policies', de: 'Verstoß gegen Plattformrichtlinien', ja: 'プラットフォーム規約違反', ko: '플랫폼 운영 정책 위반', es: 'Incumplimiento de las políticas de la plataforma', it: 'Violazione delle policy della piattaforma', vi: 'Vi phạm quy định của nền tảng' })
+    tr(lang, { zh: '违反平台经营规范', en: 'Violation of platform policies', de: 'Verstoß gegen Plattformrichtlinien', ja: 'プラットフォーム規約違反', ko: '플랫폼 운영 정책 위반', es: 'Incumplimiento de las políticas de la plataforma', it: 'Violazione delle policy della piattaforma', vi: 'Vi phạm quy định của nền tảng', fr: 'Violation des politiques de la plateforme' })
   const notice = shop.banNotice?.trim()
 
   const handleAppeal = () => {
@@ -48,7 +48,7 @@ const ShopBanScreen: React.FC<ShopBanScreenProps> = ({ shop, onLogout }) => {
           </svg>
         </div>
         <h1 className="mc-shop-ban-title">
-          {tr(lang, { zh: '店铺已暂停经营', en: 'Shop suspended', de: 'Shop gesperrt', ja: '店舗の営業が停止されました', ko: '매장 운영 일시 중지', es: 'Tienda suspendida', it: 'Negozio sospeso', vi: 'Cửa hàng bị đình chỉ' })}
+          {tr(lang, { zh: '店铺已暂停经营', en: 'Shop suspended', de: 'Shop gesperrt', ja: '店舗の営業が停止されました', ko: '매장 운영 일시 중지', es: 'Tienda suspendida', it: 'Negozio sospeso', vi: 'Cửa hàng bị đình chỉ', fr: 'Boutique suspendue' })}
         </h1>
         <p className="mc-shop-ban-lead">
           {tr(lang, {
@@ -64,43 +64,43 @@ const ShopBanScreen: React.FC<ShopBanScreenProps> = ({ shop, onLogout }) => {
 
         <dl className="mc-shop-ban-meta">
           <div className="mc-shop-ban-meta-row">
-            <dt>{tr(lang, { zh: '店铺 ID', en: 'Shop ID', de: 'Shop-ID', ja: '店舗 ID', ko: '매장 ID', es: 'ID de la tienda', it: 'ID negozio', vi: 'ID cửa hàng' })}</dt>
+            <dt>{tr(lang, { zh: '店铺 ID', en: 'Shop ID', de: 'Shop-ID', ja: '店舗 ID', ko: '매장 ID', es: 'ID de la tienda', it: 'ID negozio', vi: 'ID cửa hàng', fr: 'Identifiant de la boutique' })}</dt>
             <dd>{shop.id}</dd>
           </div>
           <div className="mc-shop-ban-meta-row">
-            <dt>{tr(lang, { zh: '封禁原因', en: 'Reason', de: 'Grund', ja: '停止理由', ko: '중지 사유', es: 'Motivo', it: 'Motivo', vi: 'Lý do' })}</dt>
+            <dt>{tr(lang, { zh: '封禁原因', en: 'Reason', de: 'Grund', ja: '停止理由', ko: '중지 사유', es: 'Motivo', it: 'Motivo', vi: 'Lý do', fr: 'Raison' })}</dt>
             <dd>{reason}</dd>
           </div>
           {notice && (
             <div className="mc-shop-ban-meta-row">
-              <dt>{tr(lang, { zh: '平台说明', en: 'Notice', de: 'Hinweis', ja: 'プラットフォームからのお知らせ', ko: '플랫폼 안내', es: 'Aviso de la plataforma', it: 'Avviso', vi: 'Thông báo' })}</dt>
+              <dt>{tr(lang, { zh: '平台说明', en: 'Notice', de: 'Hinweis', ja: 'プラットフォームからのお知らせ', ko: '플랫폼 안내', es: 'Aviso de la plataforma', it: 'Avviso', vi: 'Thông báo', fr: 'Avis' })}</dt>
               <dd>{notice}</dd>
             </div>
           )}
           <div className="mc-shop-ban-meta-row">
-            <dt>{tr(lang, { zh: '封禁时间', en: 'Suspended at', de: 'Gesperrt am', ja: '停止日時', ko: '중지 일시', es: 'Suspendida el', it: 'Sospeso il', vi: 'Đình chỉ lúc' })}</dt>
+            <dt>{tr(lang, { zh: '封禁时间', en: 'Suspended at', de: 'Gesperrt am', ja: '停止日時', ko: '중지 일시', es: 'Suspendida el', it: 'Sospeso il', vi: 'Đình chỉ lúc', fr: 'Suspendu à' })}</dt>
             <dd>{shop.bannedAt ? formatDateTime(shop.bannedAt, lang) : '—'}</dd>
           </div>
         </dl>
 
         <div className="mc-shop-ban-effects">
           <p className="mc-shop-ban-effects-title">
-            {tr(lang, { zh: '当前影响', en: 'What this means', de: 'Was das bedeutet', ja: '現在の影響', ko: '현재 영향', es: 'Qué implica', it: 'Cosa significa', vi: 'Ảnh hưởng hiện tại' })}
+            {tr(lang, { zh: '当前影响', en: 'What this means', de: 'Was das bedeutet', ja: '現在の影響', ko: '현재 영향', es: 'Qué implica', it: 'Cosa significa', vi: 'Ảnh hưởng hiện tại', fr: 'Qu\'est-ce que cela signifie' })}
           </p>
           <ul className="mc-shop-ban-effects-list">
-            <li>{tr(lang, { zh: '商城前台不可浏览您的店铺与商品', en: 'Your storefront is hidden from buyers', de: 'Ihr Shop ist für Käufer nicht sichtbar', ja: 'ストアフロントで店舗と商品が閲覧できません', ko: '쇼핑몰에서 매장과 상품을 볼 수 없습니다', es: 'Tu tienda y productos no son visibles para los compradores', it: 'Il tuo negozio non è visibile agli acquirenti', vi: 'Khách hàng không thể xem cửa hàng và sản phẩm của bạn' })}</li>
-            <li>{tr(lang, { zh: '无法上架、发货、充值提现等经营操作', en: 'Listing, shipping, and wallet actions are blocked', de: 'Einstellen, Versand und Wallet-Aktionen sind gesperrt', ja: '出品・発送・チャージ・出金などの操作ができません', ko: '상품 등록, 발송, 충전, 출금 등 경영 작업 불가', es: 'Publicar, enviar y operar la cartera están bloqueados', it: 'Pubblicazione, spedizione e operazioni sul portafoglio sono bloccate', vi: 'Không thể đăng sản phẩm, giao hàng, nạp hoặc rút tiền' })}</li>
-            <li>{tr(lang, { zh: '可查看历史数据并联系客服申诉', en: 'You can review past data and contact support to appeal', de: 'Sie können historische Daten einsehen und den Support kontaktieren', ja: '過去データの閲覧とサポートへの異議申し立てが可能です', ko: '과거 데이터 조회 및 고객센터 이의 신청 가능', es: 'Puedes revisar datos históricos y contactar con soporte para apelar', it: 'Puoi consultare i dati storici e contattare l\'assistenza per un ricorso', vi: 'Bạn vẫn có thể xem dữ liệu lịch sử và liên hệ hỗ trợ để khiếu nại' })}</li>
+            <li>{tr(lang, { zh: '商城前台不可浏览您的店铺与商品', en: 'Your storefront is hidden from buyers', de: 'Ihr Shop ist für Käufer nicht sichtbar', ja: 'ストアフロントで店舗と商品が閲覧できません', ko: '쇼핑몰에서 매장과 상품을 볼 수 없습니다', es: 'Tu tienda y productos no son visibles para los compradores', it: 'Il tuo negozio non è visibile agli acquirenti', vi: 'Khách hàng không thể xem cửa hàng và sản phẩm của bạn', fr: 'Votre vitrine est cachée aux acheteurs' })}</li>
+            <li>{tr(lang, { zh: '无法上架、发货、充值提现等经营操作', en: 'Listing, shipping, and wallet actions are blocked', de: 'Einstellen, Versand und Wallet-Aktionen sind gesperrt', ja: '出品・発送・チャージ・出金などの操作ができません', ko: '상품 등록, 발송, 충전, 출금 등 경영 작업 불가', es: 'Publicar, enviar y operar la cartera están bloqueados', it: 'Pubblicazione, spedizione e operazioni sul portafoglio sono bloccate', vi: 'Không thể đăng sản phẩm, giao hàng, nạp hoặc rút tiền', fr: 'Les actions de référencement, d\'expédition et de portefeuille sont bloquées' })}</li>
+            <li>{tr(lang, { zh: '可查看历史数据并联系客服申诉', en: 'You can review past data and contact support to appeal', de: 'Sie können historische Daten einsehen und den Support kontaktieren', ja: '過去データの閲覧とサポートへの異議申し立てが可能です', ko: '과거 데이터 조회 및 고객센터 이의 신청 가능', es: 'Puedes revisar datos históricos y contactar con soporte para apelar', it: 'Puoi consultare i dati storici e contattare l\'assistenza per un ricorso', vi: 'Bạn vẫn có thể xem dữ liệu lịch sử và liên hệ hỗ trợ để khiếu nại', fr: 'Vous pouvez consulter les données antérieures et contacter l\'assistance pour faire appel.' })}</li>
           </ul>
         </div>
 
         <div className="mc-shop-ban-actions">
           <button type="button" className="mc-shop-ban-btn mc-shop-ban-btn--primary" onClick={handleAppeal}>
             <img src={loginTrustSupport} alt="" width={20} height={20} aria-hidden="true" />
-            {tr(lang, { zh: '联系客服申诉', en: 'Contact support to appeal', de: 'Support kontaktieren', ja: 'サポートに異議申し立て', ko: '고객센터에 이의 신청', es: 'Contactar soporte para apelar', it: 'Contatta l\'assistenza per un ricorso', vi: 'Liên hệ hỗ trợ để khiếu nại' })}
+            {tr(lang, { zh: '联系客服申诉', en: 'Contact support to appeal', de: 'Support kontaktieren', ja: 'サポートに異議申し立て', ko: '고객센터에 이의 신청', es: 'Contactar soporte para apelar', it: 'Contatta l\'assistenza per un ricorso', vi: 'Liên hệ hỗ trợ để khiếu nại', fr: 'Contacter le support pour faire appel' })}
           </button>
           <button type="button" className="mc-shop-ban-btn mc-shop-ban-btn--secondary" onClick={onLogout}>
-            {tr(lang, { zh: '退出登录', en: 'Log out', de: 'Abmelden', ja: 'ログアウト', ko: '로그아웃', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất' })}
+            {tr(lang, { zh: '退出登录', en: 'Log out', de: 'Abmelden', ja: 'ログアウト', ko: '로그아웃', es: 'Cerrar sesión', it: 'Esci', vi: 'Đăng xuất', fr: 'Se déconnecter' })}
           </button>
         </div>
 

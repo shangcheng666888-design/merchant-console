@@ -50,9 +50,9 @@ const tooltipStyle = {
 }
 
 const CHART_TABS = [
-  { id: 'shop' as const, zh: '店铺评分', en: 'Shop score', de: 'Shop-Bewertung', ja: 'ショップ評価', ko: '점포 평점', es: 'Puntuación de tienda', it: 'Punteggio negozio', vi: 'Điểm cửa hàng' },
-  { id: 'traffic' as const, zh: '流量', en: 'Traffic', de: 'Traffic', ja: 'トラフィック', ko: '트래픽', es: 'Tráfico', it: 'Traffico', vi: 'Lưu lượng' },
-  { id: 'orders' as const, zh: '订单趋势', en: 'Orders', de: 'Bestellungen', ja: '注文トレンド', ko: '주문 추세', es: 'Pedidos', it: 'Ordini', vi: 'Đơn hàng' },
+  { id: 'shop' as const, zh: '店铺评分', en: 'Shop score', de: 'Shop-Bewertung', ja: 'ショップ評価', ko: '점포 평점', es: 'Puntuación de tienda', it: 'Punteggio negozio', vi: 'Điểm cửa hàng', fr: 'Note de la boutique' },
+  { id: 'traffic' as const, zh: '流量', en: 'Traffic', de: 'Traffic', ja: 'トラフィック', ko: '트래픽', es: 'Tráfico', it: 'Traffico', vi: 'Lưu lượng', fr: 'Trafic' },
+  { id: 'orders' as const, zh: '订单趋势', en: 'Orders', de: 'Bestellungen', ja: '注文トレンド', ko: '주문 추세', es: 'Pedidos', it: 'Ordini', vi: 'Đơn hàng', fr: 'Commandes' },
 ]
 
 const CHART_CARDS = [
@@ -150,7 +150,7 @@ export const MerchantDashboardCharts: React.FC<MerchantDashboardChartsProps> = (
                 className="merchant-dashboard-chart-legend"
                 style={{ color: card.theme.stroke }}
               >
-                ● {tr(lang, { zh: '近7日', en: '7 days', de: '7 Tage', ja: '直近7日', ko: '최근 7일', es: '7 días', it: '7 giorni', vi: '7 ngày' })}
+                ● {tr(lang, { zh: '近7日', en: '7 days', de: '7 Tage', ja: '直近7日', ko: '최근 7일', es: '7 días', it: '7 giorni', vi: '7 ngày', fr: '7 jours' })}
               </span>
             </div>
             <div className="merchant-dashboard-chart-wrap">

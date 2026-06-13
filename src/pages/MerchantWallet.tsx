@@ -100,7 +100,7 @@ const MerchantWallet: React.FC = () => {
     const auth = readAuth()
     if (!auth) {
       if (!silent) {
-        setError(tr(lang, { zh: '未找到店铺信息，请重新登录', en: 'Shop not found. Please sign in again.', de: 'Shop nicht gefunden. Bitte erneut anmelden.', ja: '店舗情報が見つかりません。再度ログインしてください。', ko: '점포 정보를 찾을 수 없습니다. 다시 로그인해 주세요.', es: 'Tienda no encontrada. Vuelva a iniciar sesión.', it: 'Negozio non trovato. Accedi di nuovo.', vi: 'Không tìm thấy cửa hàng. Vui lòng đăng nhập lại.' }))
+        setError(tr(lang, { zh: '未找到店铺信息，请重新登录', en: 'Shop not found. Please sign in again.', de: 'Shop nicht gefunden. Bitte erneut anmelden.', ja: '店舗情報が見つかりません。再度ログインしてください。', ko: '점포 정보를 찾을 수 없습니다. 다시 로그인해 주세요.', es: 'Tienda no encontrada. Vuelva a iniciar sesión.', it: 'Negozio non trovato. Accedi di nuovo.', vi: 'Không tìm thấy cửa hàng. Vui lòng đăng nhập lại.', fr: 'Boutique introuvable. Veuillez vous reconnecter.' }))
         setWalletBalance(0)
         setRechargeRecords([])
         setWithdrawRecords([])
@@ -197,7 +197,7 @@ const MerchantWallet: React.FC = () => {
         // ignore
       }
     } catch (e: unknown) {
-      let msg = tr(lang, { zh: '加载钱包数据失败', en: 'Failed to load wallet data', de: 'Wallet-Daten konnten nicht geladen werden', ja: 'ウォレットデータの読み込みに失敗しました', ko: '지갑 데이터를 불러오지 못했습니다', es: 'Error al cargar los datos de la cartera', it: 'Impossibile caricare i dati del portafoglio', vi: 'Không tải được dữ liệu ví' })
+      let msg = tr(lang, { zh: '加载钱包数据失败', en: 'Failed to load wallet data', de: 'Wallet-Daten konnten nicht geladen werden', ja: 'ウォレットデータの読み込みに失敗しました', ko: '지갑 데이터를 불러오지 못했습니다', es: 'Error al cargar los datos de la cartera', it: 'Impossibile caricare i dati del portafoglio', vi: 'Không tải được dữ liệu ví', fr: 'Échec du chargement des données du portefeuille' })
       if (e && typeof e === 'object' && 'message' in e && typeof e.message === 'string' && e.message.trim()) {
         msg = e.message.trim()
       }
@@ -237,13 +237,13 @@ const MerchantWallet: React.FC = () => {
     (text: string) => {
       if (!text || text === '—') return
       if (!navigator.clipboard) {
-        showToast(tr(lang, { zh: '复制失败', en: 'Copy failed', de: 'Kopieren fehlgeschlagen', ja: 'コピーに失敗しました', ko: '복사 실패', es: 'Error al copiar', it: 'Copia non riuscita', vi: 'Sao chép thất bại' }), 'error')
+        showToast(tr(lang, { zh: '复制失败', en: 'Copy failed', de: 'Kopieren fehlgeschlagen', ja: 'コピーに失敗しました', ko: '복사 실패', es: 'Error al copiar', it: 'Copia non riuscita', vi: 'Sao chép thất bại', fr: 'Échec de la copie' }), 'error')
         return
       }
       navigator.clipboard
         .writeText(text)
-        .then(() => showToast(tr(lang, { zh: '已复制', en: 'Copied', de: 'Kopiert', ja: 'コピーしました', ko: '복사됨', es: 'Copiado', it: 'Copiato', vi: 'Đã sao chép' })))
-        .catch(() => showToast(tr(lang, { zh: '复制失败', en: 'Copy failed', de: 'Kopieren fehlgeschlagen', ja: 'コピーに失敗しました', ko: '복사 실패', es: 'Error al copiar', it: 'Copia non riuscita', vi: 'Sao chép thất bại' }), 'error'))
+        .then(() => showToast(tr(lang, { zh: '已复制', en: 'Copied', de: 'Kopiert', ja: 'コピーしました', ko: '복사됨', es: 'Copiado', it: 'Copiato', vi: 'Đã sao chép', fr: 'Copié' })))
+        .catch(() => showToast(tr(lang, { zh: '复制失败', en: 'Copy failed', de: 'Kopieren fehlgeschlagen', ja: 'コピーに失敗しました', ko: '복사 실패', es: 'Error al copiar', it: 'Copia non riuscita', vi: 'Sao chép thất bại', fr: 'Échec de la copie' }), 'error'))
     },
     [lang, showToast],
   )
@@ -264,10 +264,10 @@ const MerchantWallet: React.FC = () => {
             </span>
             <div className="merchant-wallet-header-copy">
               <h1 className="merchant-wallet-title">
-                {tr(lang, { zh: '我的钱包', en: 'My wallet', de: 'Meine Wallet', ja: 'マイウォレット', ko: '내 지갑', es: 'Mi cartera', it: 'Il mio portafoglio', vi: 'Ví của tôi' })}
+                {tr(lang, { zh: '我的钱包', en: 'My wallet', de: 'Meine Wallet', ja: 'マイウォレット', ko: '내 지갑', es: 'Mi cartera', it: 'Il mio portafoglio', vi: 'Ví của tôi', fr: 'Mon portefeuille' })}
               </h1>
               <p className="merchant-wallet-subtitle">
-                {tr(lang, { zh: '管理店铺资金余额、充值与提现申请', en: 'Manage shop balance, deposits and withdrawals.', de: 'Verwalten Sie Shop-Guthaben, Einzahlungen und Auszahlungen.', ja: '店舗残高、入金、出金申請を管理', ko: '점포 잔액, 충전 및 출금 신청 관리', es: 'Gestione el saldo, los depósitos y las retiradas de la tienda.', it: 'Gestisci saldo del negozio, depositi e prelievi.', vi: 'Quản lý số dư cửa hàng, nạp tiền và rút tiền.' })}
+                {tr(lang, { zh: '管理店铺资金余额、充值与提现申请', en: 'Manage shop balance, deposits and withdrawals.', de: 'Verwalten Sie Shop-Guthaben, Einzahlungen und Auszahlungen.', ja: '店舗残高、入金、出金申請を管理', ko: '점포 잔액, 충전 및 출금 신청 관리', es: 'Gestione el saldo, los depósitos y las retiradas de la tienda.', it: 'Gestisci saldo del negozio, depositi e prelievi.', vi: 'Quản lý số dư cửa hàng, nạp tiền và rút tiền.', fr: 'Gérez le solde de la boutique, les dépôts et les retraits.' })}
               </p>
             </div>
           </div>
@@ -276,7 +276,7 @@ const MerchantWallet: React.FC = () => {
             className="merchant-wallet-finance-link"
             onClick={() => navigate('/finance')}
           >
-            <span>{tr(lang, { zh: '财务报表', en: 'Finance report', de: 'Finanzbericht', ja: '財務レポート', ko: '재무 보고서', es: 'Informe financiero', it: 'Report finanziario', vi: 'Báo cáo tài chính' })}</span>
+            <span>{tr(lang, { zh: '财务报表', en: 'Finance report', de: 'Finanzbericht', ja: '財務レポート', ko: '재무 보고서', es: 'Informe financiero', it: 'Report finanziario', vi: 'Báo cáo tài chính', fr: 'Rapport financier' })}</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -286,14 +286,14 @@ const MerchantWallet: React.FC = () => {
         <div
           className="merchant-wallet-stats"
           role="group"
-          aria-label={tr(lang, { zh: '钱包概览', en: 'Wallet overview', de: 'Wallet-Übersicht', ja: 'ウォレット概要', ko: '지갑 개요', es: 'Resumen de cartera', it: 'Panoramica portafoglio', vi: 'Tổng quan ví' })}
+          aria-label={tr(lang, { zh: '钱包概览', en: 'Wallet overview', de: 'Wallet-Übersicht', ja: 'ウォレット概要', ko: '지갑 개요', es: 'Resumen de cartera', it: 'Panoramica portafoglio', vi: 'Tổng quan ví', fr: 'Présentation du portefeuille' })}
         >
           {showSkeleton ? (
             <WalletStatSkeleton />
           ) : (
             <div className="merchant-wallet-stat merchant-wallet-stat--balance">
               <span className="merchant-wallet-stat-label">
-                {tr(lang, { zh: '可用余额', en: 'Available balance', de: 'Verfügbares Guthaben', ja: '利用可能残高', ko: '사용 가능 잔액', es: 'Saldo disponible', it: 'Saldo disponibile', vi: 'Số dư khả dụng' })}
+                {tr(lang, { zh: '可用余额', en: 'Available balance', de: 'Verfügbares Guthaben', ja: '利用可能残高', ko: '사용 가능 잔액', es: 'Saldo disponible', it: 'Saldo disponibile', vi: 'Số dư khả dụng', fr: 'Solde disponible' })}
               </span>
               <span className="merchant-wallet-stat-value merchant-wallet-stat-value--balance">
                 ${walletBalance.toFixed(2)}
@@ -317,7 +317,7 @@ const MerchantWallet: React.FC = () => {
 
         <div className="merchant-wallet-actions">
           <span className="merchant-wallet-actions-label">
-            {tr(lang, { zh: '快捷操作', en: 'Quick actions', de: 'Schnellaktionen', ja: 'クイック操作', ko: '빠른 작업', es: 'Acciones rápidas', it: 'Azioni rapide', vi: 'Thao tác nhanh' })}
+            {tr(lang, { zh: '快捷操作', en: 'Quick actions', de: 'Schnellaktionen', ja: 'クイック操作', ko: '빠른 작업', es: 'Acciones rápidas', it: 'Azioni rapide', vi: 'Thao tác nhanh', fr: 'Actions rapides' })}
           </span>
           <div className="merchant-wallet-actions-btns">
             <button
@@ -328,7 +328,7 @@ const MerchantWallet: React.FC = () => {
               <span className="merchant-wallet-btn-icon merchant-wallet-btn-icon--primary" aria-hidden="true">
                 <MerchantRechargeFlowIcon size={22} />
               </span>
-              <span>{tr(lang, { zh: '充值', en: 'Recharge', de: 'Aufladung', ja: '入金', ko: '충전', es: 'Depositar', it: 'Ricarica', vi: 'Nạp tiền' })}</span>
+              <span>{tr(lang, { zh: '充值', en: 'Recharge', de: 'Aufladung', ja: '入金', ko: '충전', es: 'Depositar', it: 'Ricarica', vi: 'Nạp tiền', fr: 'Recharger' })}</span>
             </button>
             <button
               type="button"
@@ -338,7 +338,7 @@ const MerchantWallet: React.FC = () => {
               <span className="merchant-wallet-btn-icon merchant-wallet-btn-icon--withdraw" aria-hidden="true">
                 <MerchantWithdrawFlowIcon size={22} />
               </span>
-              <span>{tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền' })}</span>
+              <span>{tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền', fr: 'Retirer' })}</span>
             </button>
           </div>
         </div>
@@ -349,7 +349,7 @@ const MerchantWallet: React.FC = () => {
           <div className="merchant-wallet-toolbar-main">
             <div className="merchant-wallet-detail-heading">
               <h2 className="merchant-wallet-detail-title">
-                {tr(lang, { zh: '申请记录', en: 'Applications', de: 'Anträge', ja: '申請履歴', ko: '신청 내역', es: 'Historial de solicitudes', it: 'Storico richieste', vi: 'Lịch sử đăng ký' })}
+                {tr(lang, { zh: '申请记录', en: 'Applications', de: 'Anträge', ja: '申請履歴', ko: '신청 내역', es: 'Historial de solicitudes', it: 'Storico richieste', vi: 'Lịch sử đăng ký', fr: 'Applications' })}
               </h2>
               {!showSkeleton && (
                 <span className="merchant-wallet-detail-count">{activeRecords.length}</span>
@@ -360,7 +360,7 @@ const MerchantWallet: React.FC = () => {
             type="button"
             className="merchant-wallet-refresh-btn"
             onClick={() => fetchWallet()}
-            aria-label={tr(lang, { zh: '刷新', en: 'Refresh', de: 'Aktualisieren', ja: '更新', ko: '새로고침', es: 'Actualizar', it: 'Aggiorna', vi: 'Làm mới' })}
+            aria-label={tr(lang, { zh: '刷新', en: 'Refresh', de: 'Aktualisieren', ja: '更新', ko: '새로고침', es: 'Actualizar', it: 'Aggiorna', vi: 'Làm mới', fr: 'Rafraîchir' })}
           >
             <svg
               width="18"
@@ -379,7 +379,7 @@ const MerchantWallet: React.FC = () => {
         <div
           className="merchant-wallet-filters merchant-finance-filters--type"
           role="tablist"
-          aria-label={tr(lang, { zh: '充值与提现', en: 'Recharge and withdraw', de: 'Aufladung und Auszahlung', ja: '入金と出金', ko: '충전 및 출금', es: 'Depósito y retiro', it: 'Deposito e prelievo', vi: 'Nạp tiền và rút tiền' })}
+          aria-label={tr(lang, { zh: '充值与提现', en: 'Recharge and withdraw', de: 'Aufladung und Auszahlung', ja: '入金と出金', ko: '충전 및 출금', es: 'Depósito y retiro', it: 'Deposito e prelievo', vi: 'Nạp tiền và rút tiền', fr: 'Recharger et retirer' })}
         >
           <button
             type="button"
@@ -390,7 +390,7 @@ const MerchantWallet: React.FC = () => {
             }`}
             onClick={() => setWalletHistoryTab('recharge')}
           >
-            {tr(lang, { zh: '充值', en: 'Recharge', de: 'Aufladung', ja: '入金', ko: '충전', es: 'Depositar', it: 'Ricarica', vi: 'Nạp tiền' })}
+            {tr(lang, { zh: '充值', en: 'Recharge', de: 'Aufladung', ja: '入金', ko: '충전', es: 'Depositar', it: 'Ricarica', vi: 'Nạp tiền', fr: 'Recharger' })}
             <span className="merchant-finance-type-chip-count">{rechargeRecords.length}</span>
           </button>
           <button
@@ -402,7 +402,7 @@ const MerchantWallet: React.FC = () => {
             }`}
             onClick={() => setWalletHistoryTab('withdraw')}
           >
-            {tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền' })}
+            {tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền', fr: 'Retirer' })}
             <span className="merchant-finance-type-chip-count">{withdrawRecords.length}</span>
           </button>
         </div>
@@ -450,8 +450,8 @@ const MerchantWallet: React.FC = () => {
                 }
               >
                 {walletHistoryTab === 'recharge'
-                  ? tr(lang, { zh: '立即充值', en: 'Deposit now', de: 'Jetzt einzahlen', ja: '今すぐ入金', ko: '지금 충전', es: 'Depositar ahora', it: 'Deposita ora', vi: 'Nạp ngay' })
-                  : tr(lang, { zh: '申请提现', en: 'Withdraw now', de: 'Jetzt auszahlen', ja: '出金を申請', ko: '출금 신청', es: 'Retirar ahora', it: 'Preleva ora', vi: 'Rút ngay' })}
+                  ? tr(lang, { zh: '立即充值', en: 'Deposit now', de: 'Jetzt einzahlen', ja: '今すぐ入金', ko: '지금 충전', es: 'Depositar ahora', it: 'Deposita ora', vi: 'Nạp ngay', fr: 'Déposez maintenant' })
+                  : tr(lang, { zh: '申请提现', en: 'Withdraw now', de: 'Jetzt auszahlen', ja: '出金を申請', ko: '출금 신청', es: 'Retirar ahora', it: 'Preleva ora', vi: 'Rút ngay', fr: 'Retirer maintenant' })}
               </button>
             </div>
           ) : walletHistoryTab === 'recharge' ? (
@@ -461,7 +461,7 @@ const MerchantWallet: React.FC = () => {
                   <article key={r.id} className="merchant-wallet-row">
                     <div className="merchant-wallet-row-top">
                       <span className="merchant-wallet-type-badge merchant-wallet-type-badge--recharge">
-                        {tr(lang, { zh: '充值', en: 'Deposit', de: 'Deposit', ja: '入金', ko: '충전', es: 'Depósito', it: 'Deposito', vi: 'Nạp tiền' })}
+                        {tr(lang, { zh: '充值', en: 'Deposit', de: 'Deposit', ja: '入金', ko: '충전', es: 'Depósito', it: 'Deposito', vi: 'Nạp tiền', fr: 'Dépôt' })}
                       </span>
                       <time className="merchant-wallet-row-date" dateTime={r.createdAt}>
                         {formatRecordDate(r.createdAt, lang)}
@@ -472,7 +472,7 @@ const MerchantWallet: React.FC = () => {
                         +${r.amount}
                       </span>
                       <span className="merchant-wallet-row-side">
-                        {tr(lang, { zh: '到账', en: 'Received', de: 'Erhalten', ja: '入金額', ko: '입금액', es: 'Recibido', it: 'Accreditato', vi: 'Đã nhận' })} {r.actualAmount}
+                        {tr(lang, { zh: '到账', en: 'Received', de: 'Erhalten', ja: '入金額', ko: '입금액', es: 'Recibido', it: 'Accreditato', vi: 'Đã nhận', fr: 'Reçu' })} {r.actualAmount}
                       </span>
                     </div>
                     <div className="merchant-wallet-row-foot">
@@ -496,7 +496,7 @@ const MerchantWallet: React.FC = () => {
                             className="merchant-wallet-screenshot-link"
                           >
                             <img src={r.rechargeScreenshotUrl} alt="" className="merchant-wallet-screenshot-thumb" />
-                            <span>{tr(lang, { zh: '查看转账截图', en: 'View screenshot', de: 'Screenshot anzeigen', ja: '振込スクリーンショットを表示', ko: '송금 스크린샷 보기', es: 'Ver captura', it: 'Visualizza screenshot', vi: 'Xem ảnh chụp màn hình' })}</span>
+                            <span>{tr(lang, { zh: '查看转账截图', en: 'View screenshot', de: 'Screenshot anzeigen', ja: '振込スクリーンショットを表示', ko: '송금 스크린샷 보기', es: 'Ver captura', it: 'Visualizza screenshot', vi: 'Xem ảnh chụp màn hình', fr: 'Voir la capture d\'écran' })}</span>
                           </a>
                         ) : (
                           <span className="merchant-wallet-row-tx">{r.transactionNo}</span>
@@ -511,13 +511,13 @@ const MerchantWallet: React.FC = () => {
                 <table className="merchant-wallet-table">
                   <thead>
                     <tr>
-                      <th>{tr(lang, { zh: '日期', en: 'Date', de: 'Datum', ja: '日付', ko: '날짜', es: 'Fecha', it: 'Data', vi: 'Ngày' })}</th>
-                      <th>{tr(lang, { zh: '订单号', en: 'Order No.', de: 'Bestellnr.', ja: '注文番号', ko: '주문 번호', es: 'N.º de pedido', it: 'N. ordine', vi: 'Mã đơn hàng' })}</th>
-                      <th>{tr(lang, { zh: '金额', en: 'Amount', de: 'Betrag', ja: '金額', ko: '금액', es: 'Importe', it: 'Importo', vi: 'Số tiền' })}</th>
-                      <th>{tr(lang, { zh: '协议', en: 'Protocol', de: 'Protokoll', ja: 'プロトコル', ko: '프로토콜', es: 'Protocolo', it: 'Protocollo', vi: 'Giao thức' })}</th>
-                      <th>{tr(lang, { zh: '状态', en: 'Status', de: 'Status', ja: 'ステータス', ko: '상태', es: 'Estado', it: 'Stato', vi: 'Trạng thái' })}</th>
-                      <th>{tr(lang, { zh: '截图', en: 'Screenshot', de: 'Screenshot', ja: 'スクリーンショット', ko: '스크린샷', es: 'Captura', it: 'Screenshot', vi: 'Ảnh chụp màn hình' })}</th>
-                      <th>{tr(lang, { zh: '到账', en: 'Received', de: 'Erhalten', ja: '入金額', ko: '입금액', es: 'Recibido', it: 'Accreditato', vi: 'Đã nhận' })}</th>
+                      <th>{tr(lang, { zh: '日期', en: 'Date', de: 'Datum', ja: '日付', ko: '날짜', es: 'Fecha', it: 'Data', vi: 'Ngày', fr: 'Date' })}</th>
+                      <th>{tr(lang, { zh: '订单号', en: 'Order No.', de: 'Bestellnr.', ja: '注文番号', ko: '주문 번호', es: 'N.º de pedido', it: 'N. ordine', vi: 'Mã đơn hàng', fr: 'Numéro de commande' })}</th>
+                      <th>{tr(lang, { zh: '金额', en: 'Amount', de: 'Betrag', ja: '金額', ko: '금액', es: 'Importe', it: 'Importo', vi: 'Số tiền', fr: 'Montant' })}</th>
+                      <th>{tr(lang, { zh: '协议', en: 'Protocol', de: 'Protokoll', ja: 'プロトコル', ko: '프로토콜', es: 'Protocolo', it: 'Protocollo', vi: 'Giao thức', fr: 'Protocole' })}</th>
+                      <th>{tr(lang, { zh: '状态', en: 'Status', de: 'Status', ja: 'ステータス', ko: '상태', es: 'Estado', it: 'Stato', vi: 'Trạng thái', fr: 'Statut' })}</th>
+                      <th>{tr(lang, { zh: '截图', en: 'Screenshot', de: 'Screenshot', ja: 'スクリーンショット', ko: '스크린샷', es: 'Captura', it: 'Screenshot', vi: 'Ảnh chụp màn hình', fr: 'Capture d\'écran' })}</th>
+                      <th>{tr(lang, { zh: '到账', en: 'Received', de: 'Erhalten', ja: '入金額', ko: '입금액', es: 'Recibido', it: 'Accreditato', vi: 'Đã nhận', fr: 'Reçu' })}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -529,7 +529,7 @@ const MerchantWallet: React.FC = () => {
                             type="button"
                             className="merchant-wallet-copyable"
                             onClick={() => copyText(r.orderNo)}
-                            title={tr(lang, { zh: '复制订单号', en: 'Copy order no.', de: 'Bestellnr. kopieren', ja: '注文番号をコピー', ko: '주문 번호 복사', es: 'Copiar n.º de pedido', it: 'Copia n. ordine', vi: 'Sao chép mã đơn' })}
+                            title={tr(lang, { zh: '复制订单号', en: 'Copy order no.', de: 'Bestellnr. kopieren', ja: '注文番号をコピー', ko: '주문 번호 복사', es: 'Copiar n.º de pedido', it: 'Copia n. ordine', vi: 'Sao chép mã đơn', fr: 'Copier le numéro de commande.' })}
                           >
                             {r.orderNo}
                           </button>
@@ -571,7 +571,7 @@ const MerchantWallet: React.FC = () => {
                   <article key={w.id} className="merchant-wallet-row">
                     <div className="merchant-wallet-row-top">
                       <span className="merchant-wallet-type-badge merchant-wallet-type-badge--withdraw">
-                        {tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền' })}
+                        {tr(lang, { zh: '提现', en: 'Withdraw', de: 'Auszahlung', ja: '出金', ko: '출금', es: 'Retirar', it: 'Preleva', vi: 'Rút tiền', fr: 'Retirer' })}
                       </span>
                       <time className="merchant-wallet-row-date" dateTime={w.createdAt}>
                         {formatRecordDate(w.createdAt, lang)}
@@ -601,7 +601,7 @@ const MerchantWallet: React.FC = () => {
                           className="merchant-wallet-copy-btn"
                           onClick={() => copyText(w.address)}
                         >
-                          {tr(lang, { zh: '复制', en: 'Copy', de: 'Kopieren', ja: 'コピー', ko: '복사', es: 'Copiar', it: 'Copia', vi: 'Sao chép' })}
+                          {tr(lang, { zh: '复制', en: 'Copy', de: 'Kopieren', ja: 'コピー', ko: '복사', es: 'Copiar', it: 'Copia', vi: 'Sao chép', fr: 'Copie' })}
                         </button>
                       </div>
                     )}
@@ -613,12 +613,12 @@ const MerchantWallet: React.FC = () => {
                 <table className="merchant-wallet-table">
                   <thead>
                     <tr>
-                      <th>{tr(lang, { zh: '日期', en: 'Date', de: 'Datum', ja: '日付', ko: '날짜', es: 'Fecha', it: 'Data', vi: 'Ngày' })}</th>
-                      <th>{tr(lang, { zh: '订单号', en: 'Order No.', de: 'Bestellnr.', ja: '注文番号', ko: '주문 번호', es: 'N.º de pedido', it: 'N. ordine', vi: 'Mã đơn hàng' })}</th>
-                      <th>{tr(lang, { zh: '金额', en: 'Amount', de: 'Betrag', ja: '金額', ko: '금액', es: 'Importe', it: 'Importo', vi: 'Số tiền' })}</th>
-                      <th>{tr(lang, { zh: '协议', en: 'Protocol', de: 'Protokoll', ja: 'プロトコル', ko: '프로토콜', es: 'Protocolo', it: 'Protocollo', vi: 'Giao thức' })}</th>
-                      <th>{tr(lang, { zh: '地址', en: 'Address', de: 'Adresse', ja: 'アドレス', ko: '주소', es: 'Dirección', it: 'Indirizzo', vi: 'Địa chỉ' })}</th>
-                      <th>{tr(lang, { zh: '状态', en: 'Status', de: 'Status', ja: 'ステータス', ko: '상태', es: 'Estado', it: 'Stato', vi: 'Trạng thái' })}</th>
+                      <th>{tr(lang, { zh: '日期', en: 'Date', de: 'Datum', ja: '日付', ko: '날짜', es: 'Fecha', it: 'Data', vi: 'Ngày', fr: 'Date' })}</th>
+                      <th>{tr(lang, { zh: '订单号', en: 'Order No.', de: 'Bestellnr.', ja: '注文番号', ko: '주문 번호', es: 'N.º de pedido', it: 'N. ordine', vi: 'Mã đơn hàng', fr: 'Numéro de commande' })}</th>
+                      <th>{tr(lang, { zh: '金额', en: 'Amount', de: 'Betrag', ja: '金額', ko: '금액', es: 'Importe', it: 'Importo', vi: 'Số tiền', fr: 'Montant' })}</th>
+                      <th>{tr(lang, { zh: '协议', en: 'Protocol', de: 'Protokoll', ja: 'プロトコル', ko: '프로토콜', es: 'Protocolo', it: 'Protocollo', vi: 'Giao thức', fr: 'Protocole' })}</th>
+                      <th>{tr(lang, { zh: '地址', en: 'Address', de: 'Adresse', ja: 'アドレス', ko: '주소', es: 'Dirección', it: 'Indirizzo', vi: 'Địa chỉ', fr: 'Adresse' })}</th>
+                      <th>{tr(lang, { zh: '状态', en: 'Status', de: 'Status', ja: 'ステータス', ko: '상태', es: 'Estado', it: 'Stato', vi: 'Trạng thái', fr: 'Statut' })}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -630,7 +630,7 @@ const MerchantWallet: React.FC = () => {
                             type="button"
                             className="merchant-wallet-copyable"
                             onClick={() => copyText(w.orderNo)}
-                            title={tr(lang, { zh: '复制订单号', en: 'Copy order no.', de: 'Bestellnr. kopieren', ja: '注文番号をコピー', ko: '주문 번호 복사', es: 'Copiar n.º de pedido', it: 'Copia n. ordine', vi: 'Sao chép mã đơn' })}
+                            title={tr(lang, { zh: '复制订单号', en: 'Copy order no.', de: 'Bestellnr. kopieren', ja: '注文番号をコピー', ko: '주문 번호 복사', es: 'Copiar n.º de pedido', it: 'Copia n. ordine', vi: 'Sao chép mã đơn', fr: 'Copier le numéro de commande.' })}
                           >
                             {w.orderNo}
                           </button>
@@ -651,7 +651,7 @@ const MerchantWallet: React.FC = () => {
                                 type="button"
                                 className="merchant-wallet-copy-btn merchant-wallet-copy-btn--icon"
                                 onClick={() => copyText(w.address)}
-                                aria-label={tr(lang, { zh: '复制地址', en: 'Copy address', de: 'Adresse kopieren', ja: 'アドレスをコピー', ko: '주소 복사', es: 'Copiar dirección', it: 'Copia indirizzo', vi: 'Sao chép địa chỉ' })}
+                                aria-label={tr(lang, { zh: '复制地址', en: 'Copy address', de: 'Adresse kopieren', ja: 'アドレスをコピー', ko: '주소 복사', es: 'Copiar dirección', it: 'Copia indirizzo', vi: 'Sao chép địa chỉ', fr: 'Copier l\'adresse' })}
                               >
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                   <rect x="9" y="9" width="13" height="13" rx="2" />

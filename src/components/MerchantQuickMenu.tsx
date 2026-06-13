@@ -26,6 +26,7 @@ const QUICK_LINKS: {
   labelEs: string
   labelIt: string
   labelVi: string
+  labelFr: string
   descZh: string
   descEn: string
   descDe: string
@@ -47,6 +48,7 @@ const QUICK_LINKS: {
     labelEs: 'Finanzas',
     labelIt: 'Finanze',
     labelVi: 'Tài chính',
+    labelFr: 'Finances',
     descZh: '收支明细与对账',
     descEn: 'Revenue & reconciliation',
     descDe: 'Einnahmen & Abstimmung',
@@ -68,6 +70,7 @@ const QUICK_LINKS: {
     labelEs: 'Plan de crecimiento',
     labelIt: 'Piano di crescita',
     labelVi: 'Kế hoạch tăng trưởng',
+    labelFr: 'Plan de croissance',
     descZh: '推广投放与增长',
     descEn: 'Promotion & growth',
     descDe: 'Werbung & Wachstum',
@@ -89,6 +92,7 @@ const QUICK_LINKS: {
     labelEs: 'Cartera',
     labelIt: 'Portafoglio',
     labelVi: 'Ví',
+    labelFr: 'Portefeuille',
     descZh: '充值、提现与余额',
     descEn: 'Balance, top-up & withdraw',
     descDe: 'Guthaben, Aufladen & Auszahlung',
@@ -136,7 +140,7 @@ const MerchantQuickMenu: React.FC<MerchantQuickMenuProps> = ({ open, onClose }) 
       className="mc-quick-menu-overlay"
       role="dialog"
       aria-modal="true"
-      aria-label={tr(lang, { zh: '快捷菜单', en: 'Quick menu', de: 'Schnellmenü', ja: 'クイックメニュー', ko: '빠른 메뉴', es: 'Menú rápido', it: 'Menu rapido', vi: 'Menu nhanh' })}
+      aria-label={tr(lang, { zh: '快捷菜单', en: 'Quick menu', de: 'Schnellmenü', ja: 'クイックメニュー', ko: '빠른 메뉴', es: 'Menú rápido', it: 'Menu rapido', vi: 'Menu nhanh', fr: 'Menu rapide' })}
       onClick={onClose}
     >
       <div className="mc-quick-menu-panel" onClick={(e) => e.stopPropagation()}>
@@ -144,16 +148,16 @@ const MerchantQuickMenu: React.FC<MerchantQuickMenuProps> = ({ open, onClose }) 
         <div className="mc-quick-menu-head">
           <div className="mc-quick-menu-head-copy">
             <h2 className="mc-quick-menu-title">
-              {tr(lang, { zh: '快捷入口', en: 'Quick actions', de: 'Schnellzugriff', ja: 'クイックアクセス', ko: '빠른 실행', es: 'Accesos rápidos', it: 'Azioni rapide', vi: 'Thao tác nhanh' })}
+              {tr(lang, { zh: '快捷入口', en: 'Quick actions', de: 'Schnellzugriff', ja: 'クイックアクセス', ko: '빠른 실행', es: 'Accesos rápidos', it: 'Azioni rapide', vi: 'Thao tác nhanh', fr: 'Actions rapides' })}
             </h2>
             <p className="mc-quick-menu-subtitle">
-              {tr(lang, { zh: '常用功能，一键直达', en: 'Jump to frequently used tools', de: 'Häufig genutzte Funktionen', ja: 'よく使う機能へワンタップ', ko: '자주 쓰는 기능, 원터치 이동', es: 'Accede a las herramientas más usadas', it: 'Accedi rapidamente agli strumenti più usati', vi: 'Truy cập nhanh các công cụ thường dùng' })}
+              {tr(lang, { zh: '常用功能，一键直达', en: 'Jump to frequently used tools', de: 'Häufig genutzte Funktionen', ja: 'よく使う機能へワンタップ', ko: '자주 쓰는 기능, 원터치 이동', es: 'Accede a las herramientas más usadas', it: 'Accedi rapidamente agli strumenti più usati', vi: 'Truy cập nhanh các công cụ thường dùng', fr: 'Accédez aux outils fréquemment utilisés' })}
             </p>
           </div>
           <button
             type="button"
             className="mc-quick-menu-close"
-            aria-label={tr(lang, { zh: '关闭', en: 'Close', de: 'Schließen', ja: '閉じる', ko: '닫기', es: 'Cerrar', it: 'Chiudi', vi: 'Đóng' })}
+            aria-label={tr(lang, { zh: '关闭', en: 'Close', de: 'Schließen', ja: '閉じる', ko: '닫기', es: 'Cerrar', it: 'Chiudi', vi: 'Đóng', fr: 'Fermer' })}
             onClick={onClose}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -217,10 +221,10 @@ const MerchantQuickMenu: React.FC<MerchantQuickMenuProps> = ({ open, onClose }) 
             </span>
             <span className="mc-quick-menu-row-copy">
               <span className="mc-quick-menu-row-title">
-                {tr(lang, { zh: '在线客服', en: 'Support', de: 'Support', ja: 'オンラインサポート', ko: '온라인 고객센터', es: 'Soporte', it: 'Assistenza', vi: 'Hỗ trợ' })}
+                {tr(lang, { zh: '在线客服', en: 'Support', de: 'Support', ja: 'オンラインサポート', ko: '온라인 고객센터', es: 'Soporte', it: 'Assistenza', vi: 'Hỗ trợ', fr: 'Assistance' })}
               </span>
               <span className="mc-quick-menu-row-desc">
-                {tr(lang, { zh: '联系平台客服', en: 'Chat with our team', de: 'Mit unserem Team chatten', ja: 'プラットフォームサポートに連絡', ko: '플랫폼 고객센터 문의', es: 'Chatea con nuestro equipo', it: 'Chatta con il nostro team', vi: 'Trò chuyện với đội ngũ hỗ trợ' })}
+                {tr(lang, { zh: '联系平台客服', en: 'Chat with our team', de: 'Mit unserem Team chatten', ja: 'プラットフォームサポートに連絡', ko: '플랫폼 고객센터 문의', es: 'Chatea con nuestro equipo', it: 'Chatta con il nostro team', vi: 'Trò chuyện với đội ngũ hỗ trợ', fr: 'Discutez avec notre équipe' })}
               </span>
             </span>
             <QuickMenuChevron />

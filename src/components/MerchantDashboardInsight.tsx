@@ -80,7 +80,7 @@ export default function MerchantDashboardInsight({
         type="button"
         className="merchant-dashboard-insight-close"
         onClick={dismiss}
-        aria-label={tr(lang, { zh: '关闭智能摘要', en: 'Dismiss smart insight', de: 'Intelligente Zusammenfassung schließen', ja: 'スマートサマリーを閉じる', ko: '스마트 요약 닫기', es: 'Cerrar resumen inteligente', it: 'Chiudi riepilogo intelligente', vi: 'Đóng tóm tắt thông minh' })}
+        aria-label={tr(lang, { zh: '关闭智能摘要', en: 'Dismiss smart insight', de: 'Intelligente Zusammenfassung schließen', ja: 'スマートサマリーを閉じる', ko: '스마트 요약 닫기', es: 'Cerrar resumen inteligente', it: 'Chiudi riepilogo intelligente', vi: 'Đóng tóm tắt thông minh', fr: 'Ignorer les informations intelligentes' })}
       >
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
           <path
