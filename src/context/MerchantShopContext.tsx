@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { api } from '../api/client'
+import { subscribeMerchantSync } from '../sync/merchantSyncBus'
 
 export type ShopStatus = 'normal' | 'banned'
 
@@ -29,8 +30,6 @@ interface MerchantShopContextValue {
 }
 
 const MerchantShopContext = createContext<MerchantShopContextValue | undefined>(undefined)
-
-const SHOP_STATUS_POLL_MS = 60_000
 
 function readAuthShopId(): string | null {
   try {
@@ -118,10 +117,10 @@ export const MerchantShopProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [fetchShop])
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      fetchShop(true)
-    }, SHOP_STATUS_POLL_MS)
-    return () => window.clearInterval(timer)
+    const unsub = subscribeMerchantSync(['shop', 'all'], () => {
+      void fetchShop(true)
+    })
+    return unsub
   }, [fetchShop])
 
   const isBanned = shop?.status === 'banned'

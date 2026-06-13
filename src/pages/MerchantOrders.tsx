@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { api } from '../api/client'
 import { useToast } from '../components/ToastProvider'
 import { useLang } from '../context/LangContext'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import MerchantDashboardInsight from '../components/MerchantDashboardInsight'
 import MerchantOrderStatusTabIcon, {
   type MerchantOrderTabStatus,
@@ -453,25 +454,9 @@ const MerchantOrders: React.FC = () => {
     }
   }, [loadOrders])
 
-  // 页面重新可见时立即拉取一次
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && getAuthShopId()) loadOrders('silent')
-    }
-    if (typeof document !== 'undefined' && document.addEventListener) {
-      document.addEventListener('visibilitychange', onVisibilityChange)
-      return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-    }
-  }, [loadOrders])
-
-  // 定时轮询：后台修改状态后店铺端无需操作即可在数秒内看到更新
-  useEffect(() => {
-    if (!getAuthShopId()) return
-    const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') loadOrders('silent')
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [loadOrders])
+  useMerchantSync(['orders', 'all'], () => {
+    if (getAuthShopId()) loadOrders('silent')
+  }, { immediate: false })
 
   const orderList = useMemo(
     () =>

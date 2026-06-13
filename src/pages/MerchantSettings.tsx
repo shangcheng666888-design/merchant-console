@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import { useMerchantShop } from '../context/MerchantShopContext'
 import { useToast } from '../components/ToastProvider'
 import { openCrispChat } from '../utils/crispChat'
@@ -214,18 +215,51 @@ const MerchantSettings: React.FC = () => {
     }
 
     fetchShop(!hadCache)
-
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') fetchShop()
-    }
-    document.addEventListener('visibilitychange', onVisible)
-    const timer = window.setInterval(() => fetchShop(), 5000)
     return () => {
       cancelled = true
-      document.removeEventListener('visibilitychange', onVisible)
-      window.clearInterval(timer)
     }
   }, [auth?.shopId])
+
+  useMerchantSync(['shop', 'all'], () => {
+    if (!auth?.shopId) return
+    const cacheKey = `merchantSettings:${auth.shopId}`
+    if (fetchingShopRef.current) return
+    fetchingShopRef.current = true
+    api
+      .get<ShopBasic>(`/api/shops/${encodeURIComponent(auth.shopId)}`)
+      .then((res) => {
+        const nextLogo = (res as ShopBasic).logo ?? null
+        const nextBanner = (res as ShopBasic).banner ?? null
+        const nextAddress = (res as ShopBasic).address ?? ''
+        const nextCountry = (res as ShopBasic).country ?? ''
+        setLogoUrl(nextLogo)
+        setBannerUrl(nextBanner)
+        setSavedAddress(nextAddress)
+        setSavedCountry(nextCountry)
+        try {
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(
+              cacheKey,
+              JSON.stringify({
+                logo: nextLogo,
+                banner: nextBanner,
+                address: nextAddress,
+                country: nextCountry,
+              }),
+            )
+          }
+        } catch {
+          // ignore cache write error
+        }
+      })
+      .catch(() => {
+        // silent refresh keeps current preview
+      })
+      .finally(() => {
+        setLoadOk(true)
+        fetchingShopRef.current = false
+      })
+  }, { immediate: false })
 
   const restrictToSixDigits = (v: string) => v.replace(/\D/g, '').slice(0, 6)
 

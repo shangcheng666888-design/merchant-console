@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useToast } from '../components/ToastProvider'
 import { api } from '../api/client'
 import { getCategoryNameZh } from '../constants/categoryNameZh'
 import { useLang } from '../context/LangContext'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import warehouseHeaderIcon from '../assets/cangku.png'
 import warehouseTotalIcon from '../assets/shangpinzongshu.png'
 import warehouseOnIcon from '../assets/jinrixiaoshoue.png'
@@ -249,6 +250,7 @@ const MerchantWarehouse: React.FC = () => {
     action: 'list' | 'unlist' | 'delete' | 'recommend' | 'unrecommend' | 'recommend_blocked'
   } | null>(null)
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const fetchSupplyRef = useRef<(silent?: boolean) => void>(() => {})
 
   const shopId = useMemo(() => getAuthShopId(), [])
 
@@ -464,21 +466,9 @@ const MerchantWarehouse: React.FC = () => {
     loadMineProducts()
   }, [tab, shopId])
 
-  // 「我的商品」：切回页面时刷新 + 短间隔轮询，保证数据实时
-  useEffect(() => {
-    if (tab !== 'mine' || !shopId) return
-    const onVisible = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') loadMineProducts()
-    }
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', onVisible)
-    }
-    const timer = window.setInterval(loadMineProducts, 5000)
-    return () => {
-      if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVisible)
-      window.clearInterval(timer)
-    }
-  }, [tab, shopId])
+  useMerchantSync(['warehouse', 'all'], () => {
+    if (tab === 'mine' && shopId) loadMineProducts()
+  }, { enabled: tab === 'mine' && !!shopId, immediate: false })
 
   // 记住最近一次采购筛选（分类 + 搜索），避免来回切页重选
   React.useEffect(() => {
@@ -631,23 +621,16 @@ const MerchantWarehouse: React.FC = () => {
     }
 
     // 首次进入或筛选变化时请求一次
+    fetchSupplyRef.current = fetchSupply
     fetchSupply(false)
-    // 切回页面时立即刷新
-    const onVisible = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') fetchSupply(true)
-    }
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', onVisible)
-    }
-    // 后台静默轮询，实时感知管理员上下架
-    const timer = window.setInterval(() => fetchSupply(true), 5000)
-
     return () => {
       cancelled = true
-      if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVisible)
-      window.clearInterval(timer)
     }
   }, [tab, procurePage, procureCategoryId, procureSearch, lang])
+
+  useMerchantSync(['warehouse', 'all'], () => {
+    if (tab === 'procure') fetchSupplyRef.current(true)
+  }, { enabled: tab === 'procure', immediate: false })
 
   const getCatalogImageIndex = (item: CatalogItem) => {
     const total = item.images.length

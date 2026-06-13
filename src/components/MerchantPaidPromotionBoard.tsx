@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { api } from '../api/client'
 import { useMerchantShop } from '../context/MerchantShopContext'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import { useToast } from './ToastProvider'
 import paidTiktok from '../assets/paid-tiktok.png'
 import paidMeta from '../assets/paid-meta.png'
@@ -578,14 +579,14 @@ const MerchantPaidPromotionBoard: React.FC<MerchantPaidPromotionBoardProps> = ({
       .catch(() => {
         /* use built-in defaults */
       })
-    const timer = window.setInterval(() => {
-      void Promise.all([fetchBoard(), fetchHistory()])
-    }, 8000)
     return () => {
       cancelled = true
-      window.clearInterval(timer)
     }
   }, [fetchBoard, fetchHistory, fetchProducts])
+
+  useMerchantSync(['promotion', 'dashboard', 'all'], () => {
+    void Promise.all([fetchBoard(), fetchHistory()])
+  }, { immediate: false })
 
   const saveTarget = async () => {
     const auth = readAuth()

@@ -7,6 +7,7 @@ import {
 } from '../components/MerchantWalletFlowIcons'
 import { MerchantSidebarNavIcon } from '../components/MerchantSidebarNavIcon'
 import { useToast } from '../components/ToastProvider'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import {
   formatRecordDate,
   STATUS_TEXT,
@@ -228,17 +229,11 @@ const MerchantWallet: React.FC = () => {
     const auth = readAuth()
     const hadCache = auth ? loadCache(auth.shopId) : false
     fetchWallet(hadCache)
-
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') fetchWallet()
-    }
-    document.addEventListener('visibilitychange', onVisible)
-    const timer = window.setInterval(() => fetchWallet(), 5000)
-    return () => {
-      document.removeEventListener('visibilitychange', onVisible)
-      window.clearInterval(timer)
-    }
   }, [fetchWallet, loadCache])
+
+  useMerchantSync(['wallet', 'finance', 'all'], () => {
+    fetchWallet(true)
+  }, { immediate: false })
 
   const pendingCount = useMemo(
     () =>

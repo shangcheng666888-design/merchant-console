@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
 import { useMerchantShop } from '../context/MerchantShopContext'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import { MerchantDashboardCharts } from './MerchantDashboardCharts'
 import MerchantDashboardCommandHero from '../components/MerchantDashboardCommandHero'
 import { MerchantDashboardOverview } from '../components/MerchantDashboardOverview'
@@ -94,6 +95,7 @@ const MerchantDashboard: React.FC = () => {
   const [activeChart, setActiveChart] = useState<'shop' | 'traffic' | 'orders'>('shop')
   const [dashboardMounted, setDashboardMounted] = useState(false)
   const [dashboardReady, setDashboardReady] = useState(false)
+  const fetchDashboardRef = useRef<() => void>(() => {})
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setDashboardMounted(true))
@@ -323,20 +325,15 @@ const MerchantDashboard: React.FC = () => {
       }
     }
 
+    fetchDashboardRef.current = () => {
+      void fetchDashboard()
+    }
     fetchDashboard()
-
-    const onVisible = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') fetchDashboard()
-    }
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', onVisible)
-    }
-    const timer = window.setInterval(fetchDashboard, 5000)
-    return () => {
-      if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVisible)
-      window.clearInterval(timer)
-    }
   }, [])
+
+  useMerchantSync(['dashboard', 'all'], () => {
+    fetchDashboardRef.current()
+  }, { immediate: false })
 
   const formatXAxisLabel = (value: string | number): string => {
     const v = String(value)

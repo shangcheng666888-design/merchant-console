@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api/client'
+import { useMerchantSync } from './useMerchantSync'
 
 export interface MerchantDashboardBrief {
   pendingOrders: number
@@ -68,10 +69,10 @@ export function useMerchantDashboardBrief(enabled: boolean): MerchantDashboardBr
 
   useEffect(() => {
     if (!enabled) return
-    refresh()
-    const timer = window.setInterval(refresh, 15000)
-    return () => window.clearInterval(timer)
+    void refresh()
   }, [enabled, refresh])
+
+  useMerchantSync(['dashboard', 'all'], () => refresh(), { enabled, immediate: false })
 
   return brief
 }

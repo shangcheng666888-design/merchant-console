@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 import { api } from '../api/client'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import WalletPaymentBadges from '../components/WalletPaymentBadges'
 import { useLang } from '../context/LangContext'
 import { MerchantWithdrawFlowIcon } from '../components/MerchantWalletFlowIcons'
@@ -21,32 +22,30 @@ const MerchantWalletWithdraw: React.FC = () => {
   const [tradePwdModalOpen, setTradePwdModalOpen] = useState(false)
   const [tradePwd, setTradePwd] = useState('')
 
-  React.useEffect(() => {
-    let cancelled = false
-    const fetchBalance = async () => {
-      try {
-        const raw = window.localStorage.getItem('authUser')
-        if (!raw) return
-        const auth = JSON.parse(raw) as { shopId?: string }
-        const shopId = typeof auth.shopId === 'string' ? auth.shopId : ''
-        if (!shopId) return
-        const res = await api.get<{ list: Array<{ id: string; walletBalance?: number }> }>(
-          `/api/shops?shop=${encodeURIComponent(shopId)}`
-        )
-        if (cancelled) return
-        const next = Number(res.list?.[0]?.walletBalance ?? 0)
-        setBalance(Number.isFinite(next) ? next : 0)
-      } catch {
-        if (!cancelled) setBalance(0)
-      }
-    }
-    fetchBalance()
-    const timer = window.setInterval(fetchBalance, 5000)
-    return () => {
-      cancelled = true
-      window.clearInterval(timer)
+  const fetchBalance = useCallback(async () => {
+    try {
+      const raw = window.localStorage.getItem('authUser')
+      if (!raw) return
+      const auth = JSON.parse(raw) as { shopId?: string }
+      const shopId = typeof auth.shopId === 'string' ? auth.shopId : ''
+      if (!shopId) return
+      const res = await api.get<{ list: Array<{ id: string; walletBalance?: number }> }>(
+        `/api/shops?shop=${encodeURIComponent(shopId)}`,
+      )
+      const next = Number(res.list?.[0]?.walletBalance ?? 0)
+      setBalance(Number.isFinite(next) ? next : 0)
+    } catch {
+      setBalance(0)
     }
   }, [])
+
+  useEffect(() => {
+    void fetchBalance()
+  }, [fetchBalance])
+
+  useMerchantSync(['wallet', 'all'], () => {
+    void fetchBalance()
+  }, { immediate: false })
 
   const amountNum = parseFloat(amount)
   const isAmountFilled = amount.trim() !== '' && !Number.isNaN(amountNum) && amountNum > 0

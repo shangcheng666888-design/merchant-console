@@ -7,6 +7,7 @@ import { MerchantNavIcon } from './MerchantNavIcon'
 import ShopBanScreen from './ShopBanScreen'
 import { openCrispChat } from '../utils/crispChat'
 import { MerchantShopProvider, useMerchantShop } from '../context/MerchantShopContext'
+import { MerchantSyncProvider } from '../context/MerchantSyncContext'
 import { useLang } from '../context/LangContext'
 import { useMerchantDashboardBrief } from '../hooks/useMerchantDashboardBrief'
 import dianpu1 from '../assets/dianpu1.png'
@@ -429,9 +430,11 @@ const MerchantBackendLayoutInner: React.FC = () => {
 }
 
 const MerchantBackendLayout: React.FC = () => (
-  <MerchantShopProvider>
-    <MerchantBackendLayoutInner />
-  </MerchantShopProvider>
+  <MerchantSyncProvider>
+    <MerchantShopProvider>
+      <MerchantBackendLayoutInner />
+    </MerchantShopProvider>
+  </MerchantSyncProvider>
 )
 
 export default MerchantBackendLayout

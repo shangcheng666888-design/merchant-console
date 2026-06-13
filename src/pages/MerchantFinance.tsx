@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useLang } from '../context/LangContext'
+import { useMerchantSync } from '../hooks/useMerchantSync'
 import caiwubaogao from '../assets/caiwubaogao.png'
 import {
   MerchantRechargeFlowIcon,
@@ -193,6 +194,10 @@ const MerchantFinance: React.FC = () => {
       fetchFinance(false)
     }
   }, [fetchFinance, range])
+
+  useMerchantSync(['finance', 'wallet', 'all'], () => {
+    void fetchFinance(true)
+  }, { immediate: false })
 
   const typeCounts = useMemo(() => {
     const counts: Record<TypeFilter, number> = {
