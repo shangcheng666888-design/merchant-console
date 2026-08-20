@@ -56,7 +56,7 @@ const STATUS_LABEL_MAP: Record<OrderStatus, { zh: string; en: string; de: string
   returned: { zh: '已退货', en: 'Returned', de: 'Zurückgegeben', ja: '返品済み', ko: '반품 완료', es: 'Devuelto', it: 'Reso effettuato', vi: 'Đã trả hàng', fr: 'Retourné' },
   refund_pending: { zh: '正在退款', en: 'Refund in progress', de: 'Erstattung läuft', ja: '返金処理中', ko: '환불 처리 중', es: 'Reembolso en proceso', it: 'Rimborso in corso', vi: 'Đang hoàn tiền', fr: 'Remboursement en cours' },
   refunded: { zh: '已退款', en: 'Refunded', de: 'Erstattet', ja: '返金済み', ko: '환불 완료', es: 'Reembolsado', it: 'Rimborsato', vi: 'Đã hoàn tiền', fr: 'Remboursé' },
-  cancelled: { zh: '已取消', en: 'Cancelled', de: 'Storniert', ja: 'キャンセル済み', ko: '취소됨', es: 'Cancelado', it: 'Annullato', vi: 'Đã hủy', fr: 'Annulé' },
+  cancelled: { zh: '已超时', en: 'Timed out', de: 'Abgelaufen', ja: '期限切れ', ko: '시간 초과', es: 'Expirado', it: 'Scaduto', vi: 'Đã hết hạn', fr: 'Expiré' },
 }
 
 function getStatusTabLabel(status: OrderStatus, lang: Lang): string {
